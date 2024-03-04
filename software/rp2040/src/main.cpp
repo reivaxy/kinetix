@@ -46,7 +46,7 @@ void setup() {
 
 void loop()
 {
-  if(millis() - start > 300) {
+  if(millis() - start > 500) {
     start = millis();
     if (isClosed) {
       hand->open(finger);
