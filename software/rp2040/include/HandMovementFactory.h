@@ -9,7 +9,7 @@ public:
 
    HandMovement* fist();
    HandMovement* ok();
-   HandMovement* one(boolean silent = false);
+   HandMovement* one(String name = "One");
    HandMovement* two();
    HandMovement* three();
    HandMovement* four();
@@ -17,7 +17,8 @@ public:
    HandMovement* closePinch();
    HandMovement* openPinch();
    HandMovement* idle();
-   HandMovement* point();
+   HandMovement* pointing();
+   HandMovement* fu();
    
    Hand *hand;
 };

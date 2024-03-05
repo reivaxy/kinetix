@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-#define DEFAULT_STEP 0.0045
+#define DEFAULT_STEP 0.0060
 
 
 class FingerMovement {

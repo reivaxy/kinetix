@@ -2,6 +2,7 @@
 #include <FastLED.h>
 #include "Hand.h"
 #include "HandMovementFactory.h"
+#include "Sequence.h"
 
 // How many leds in your strip?
 #define NUM_LEDS 1
@@ -23,16 +24,16 @@ bool isClosed = true;
 
 HandMovementFactory *hmf = NULL;
 HandMovement *hm = NULL;
-uint count = 0;
+Sequence *seq = NULL;
 
 void setup() {
-  Serial.begin(115200);
-  Serial.println("started");
   FastLED.addLeds<WS2812 , DATA_PIN, RGB>(leds, NUM_LEDS); 
   FastLED.setBrightness(5);
-
   leds[0] = CRGB::Blue;
   FastLED.show();
+  Serial.begin(115200);
+  Serial.println("started");
+
   delay(1000);
   leds[0] = CRGB::White;
   FastLED.show();
@@ -40,60 +41,30 @@ void setup() {
   leds[0] = CRGB::Red;
   FastLED.show();
   delay(500);
+  leds[0] = CRGB::Green;
+  FastLED.show();
 
   start = millis();
   isClosed = true;
   hand = new Hand();
   hmf = new HandMovementFactory(hand);
-  leds[0] = CRGB::Green;
-  FastLED.show();
+  seq = new Sequence(3); // 0 is repeat forever
+  seq->addMovement(hmf->fist());
+  seq->addMovement(hmf->one());
+  seq->addMovement(hmf->two());
+  seq->addMovement(hmf->three());
+  seq->addMovement(hmf->four());
+  seq->addMovement(hmf->idle(), 5000);
+  seq->addMovement(hmf->fu());
+  seq->addMovement(hmf->openPinch());
+  seq->addMovement(hmf->ok());
+  seq->addMovement(hmf->pointing());
+  seq->addMovement(hmf->closePinch());
+
+  seq->start();
 
 }
 
 void loop() {
-  uint32_t elapsed = millis() - start;
-  if (elapsed > 3000) {
-    delete hm;
-    switch(count) {
-     case 0:
-      hm = hmf->one();
-      hm->start();
-      leds[0] = CRGB::DarkBlue;
-      break;
-     case 1:
-      hm = hmf->two();
-      hm->start();
-      leds[0] = CRGB::DarkOrange;
-      break;
-     case 2:
-      hm = hmf->three();
-      hm->start();
-      leds[0] = CRGB::Yellow;
-      break;
-     case 3:
-      hm = hmf->four();
-      hm->start();
-      leds[0] = CRGB::DeepPink;
-      break;
-     case 4:
-      hm = hmf->idle();
-      hm->start();
-      leds[0] = CRGB::MediumPurple;
-      break;
-    case 5:  
-      hm = hmf->openPinch();
-      hm->start();
-      leds[0] = CRGB::Red;
-      count = -1;
-      break;
-    }
-    FastLED.show();
-    start = millis();
-    count ++;    
-  }
-
-  if (hm != NULL) {
-    hm->run();
-  }
-
+  seq->run();
 }

@@ -8,13 +8,14 @@
 
 class HandMovement {
 public:  
-   HandMovement(Hand *_hand);
+   HandMovement(Hand *_hand, String _name = "default");
    void start();
    void run();
    void stop();
    boolean isFinished();
 
    Hand *hand = NULL;
+   String name;
    FingerMovement *fingerMovement[5];
 
    uint32_t startedAt = 0;
