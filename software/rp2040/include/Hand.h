@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include "Finger.h"
+#include "FingerMovement.h"
 
 /*
  *   6, 28 is 180°, but thumb pulley expects 120°
@@ -35,16 +36,20 @@ public:
 
    Finger *fingers[5]; // 0 is thumb
    void close();
-   void close(int finger);
+   void close(uint finger);
 
    void open();
-   void open(int finger);
+   void open(uint finger);
 
    bool isStill();
-   bool isStill(int finger);
+   bool isStill(uint finger);
 
    void setStep(float step);
    void setStep(int finger, float step);
 
+   void setFinger(uint finger, FingerMovement *fingerMovement);
    void run();
+   void run(uint finger);
+   void stop();
+   void stop(uint finger);
 };

@@ -11,35 +11,39 @@ Hand::Hand() {
 }
 
 void Hand::close() {
-   for (int i=0 ; i < 5; i++) {
+   for (uint i=0 ; i < 5; i++) {
       close(i);
    }
 }
 
-void Hand::close(int finger) {
+void Hand::close(uint finger) {
    // Serial.println("Closing finger");
    fingers[finger]->close();
 }
 
 void Hand::open() {
-   for (int i=0 ; i < 5; i++) {
+   for (uint i=0 ; i < 5; i++) {
       open(i);
    }
 }
 
-void Hand::open(int finger) {
+void Hand::open(uint finger) {
    // Serial.println("Opening finger");
    fingers[finger]->open();
 }
 
 void Hand::run() {
-   for (int i=0 ; i < 5; i++) {
+   for (uint i=0 ; i < 5; i++) {
       fingers[i]->run();
    }
 }
 
+void Hand::run(uint finger) {
+   fingers[finger]->run();
+}
+
 void Hand::setStep(float step) {
-   for (int i=0 ; i < 5; i++) {
+   for (uint i=0 ; i < 5; i++) {
       setStep(i, step);
    }
 }
@@ -49,12 +53,26 @@ void Hand::setStep(int finger, float step) {
 
 bool Hand::isStill() {
    bool result = true;
-   for (int i=0 ; i < 5; i++) {
+   for (uint i=0 ; i < 5; i++) {
       result = result && isStill(i);
    }   
    return result;
 }
 
-bool Hand::isStill(int finger) {
+bool Hand::isStill(uint finger) {
    return fingers[finger]->isStill();
+}
+
+void Hand::setFinger(uint finger, FingerMovement *fingerMovement) {
+   fingers[finger]->setMovement(fingerMovement);
+}
+
+void Hand::stop(uint finger) {
+   fingers[finger]->stop();
+}
+
+void Hand::stop() {
+   for (uint finger=0 ; finger < 5; finger++) {
+      fingers[finger]->stop();
+   }
 }

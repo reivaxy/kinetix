@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <FastLED.h>
 #include "Hand.h"
+#include "HandMovementFactory.h"
 
 // How many leds in your strip?
 #define NUM_LEDS 1
@@ -19,16 +20,20 @@ Hand *hand = NULL;
 int start = 0;
 int finger = 0;
 bool isClosed = true;
-int count = 0;
+
+HandMovementFactory *hmf = NULL;
+HandMovement *hm = NULL;
+uint count = 0;
 
 void setup() {
-  // Serial.begin(115200);
-  // while (!Serial && millis() < 10000UL);
-  // Serial.println("started");
+  Serial.begin(115200);
+  Serial.println("started");
   FastLED.addLeds<WS2812 , DATA_PIN, RGB>(leds, NUM_LEDS); 
+  FastLED.setBrightness(5);
+
   leds[0] = CRGB::Blue;
   FastLED.show();
-  delay(500);
+  delay(1000);
   leds[0] = CRGB::White;
   FastLED.show();
   delay(500);
@@ -39,35 +44,56 @@ void setup() {
   start = millis();
   isClosed = true;
   hand = new Hand();
-  // Serial.println("Hand ready");
-  hand->open(); 
-  hand->close(finger); 
+  hmf = new HandMovementFactory(hand);
+  leds[0] = CRGB::Green;
+  FastLED.show();
+
 }
 
-void loop()
-{
-  if(millis() - start > 500) {
-    start = millis();
-    if (isClosed) {
-      hand->open(finger);
-      isClosed = false;
-      leds[0] = CRGB::Green;
-      FastLED.show();
-      if (count % 2 == 0) {
-        finger ++;
-        if (finger == 5) {
-          finger = 0;
-        }
-      }
-      count ++;
-    } else {
-      hand->close(finger);
-      isClosed = true;
+void loop() {
+  uint32_t elapsed = millis() - start;
+  if (elapsed > 3000) {
+    delete hm;
+    switch(count) {
+     case 0:
+      hm = hmf->one();
+      hm->start();
+      leds[0] = CRGB::DarkBlue;
+      break;
+     case 1:
+      hm = hmf->two();
+      hm->start();
+      leds[0] = CRGB::DarkOrange;
+      break;
+     case 2:
+      hm = hmf->three();
+      hm->start();
+      leds[0] = CRGB::Yellow;
+      break;
+     case 3:
+      hm = hmf->four();
+      hm->start();
+      leds[0] = CRGB::DeepPink;
+      break;
+     case 4:
+      hm = hmf->idle();
+      hm->start();
+      leds[0] = CRGB::MediumPurple;
+      break;
+    case 5:  
+      hm = hmf->openPinch();
+      hm->start();
       leds[0] = CRGB::Red;
-      FastLED.show();
-      count++;
+      count = -1;
+      break;
     }
+    FastLED.show();
+    start = millis();
+    count ++;    
   }
 
-  hand->run();
+  if (hm != NULL) {
+    hm->run();
+  }
+
 }

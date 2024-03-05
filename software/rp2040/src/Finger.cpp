@@ -19,6 +19,7 @@ Finger::Finger(int _pin, float _maxOpen, float _maxClosed) {
    PWMInstance = new RP2040_PWM(pin, frequency, maxOpen);
    if (PWMInstance) {
       PWMInstance->setPWM();
+      PWMInstance->enablePWM();
    }
   Serial.print(F("\nStarting PWM_DynamicDutyCycle on "));
   Serial.println(BOARD_NAME);
@@ -62,9 +63,20 @@ void Finger::run() {
 }
 
 void Finger::setStep(float _step) {
-   _step = step;
+   step = _step;
 }
 
 bool Finger::isStill() {
    return current == target;
+}
+
+void Finger::setMovement(FingerMovement *fingerMovement) {
+   target = maxOpen + (fingerMovement->relativeTargetPosition * (maxClosed- maxOpen) / 10) ;
+   // Serial.print("Target: ");
+   // Serial.println(target);
+   step = fingerMovement->step;
+}
+
+void Finger::stop() {
+   target = current;
 }

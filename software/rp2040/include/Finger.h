@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 #include "RP2040_PWM.h"
+#include "FingerMovement.h"
+
 
 class Finger {
 public:   
@@ -13,7 +15,9 @@ public:
    void close();
    void open();
    void run();
+   void stop();
    bool isStill();
+   void setMovement(FingerMovement *fingerMovement);
    
    RP2040_PWM* PWMInstance;
    int pin = 29;
@@ -23,5 +27,5 @@ public:
    float current = maxOpen;
    float target = maxOpen;
    float frequency = 100;
-   float step = 0.0030;
+   float step = DEFAULT_STEP;
 };
