@@ -1,3 +1,5 @@
+# Software
+
 Folder rp2040 contains preliminary tests with an early prototype on breadboard.
 
 Folder esp32 contains the actual software for the Seeed Studio XIAO ESP32S3
