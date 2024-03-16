@@ -27,3 +27,16 @@ Thumb is 1, index is 2, and so on.
 These markings are also present on the hand and platform to place the right servos with their pulleys, on the servo covers, and on the PCB terminals to correctly plug the servo to the right terminal.
 
 <img src="resources/fingerNumbering.png" width="512px"/>
+
+
+Knuckle sizes:
+
+Thumb (1): 1.1
+
+Index (2): 1.1 and 1
+
+Middle finger (3): 1.1 and 1.1
+
+Ring finger (4): 1 and 1
+
+Little finger (5): 1 and 0.9
