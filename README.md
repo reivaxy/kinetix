@@ -11,6 +11,11 @@ Please read this license to understand what you may and may not do with these fi
 https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 To me, the most important part of it is "non commercial": do not use this work to sell anything, in any way, no matter how derivative it is.
+
+This is very much a Work in Progress:
+- the current monitoring hasn't been tested yet
+- the blue tooth connectivity and phone app are not started yet
+- the software for esp32 is not available yet (soon)
                
 Here is the early prototype testing speed:
 
@@ -29,14 +34,4 @@ These markings are also present on the hand and platform to place the right serv
 <img src="resources/fingerNumbering.png" width="512px"/>
 
 
-Knuckle sizes:
 
-Thumb (1): 1.1
-
-Index (2): 1.1 and 1
-
-Middle finger (3): 1.1 and 1.1
-
-Ring finger (4): 1 and 1
-
-Little finger (5): 1 and 0.9
