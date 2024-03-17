@@ -1,37 +1,59 @@
 # KINETIX HAND
 
-
+```
 The 3D part of this work is based on the Kinetic Hand, created and released by Mat Bowtell:
 https://www.thingiverse.com/thing:4618922 
 
-The work in this repository is released under licence Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) open-source license
+The work in this repository is released under licence Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+ International (CC BY-NC-SA 4.0) open-source license
 
 Please read this license to understand what you may and may not do with these files (software and hardware):
 
 https://creativecommons.org/licenses/by-nc-sa/4.0/
 
-To me, the most important part of it is "non commercial": do not use this work to sell anything, in any way, no matter how derivative it is.
+To me, the most important part of it is "non commercial": do not use this work to sell anything, in any way, 
+no matter how derivative it is.
 
-This is very much a Work in Progress:
-- the current monitoring hasn't been tested yet
-- the blue tooth connectivity and phone app are not started yet
-- the software for esp32 is not available yet (soon)
-               
-Here is the early prototype testing speed:
+============================================ DISCLAIMER of liability ============================================ 
+ 
+This is not a medical device. You must not use it as a missing limb replacement without checking with medical 
+professionals if this is appropriate.
+
+Also, this is still a work in progress and should not be used until it has reached some level of completion and 
+testing.
+
+You build it and use it at your own risks.  
+=================================================================================================================
+```
+
+I've been a maker and board member of [the French e-Nable association](https://e-nable.fr/fr/) for a few years, and I've 
+worked on several 3D printed devices intended for people missing part of a hand or an arm.
+
+The most recent of these devices is the Kinetic hand, designed by Mat Bowtell, which is easy to print and assemble, with 
+a smoother and more natural look than older devices such as the Phoenix Unlimbited.
+
+These devices are muscle activated and require their user to still have a functional wrist or an elbow.
+So far I've only seen one low cost motor activated 3D printed device, the [Exii Hackberry](https://www.exiii-hackberry.com/). 
+It's a great device, but I found it somehow uneasy to print and assemble, it's still a bit expensive, and I thought
+more recent electronic components would allow going further.
+
+Which is why in 2023 I started to work on this project to combine both, new hand design, servo motors, and recent 
+electronic microcontroller to drive them. I've investigated several solutions and here is the most promising one.
+
+This is still very much a Work in Progress:
+- the current monitoring hasn't been tested yet, which means **for now the motors will not stop for obstacles and might 
+  hurt you** (although they don't have that much strength, better safe than sorry)
+- the bluetooth connectivity and phone app are not started yet
+- the software for esp32 is not available yet (comming soon)
+                                                      
+Like the Hackberry and unlike the Kinetic, due to tight mechanical constraints, the Kinetix can't be resized to fit smaller limbs.
+I have another project which might help with this, that is using only one big servo for all fingers, of course with
+very different capabilities and features.
+
+Here is the early prototype, testing speed:
 
 https://github.com/reivaxy/kinetix/assets/3592991/b644f965-3c86-4bcd-a1fd-c3cf471b4016
                                                                                                             
-Contrary to the original Kinetic hand, the Kinetix is not using TPU printed knuckles, because they put some strain on the servo motors which, being small, have then no strength left to hold anything.
 
-Instead I've replaced them with print in place hinges which require no effort to bend, but which won't unfold the finger like the TPU ones were doing. This is achieved by pulling a wire on top of each finger when the motor turns in reverse.
-
-The motors use double pulleys with different diameters, because the wires to fold the fingers and the ones to unfold the fingers do not have the same course. This also varies which is why each finger has its own double pulley, they should not be mixed up, so they have the finger number printed on them.
-
-Thumb is 1, index is 2, and so on. 
-
-These markings are also present on the hand and platform to place the right servos with their pulleys, on the servo covers, and on the PCB terminals to correctly plug the servo to the right terminal.
-
-<img src="resources/fingerNumbering.png" width="512px"/>
-
-
+Please check the [Wiki pages for printing and assembling instructions](https://github.com/reivaxy/kinetix/wiki)
 
