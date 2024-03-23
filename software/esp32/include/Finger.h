@@ -8,7 +8,7 @@
 
 class Finger {
 public:   
-   Finger(int pin, int maxOpen, int maxClosed, int direction);
+   Finger(int number, int controlPin, int monitorPin, int maxOpen, int maxClosed, int direction);
 
    void move(int to);
    void setStep(int step);
@@ -20,11 +20,14 @@ public:
    void setMovement(FingerMovement *fingerMovement);
    
    Servo myServo;
-   int pin = 29;
+
+   int number = 0;
+   int controlPin = D6;
+   int monitorPin = A0;
    int maxOpen = 0; 
    int maxClosed = 180;
 
-   int current = maxOpen;
+   int currentPosition = maxOpen;
    int target = maxOpen;
    int frequency = 100;
    int step = DEFAULT_STEP;

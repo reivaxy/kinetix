@@ -9,20 +9,21 @@
  * @param maxOpen 
  * @param maxClosed
  */
-Finger::Finger(int _pin, int _maxOpen, int _maxClosed, int _direction) {
-   pin = _pin;
+Finger::Finger(int _number, int _controlPin, int _monitorPin, int _maxOpen, int _maxClosed, int _direction) {
+   number = _number; // finger number, to help in logs
+   controlPin = _controlPin;
+   monitorPin = _monitorPin;
    direction = _direction;
    maxOpen = _maxOpen;
    maxClosed = _maxClosed;
    if (direction == 1) {
-      current = maxOpen; // At init
+      currentPosition = maxOpen; // At init
    } else {
-      current = maxClosed;
+      currentPosition = maxClosed;
    }
-   myServo.attach(pin, Servo::CHANNEL_NOT_ATTACHED, 0,
+   myServo.attach(controlPin, Servo::CHANNEL_NOT_ATTACHED, 0,
                180, Servo::DEFAULT_MIN_PULSE_WIDTH_US,
                Servo::DEFAULT_MAX_PULSE_WIDTH_US, frequency);
-  
 }
 
 void Finger::move(int to) {
@@ -41,29 +42,45 @@ void Finger::setStep(int _step) {
    step = _step;
 }
 void Finger::run() {
+   time_t r = millis() % 200;
+   if (number == 4 && r == 0) return;
    bool update = false;
    char msg[100];
-   // sprintf(msg, "Current %d, target %d\n", current, target);
+   // sprintf(msg, "Current pos %d, target %d\n", currentPosition, target);
    // Serial.print(msg);
 
-   if (current < target) {
-      current += step;
+   if (currentPosition < target) {
+      currentPosition += step;
       update = true;
    }
-   if (current > target) {
-      current -= step;
+   if (currentPosition > target) {
+      currentPosition -= step;
       update = true;
    }
 
+
    if (update) {
-      // sprintf(msg, "new %d\n", current);
-      // Serial.print(msg);
-      myServo.write(current);
+      
+      int current = analogRead(monitorPin);
+      // if (number == 4) {
+      //    sprintf(msg, "Current f%d: %d", number, current);
+      //    Serial.println(msg);
+      // }
+      if (current > 600) {
+         stop();
+         sprintf(msg, "Stopping f%d, current %d", number, current);
+         Serial.println(msg);      
+
+      } else {
+         myServo.write(currentPosition);    
+      }
+   
    }
+
 }
 
 bool Finger::isStill() {
-   return current == target;
+   return currentPosition == target;
 }
 
 /**
@@ -80,11 +97,12 @@ void Finger::setMovement(FingerMovement *fingerMovement) {
       target = map(fingerMovement->relativeTargetPosition, 0, 100, maxClosed, maxOpen);
       target = maxOpen - target + maxClosed;
    }
-   Serial.print("Target: ");
-   Serial.println(target);
+   char msg[20];
+   sprintf(msg, "Target f%d: %d", number, target);
+   Serial.println(msg);
    step = fingerMovement->step;
 }
 
 void Finger::stop() {
-   target = current;
+   target = currentPosition;
 }
