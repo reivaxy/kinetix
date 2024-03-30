@@ -42,10 +42,10 @@ Which is why in 2023 I started to work on this project to combine both new hand 
 electronic microcontroller to drive the servomotors. I've investigated several solutions and here is the most promising one.
 
 This is still very much a Work In Progress:
-- the onboard current monitoring hasn't been tested yet, which means **for now the motors will not stop for obstacles and might 
+- the onboard current monitoring is still being tested and tweaked, which means **for now the motors will not stop for obstacles and might 
   hurt you** (although they don't have that much strength, better safe than sorry)
 - the bluetooth connectivity and phone app are not started yet
-- the software for esp32 is not available yet (coming soon)
+
                                                       
 Like the Hackberry and unlike the Kinetic, due to tight mechanical constraints, the Kinetix can't be resized to fit smaller limbs.
 I have another project which might help with this, that is using only one big servo for all fingers, of course with
