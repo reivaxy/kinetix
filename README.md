@@ -41,6 +41,8 @@ more recent electronic components would allow going further.
 Which is why in 2023 I started to work on this project to combine both new hand design, and recent 
 electronic microcontroller to drive the servomotors. I've investigated several solutions and here is the most promising one.
 
+The cost is estimated around $60.
+
 This is still very much a Work In Progress:
 - the onboard current monitoring is still being tested and tweaked, which means **for now the motors will not stop for obstacles and might 
   hurt you** (although they don't have that much strength, better safe than sorry)
