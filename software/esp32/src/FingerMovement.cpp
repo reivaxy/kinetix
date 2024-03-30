@@ -13,7 +13,7 @@ FingerMovement::FingerMovement(int _relativeTargetPosition, uint32_t _startDelay
    step = DEFAULT_STEP;
 }
 
-FingerMovement::FingerMovement(int _relativeTargetPosition, uint32_t _startDelay, int _step) {
+FingerMovement::FingerMovement(int _relativeTargetPosition, uint32_t _startDelay, float _step) {
    relativeTargetPosition = _relativeTargetPosition;
    startDelay = _startDelay;
    step = _step;

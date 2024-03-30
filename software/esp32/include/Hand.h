@@ -1,5 +1,7 @@
 #pragma once
 #include <Arduino.h>
+#include <driver/adc.h>
+
 #include "Finger.h"
 #include "FingerMovement.h"
 
@@ -50,8 +52,8 @@ public:
    bool isStill();
    bool isStill(uint finger);
 
-   void setStep(int step);
-   void setStep(int finger, int step);
+   void setStep(float step);
+   void setStep(int finger, float step);
 
    void setFinger(uint finger, FingerMovement *fingerMovement);
    void run();

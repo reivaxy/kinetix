@@ -7,12 +7,12 @@
 
 class FingerMovement {
 public:  
-   FingerMovement(int relativeTargetPosition, uint32_t startDelay, int step);
+   FingerMovement(int relativeTargetPosition, uint32_t startDelay, float step);
    FingerMovement(int relativeTargetPosition, uint32_t startDelay);
    FingerMovement(int relativeTargetPosition);
 
    int relativeTargetPosition = 0; // Relative target position: 0 fully open, 10 = 100% fully closed
    uint32_t startDelay = 0;
-   int step = DEFAULT_STEP;
+   float step = DEFAULT_STEP;
 
 };

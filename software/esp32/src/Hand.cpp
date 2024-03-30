@@ -42,12 +42,12 @@ void Hand::run(uint finger) {
    fingers[finger]->run();
 }
 
-void Hand::setStep(int step) {
+void Hand::setStep(float step) {
    for (uint i=0 ; i < FINGER_COUNT; i++) {
       setStep(i, step);
    }
 }
-void Hand::setStep(int finger, int step) {
+void Hand::setStep(int finger, float step) {
    fingers[finger]->setStep(step);
 }
 

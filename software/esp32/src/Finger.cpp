@@ -12,7 +12,8 @@
 Finger::Finger(int _number, int _controlPin, int _monitorPin, int _maxOpen, int _maxClosed, int _direction) {
    number = _number; // finger number, to help in logs
    controlPin = _controlPin;
-   monitorPin = _monitorPin;
+   currentMonitor.setPin(_monitorPin);
+   
    direction = _direction;
    maxOpen = _maxOpen;
    maxClosed = _maxClosed;
@@ -38,54 +39,46 @@ void Finger::close() {
    move(maxClosed);
 }
 
-void Finger::setStep(int _step) {
+void Finger::setStep(float _step) {
    step = _step;
 }
 void Finger::run() {
-   time_t r = millis() % 200;
-   if (number == 4 && r == 0) return;
+   // time_t r = millis() % 10;
+   // if (r != 0) return;
    bool update = false;
    char msg[100];
-   // sprintf(msg, "Current pos %d, target %d\n", currentPosition, target);
-   // Serial.print(msg);
 
-   if (currentPosition < target) {
+   if (currentPosition + step  <= target) {
       currentPosition += step;
       update = true;
-   }
-   if (currentPosition > target) {
-      currentPosition -= step;
-      update = true;
-   }
-
-
-   if (update) {
-      
-      int current = analogRead(monitorPin);
-      // if (number == 4) {
-      //    sprintf(msg, "Current f%d: %d", number, current);
-      //    Serial.println(msg);
-      // }
-      if (current > 600) {
-         stop();
-         sprintf(msg, "Stopping f%d, current %d", number, current);
-         Serial.println(msg);      
-
-      } else {
-         myServo.write(currentPosition);    
+   } else {
+      if (currentPosition - step >= target) {
+         currentPosition -= step;
+         update = true;
       }
-   
+   }
+   int current = currentMonitor.getValue();
+   if (number == 4 && current > 200) {
+      sprintf(msg, "Stopping f%d, input: %d", number, current);
+      Serial.println(msg);      
+      stop();
+      update = false;
+   } 
+
+   if (update) {     
+      myServo.write(currentPosition);      
    }
 
 }
 
 bool Finger::isStill() {
-   return currentPosition == target;
+   return abs(currentPosition - target) <= step;
 }
 
 /**
- * @brief All fingers have a 1-255 course. Their actual servo positions were adjusted
- * with maxOpen and maxClosed at initialization.
+ * @brief fingers have a 0-180° course, except thumb which is 0-120 (per pulley diameters).
+ * Their actual servo positions were adjusted with maxOpen and maxClosed at initialization,
+ * especially to account for servos being mounted oposite to each others (fingers 2 & 4) 
  * But their relative positions are between 0 (fully open) and 100 (fully closed).
  * @param fingerMovement 
  */
