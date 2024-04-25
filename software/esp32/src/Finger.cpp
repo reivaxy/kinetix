@@ -58,12 +58,12 @@ void Finger::run() {
       }
    }
    int current = currentMonitor.getValue();
-   if (number == 4 && current > 200) {
-      sprintf(msg, "Stopping f%d, input: %d", number, current);
-      Serial.println(msg);      
-      stop();
-      update = false;
-   } 
+   // if (number == 4 && current > 200) {
+   //    sprintf(msg, "Stopping f%d, input: %d", number, current);
+   //    Serial.println(msg);      
+   //    stop();
+   //    update = false;
+   // } 
 
    if (update) {     
       myServo.write(currentPosition);      

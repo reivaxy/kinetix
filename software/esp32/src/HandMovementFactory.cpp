@@ -98,7 +98,7 @@ HandMovement* HandMovementFactory::openPinch() {
    HandMovement *handMovement = new HandMovement(hand, "Open pinch");
    // Thumb
    handMovement->fingerMovement[0] = new FingerMovement(90, 0);
-   handMovement->fingerMovement[1] = new FingerMovement(70, 0);
+   handMovement->fingerMovement[1] = new FingerMovement(80, 0);
    handMovement->fingerMovement[2] = new FingerMovement(0, 0);
    handMovement->fingerMovement[3] = new FingerMovement(0, 0);
    handMovement->fingerMovement[4] = new FingerMovement(0, 0);

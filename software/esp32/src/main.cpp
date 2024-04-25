@@ -29,42 +29,41 @@ void setup() {
   hmf = new HandMovementFactory(hand);
   seq = new Sequence(0); // 0 is repeat forever
 
-  // curm.setPin(ADC1_CHANNEL_0);
+  // curm.setPin(ADC1_CHANNEL_0);²
 
-  // seq->addMovement(hmf->fist(), 4000);
-  // seq->addMovement(hmf->idle(), 4000);
-  // seq->addMovement(hmf->one());
-  // seq->addMovement(hmf->two());
-  // seq->addMovement(hmf->three());
-  // seq->addMovement(hmf->four());
-  // seq->addMovement(hmf->five());
-  // seq->addMovement(hmf->fu(), 2000);
-  // seq->addMovement(hmf->openPinch());
-  // seq->addMovement(hmf->ok());
+  
+  seq->addMovement(hmf->openPinch(), 4000);
+  seq->addMovement(hmf->one());
+  seq->addMovement(hmf->two());
+  seq->addMovement(hmf->three());
+  seq->addMovement(hmf->four());
+  seq->addMovement(hmf->five());
   // seq->addMovement(hmf->pointing());
   // seq->addMovement(hmf->closePinch());
-  // seq->addMovement(hmf->idle(), 2000);
   
   // // Testing intermediate positions of each finger one at a time
-  int f = 4;
-  int tempo = 4000;
-  seq->addMovement(hmf->closeFingerBy(f, 0), tempo);
-  seq->addMovement(hmf->closeFingerBy(f, 20), tempo);  // 20% closed
-  seq->addMovement(hmf->closeFingerBy(f, 40), tempo);
-  seq->addMovement(hmf->closeFingerBy(f, 60), tempo);
-  seq->addMovement(hmf->closeFingerBy(f, 80), tempo);   // 80% closed...
-  seq->addMovement(hmf->closeFingerBy(f, 100), tempo);
+  // int f = 4;
+  // int tempo = 4000;
+  // seq->addMovement(hmf->closeFingerBy(f, 0), tempo);
+  // seq->addMovement(hmf->closeFingerBy(f, 20), tempo);  // 20% closed
+  // seq->addMovement(hmf->closeFingerBy(f, 40), tempo);
+  // seq->addMovement(hmf->closeFingerBy(f, 60), tempo);
+  // seq->addMovement(hmf->closeFingerBy(f, 80), tempo);   // 80% closed...
+  // seq->addMovement(hmf->closeFingerBy(f, 100), tempo);
 
   // seq->addMovement(hmf->closeFingerBy(4, 0), 1000);
   // seq->addMovement(hmf->closeFingerBy(4, 100), 10000);
   // seq->addMovement(hmf->closeFingerBy(4, 50), 1000000);
 
-  seq->start();
+  // seq->addMovement(hmf->five(), 4000);
+  // seq->addMovement(hmf->fist());
 
+  seq->start();
 }
 
 void loop() {
   seq->run();
+
 }
 
 /**
