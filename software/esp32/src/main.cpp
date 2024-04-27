@@ -25,19 +25,31 @@ void setup() {
 
   start = millis();
   isClosed = true;
-  hand = new Hand();
-  hmf = new HandMovementFactory(hand);
-  seq = new Sequence(0); // 0 is repeat forever
 
   // curm.setPin(ADC1_CHANNEL_0);²
 
-  
+#ifdef HOME_SERVOS
+  hand = new Hand();
+  hmf = new HandMovementFactory(hand);
+  seq = new Sequence(0); // 0 is repeat forever
+  seq->addMovement(hmf->five(), 4000);
+  seq->addMovement(hmf->fist(), 1000);
+  seq->start();
+#endif
+
+#ifdef DEMO
+  hand = new Hand();
+  hmf = new HandMovementFactory(hand);
+  seq = new Sequence(0); // 0 is repeat forever
   seq->addMovement(hmf->openPinch(), 4000);
   seq->addMovement(hmf->one());
   seq->addMovement(hmf->two());
   seq->addMovement(hmf->three());
   seq->addMovement(hmf->four());
   seq->addMovement(hmf->five());
+  seq->start();
+#endif
+
   // seq->addMovement(hmf->pointing());
   // seq->addMovement(hmf->closePinch());
   
@@ -58,12 +70,10 @@ void setup() {
   // seq->addMovement(hmf->five(), 4000);
   // seq->addMovement(hmf->fist());
 
-  seq->start();
 }
 
 void loop() {
   seq->run();
-
 }
 
 /**
