@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Kinetix</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">Kinetix</string>
+    <string name="fist">Close</string>
+    <string name="open">Open</string>
+    <string name="pinch">Pinch</string>
+    <string name="one">One</string>
+    <string name="two">Two</string>
+    <string name="three">Three</string>
+    <string name="four">Four</string>
+    <string name="five">Five</string>
+    <string name="ok">Ok</string>
+    <string name="fu">Fuck you</string>
+    <string name="connect">Connect</string>
+
+</resources>
