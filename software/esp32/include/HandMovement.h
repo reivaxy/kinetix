@@ -9,11 +9,14 @@
 class HandMovement {
 public:  
    HandMovement(Hand *_hand, String _name = "default");
+   ~HandMovement();
+
    void start();
    void run();
    void stop();
    boolean isFinished();
    void printMovement();
+   void setFM(uint offset, FingerMovement *fm);
 
    Hand *hand = NULL;
    String name;

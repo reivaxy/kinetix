@@ -49,6 +49,7 @@ void Sequence::run() {
       }
       if (repeatCount && loopCount >= repeatCount) {
          Serial.println("Sequence finished.");
+         // TODO free the movements
          running = false;
          return;
       }

@@ -7,7 +7,6 @@ Hand::Hand() {
    fingers[2] = new Finger(2, FINGER2_CTRL_PIN, FINGER2_MONITOR_PIN, FINGER2_MAX_OPEN, FINGER2_MAX_CLOSED, -1);
    fingers[3] = new Finger(3, FINGER3_CTRL_PIN, FINGER3_MONITOR_PIN, FINGER3_MAX_OPEN, FINGER3_MAX_CLOSED, 1);
    fingers[4] = new Finger(4, FINGER4_CTRL_PIN, FINGER4_MONITOR_PIN, FINGER4_MAX_OPEN, FINGER4_MAX_CLOSED, -1);
-
 }
 
 void Hand::close() {
@@ -74,6 +73,7 @@ void Hand::stop(uint finger) {
 
 void Hand::stop() {
    for (uint finger=0 ; finger < FINGER_COUNT; finger++) {
+      log_d("Stopping finger %d", finger);
       fingers[finger]->stop();
    }
 }

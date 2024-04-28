@@ -18,3 +18,6 @@ FingerMovement::FingerMovement(int _relativeTargetPosition, uint32_t _startDelay
    startDelay = _startDelay;
    step = _step;
 }
+
+FingerMovement::~FingerMovement() {  
+}

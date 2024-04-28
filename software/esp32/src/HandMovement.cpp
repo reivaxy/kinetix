@@ -10,6 +10,16 @@ HandMovement::HandMovement(Hand *_hand, String _name) {
    }
 }
 
+HandMovement::~HandMovement() {
+   for(uint i = 0  ; i < FINGER_COUNT ; i++) {
+     delete(fingerMovement[i]);
+   }
+}
+
+void HandMovement::setFM(uint offset, FingerMovement *fm) {
+   fingerMovement[offset] = fm;
+}
+
 void HandMovement::start() {
    printMovement();   
    for(uint i = 0  ; i < FINGER_COUNT ; i++) {
