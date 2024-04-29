@@ -154,10 +154,6 @@ public class FirstFragment extends Fragment {
                 }
         );
 
-        binding.buttonFu.setOnClickListener(v -> {
-                    writeCustomCharacteristic("fu".getBytes(StandardCharsets.UTF_8), R.id.button_fu);
-                }
-        );
         binding.buttonConnect.setOnClickListener(v -> {
                     boolean connected = connect("74:4D:BD:99:3F:95");
                     if (!connected) {
