@@ -121,6 +121,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/red"
             android:text="@string/connect"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:layout_editor_absoluteX="135dp" />

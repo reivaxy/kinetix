@@ -12,6 +12,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -57,17 +58,22 @@ public class FirstFragment extends Fragment {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String intentAction;
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                intentAction = ACTION_GATT_CONNECTED;
-                mConnectionState = STATE_CONNECTED;
-//                broadcastUpdate(intentAction);
                 Log.i(TAG, "Connected to GATT server.");
+                mConnectionState = STATE_CONNECTED;
+                binding.buttonConnect.setBackgroundTintList(binding.getRoot().getResources().getColorStateList(R.color.green));
+
+//                binding.buttonConnect.setText(binding.getRoot().getResources().getString(R.string.connected));
+//                binding.buttonConnect.setVisibility(View.INVISIBLE);
+//                intentAction = ACTION_GATT_CONNECTED;
+//                broadcastUpdate(intentAction);
                 // Attempts to discover services after successful connection.
-                Log.i(TAG, "Attempting to start service discovery:" +
-                        mBluetoothGatt.discoverServices());
+                Log.i(TAG, "Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                intentAction = ACTION_GATT_DISCONNECTED;
                 mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
+                binding.buttonConnect.setBackgroundTintList(binding.getRoot().getResources().getColorStateList(R.color.red));
+//                binding.buttonConnect.setText(binding.getRoot().getResources().getString(R.string.connect));
+//                intentAction = ACTION_GATT_DISCONNECTED;
 //                broadcastUpdate(intentAction);
             }
         }
@@ -193,10 +199,10 @@ public class FirstFragment extends Fragment {
             Log.w(TAG, "Custom BLE Service not found");
             return;
         }
-        /*get the read characteristic from the service*/
-        BluetoothGattCharacteristic mWriteCharacteristic = mCustomService.getCharacteristic(UUID.fromString("39dea685-a63e-44b2-8819-9a202581f8fe"));
-        mWriteCharacteristic.setValue(value);
-        if (!mBluetoothGatt.writeCharacteristic(mWriteCharacteristic)) {
+        /*get the movement write characteristic from the service*/
+        BluetoothGattCharacteristic movementWriteCharacteristic = mCustomService.getCharacteristic(UUID.fromString("39dea685-a63e-44b2-8819-9a202581f8fe"));
+        movementWriteCharacteristic.setValue(value);
+        if (!mBluetoothGatt.writeCharacteristic(movementWriteCharacteristic)) {
             Log.w(TAG, "Failed to write characteristic");
         }
     }
