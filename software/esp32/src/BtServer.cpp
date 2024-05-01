@@ -13,17 +13,28 @@ public:
   }
 
 
-  void onWrite(BLECharacteristic *characteristic) override
-  {
-    log_i("Kinetix received a message"); 
+  void onWrite(BLECharacteristic *characteristic) override {
+    log_i("Kinetix received a write request"); 
     char message[MAX_MESSAGE_SIZE];
     size_t len = min((int)characteristic->getLength(), MAX_MESSAGE_SIZE);
     strncpy(message, (char *)(characteristic)->getData(), len);
     message[len] = 0;
     if (messageProcessor != NULL) {
-      messageProcessor->processMessage(type, message);
+      messageProcessor->processWriteMsg(type, message);
     }
   }
+  
+    void onRead(BLECharacteristic *characteristic) override {
+    log_i("Kinetix received a read request"); 
+    char message[MAX_MESSAGE_SIZE];
+    size_t len = min((int)characteristic->getLength(), MAX_MESSAGE_SIZE);
+    strncpy(message, (char *)(characteristic)->getData(), len);
+    message[len] = 0;
+    if (messageProcessor != NULL) {
+      messageProcessor->processReadMsg(type, message, characteristic);
+    }
+  }
+
 
 };
 
@@ -53,6 +64,10 @@ BtServer::BtServer(MessageProcessor *_messageProcessor) {
                                          MOVEMENT_CHARACTERISTIC_UUID,
                                          BLECharacteristic::PROPERTY_WRITE
                                        );
+  BLECharacteristic *pConfigCharacteristic = pService->createCharacteristic(
+                                         CONFIG_CHARACTERISTIC_UUID,
+                                         BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_READ
+                                       );
 
   pService->start();
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
@@ -62,6 +77,7 @@ BtServer::BtServer(MessageProcessor *_messageProcessor) {
   pAdvertising->setMinPreferred(0x12);
   BLEDevice::startAdvertising();
   pServer->getAdvertising()->start();
-  Serial.println("Kinetix now available for BT connection.");
   pMovementCharacteristic->setCallbacks(new CharacteristicCallBack(movement, messageProcessor));
+  pConfigCharacteristic->setCallbacks(new CharacteristicCallBack(config, messageProcessor));
+  Serial.println("Kinetix now available for BT connection.");
 }

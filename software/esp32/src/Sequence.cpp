@@ -50,6 +50,12 @@ void Sequence::run() {
       if (repeatCount && loopCount >= repeatCount) {
          Serial.println("Sequence finished.");
          // TODO free the movements
+         for(int m=0 ; m < movementCount; m++) {
+            log_i("Deleting hand movement %d", m);
+            delete(movements[m]);
+            movements[m] = NULL;
+         }
+         movementCount = 0;
          running = false;
          return;
       }

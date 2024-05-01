@@ -5,6 +5,7 @@
 #include "Sequence.h"
 #include "BtServer.h"
 #include "MessageProcessor.h"
+#include <EEPROM.h>
 
 // #include "CurrentMonitor.h"
 
@@ -27,7 +28,9 @@ void setup() {
   Serial.begin(115200);
   delay(5000);
   Serial.println("Setup");
-
+  #ifdef GIT_REV
+  log_i("Version %s\n", GIT_REV);
+  #endif 
   start = millis();
   isClosed = true;
 

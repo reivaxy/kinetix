@@ -12,6 +12,7 @@ HandMovement::HandMovement(Hand *_hand, String _name) {
 
 HandMovement::~HandMovement() {
    for(uint i = 0  ; i < FINGER_COUNT ; i++) {
+     log_i("Deleting finger movement %d", i);
      delete(fingerMovement[i]);
    }
 }

@@ -81,7 +81,7 @@
       #define FINGER4_MAX_CLOSED 170
    #else
       #define THUMB_MAX_OPEN 0
-      #define THUMB_MAX_CLOSED 110
+      #define THUMB_MAX_CLOSED 130
 
       #define FINGER1_MAX_OPEN 10 
       #define FINGER1_MAX_CLOSED 180
@@ -93,7 +93,7 @@
       #define FINGER3_MAX_CLOSED 170
 
       #define FINGER4_MAX_OPEN 170
-      #define FINGER4_MAX_CLOSED 35
+      #define FINGER4_MAX_CLOSED 30
    #endif
 #endif
 
