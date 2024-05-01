@@ -15,6 +15,10 @@
     <string name="fu">Fuck you</string>
     <string name="connect">Connect</string>
     <string name="connected">Connected</string>
+
+    <string name="notConnected">Not connected to Kinetix device</string>
+
+
     <color name="red">#E31616</color>
     <color name="green">#FF3CE316</color>
 </resources>

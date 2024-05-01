@@ -96,7 +96,7 @@ public class BluetoothHandler {
         }
     };
 
-    public void writeCustomCharacteristic(byte[] value, int id) {
+    public void writeCustomCharacteristic(byte[] value) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
@@ -166,4 +166,7 @@ public class BluetoothHandler {
         mBluetoothGatt = null;
     }
 
+    public boolean isConnected() {
+        return mConnectionState == STATE_CONNECTED;
+    }
 }
