@@ -126,6 +126,14 @@
             app:layout_constraintBottom_toBottomOf="parent"
             tools:layout_editor_absoluteX="135dp" />
 
+        <EditText
+            android:id="@+id/build"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:text="" />
+
     </LinearLayout>
 
 
