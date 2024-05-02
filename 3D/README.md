@@ -14,4 +14,4 @@ The "common" folder contains parts that fit both right side hands and left side 
 
 The "left" folder contains parts for a left side hand, and the "right" folder... well you know.
 
-<img src="/resources/leftAndRight.png" width="512px"/>
+<img src="../resources/leftAndRight.png" width="512px"/>
