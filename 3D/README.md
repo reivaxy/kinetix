@@ -13,3 +13,5 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/
 The "common" folder contains parts that fit both right side hands and left side hands.
 
 The "left" folder contains parts for a left side hand, and the "right" folder... well you know.
+
+<img src="resources/leftAndRight.png" width="512px"/>
