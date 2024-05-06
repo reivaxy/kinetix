@@ -65,6 +65,9 @@
    #endif
 #else
    #ifdef LEFT_HAND
+      #define SERVO_CALIBRATION_OPEN 180
+      #define SERVO_CALIBRATION_CLOSED 0
+
       #define THUMB_MAX_OPEN 170
       #define THUMB_MAX_CLOSED 30
 
@@ -80,6 +83,9 @@
       #define FINGER4_MAX_OPEN 15
       #define FINGER4_MAX_CLOSED 170
    #else
+      #define SERVO_CALIBRATION_OPEN 0
+      #define SERVO_CALIBRATION_CLOSED 180
+
       #define THUMB_MAX_OPEN 0
       #define THUMB_MAX_CLOSED 130
 
@@ -99,7 +105,7 @@
 
 class Hand {
 public:
-   Hand();
+   Hand(bool servoCalibration=false);
 
    Finger *fingers[5]; // 0 is thumb
    void close();

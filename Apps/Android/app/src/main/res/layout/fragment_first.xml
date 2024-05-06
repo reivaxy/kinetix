@@ -8,10 +8,35 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         tools:layout_editor_absoluteX="1dp"
         tools:layout_editor_absoluteY="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button_connect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:backgroundTint="@color/red"
+                android:text="@string/connect"
+                tools:layout_editor_absoluteX="135dp" />
+
+            <Button
+                android:id="@+id/button_connect_proto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="80dp"
+                android:layout_marginBottom="8dp"
+                android:backgroundTint="@color/red"
+                android:text="@string/connectProto"
+                tools:layout_editor_absoluteX="135dp" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/button_fist"
@@ -114,17 +139,7 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="51dp" />
-
-        <Button
-            android:id="@+id/button_connect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:backgroundTint="@color/red"
-            android:text="@string/connect"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:layout_editor_absoluteX="135dp" />
+            android:layout_height="400dp" />
 
         <EditText
             android:id="@+id/build"
@@ -133,6 +148,24 @@
             android:ems="10"
             android:inputType="text"
             android:text="" />
+
+        <Button
+            android:id="@+id/button_calib"
+            android:layout_width="134dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/orange"
+            android:text="@string/calibration"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.828"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"></LinearLayout>
+
 
     </LinearLayout>
 

@@ -3,6 +3,7 @@ package fr.reivaxy.kinetix;
 import static android.bluetooth.BluetoothAdapter.*;
 
 import android.annotation.SuppressLint;
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -13,11 +14,15 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
+import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
+import java.util.Arrays;
 import java.util.UUID;
 
-public class BluetoothHandler {
+public class BluetoothHandler extends Service {
 
     private final static String TAG = BluetoothHandler.class.getSimpleName();
     public final static String ACTION_GATT_CONNECTED =
@@ -40,6 +45,13 @@ public class BluetoothHandler {
     // We want a singleton for the whole app.
     private BluetoothHandler() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.i(TAG, "onBind");
+        return null;
     }
 
     private void broadcastUpdate(final String action) {
@@ -109,6 +121,7 @@ public class BluetoothHandler {
         }
         /*get the movement write characteristic from the service*/
         BluetoothGattCharacteristic movementWriteCharacteristic = mCustomService.getCharacteristic(UUID.fromString("39dea685-a63e-44b2-8819-9a202581f8fe"));
+        Log.i(TAG, String.format("Sending movement '%s'", new String(value)));
         movementWriteCharacteristic.setValue(value);
         if (!mBluetoothGatt.writeCharacteristic(movementWriteCharacteristic)) {
             Log.w(TAG, "Failed to write characteristic");

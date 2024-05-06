@@ -12,7 +12,7 @@ Sequence::Sequence(uint8_t _repeatCount) {
 void Sequence::addMovement(HandMovement *movement, uint32_t duration) {
    // Ignore when full
    if (movementCount == MAX_MOVEMENTS) {
-      Serial.println("Error: Reached max movement count, ignoring");
+      log_e("Error: Reached max movement count, ignoring");
       return;
    }
    movements[movementCount] = movement;
@@ -21,13 +21,13 @@ void Sequence::addMovement(HandMovement *movement, uint32_t duration) {
 }
 
 void Sequence::start(uint8_t start) {
-   running = true;
    current = start;
    if (movements[current] != NULL) {
+      running = true;
       movements[current]->start();
       previousMovementStarteddAt = millis();
    } else {
-      Serial.println("Error: empty sequence started.");
+      log_e("Error: empty sequence started.");
    }
 }
 
@@ -49,14 +49,7 @@ void Sequence::run() {
       }
       if (repeatCount && loopCount >= repeatCount) {
          Serial.println("Sequence finished.");
-         // TODO free the movements
-         for(int m=0 ; m < movementCount; m++) {
-            log_i("Deleting hand movement %d", m);
-            delete(movements[m]);
-            movements[m] = NULL;
-         }
-         movementCount = 0;
-         running = false;
+         stop();
          return;
       }
       previousMovementStarteddAt = millis();
@@ -68,5 +61,13 @@ void Sequence::run() {
 
 void Sequence::stop() {
    running = false;
-   movements[current]->stop();
+   for(int m=0 ; m < movementCount; m++) {
+      log_i("Deleting hand movement %d", m);
+      movements[m]->stop();
+      delete(movements[m]);
+      movements[m] = NULL;
+      movementCount --;
+   }
+   movementCount = 0;
+
 }

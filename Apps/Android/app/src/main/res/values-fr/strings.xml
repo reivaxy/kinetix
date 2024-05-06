@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kinetix</string>
+    <string name="action_settings">Réglages</string>
+    <string name="fist">Fermer</string>
+    <string name="open">Ouvrir</string>
+    <string name="pinch">Pincer</string>
+    <string name="one">Un</string>
+    <string name="two">Deux</string>
+    <string name="three">Trois</string>
+    <string name="four">Quatre</string>
+    <string name="five">Cinq</string>
+    <string name="ok">Ok</string>
+    <string name="calibration">Calibration</string>
+    <string name="connect">Connecter</string>
+    <string name="connectProto">Connecter Proto</string>
+    <string name="connected">Connecté</string>
+    <string name="cancel">Annuler</string>
+    <string name="confirm">Démarrer calibration</string>
+    <string name="calibMessage">Annuler si les servos sont déjà cablés</string>
+    <string name="calibTitle">ATTENTION</string>
+    <string name="notConnected">Non connecté à un appareil Kinetic</string>
+    <string name="macAddress">Addresse MAC</string>
+</resources>

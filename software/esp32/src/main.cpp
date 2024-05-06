@@ -38,7 +38,7 @@ void setup() {
   messageProcessor = new MessageProcessor(hand);
   btServer = new BtServer(messageProcessor);
   // Initialization sequence, do it just once
-  seq = new Sequence(1); // 0 is repeat forever
+  seq = new Sequence(1); // this sequence runs just once
   seq->addMovement(hmf->five());
   seq->addMovement(hmf->half());
   seq->addMovement(hmf->five());
@@ -47,7 +47,7 @@ void setup() {
 
   #ifdef HOME_SERVOS
   seq = new Sequence(0); // 0 is repeat forever
-  seq->addMovement(hmf->five(), 4000);
+  seq->addMovement(hmf->five(), 5000);
   seq->addMovement(hmf->fist(), 1000);
   seq->start();
   #endif

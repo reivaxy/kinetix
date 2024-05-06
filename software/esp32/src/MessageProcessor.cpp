@@ -48,15 +48,38 @@ void MessageProcessor::run() {
    if (handMovement != NULL) {
       handMovement->run();
    }
+   if (seq != NULL) {
+      seq->run();
+   }
 }
 
 void MessageProcessor::startMovement(char *movementName) {
    if (handMovement != NULL) {
-     hand->stop();
-   //   delete(handMovement);
+     handMovement->stop();
+     delete(handMovement);
+     handMovement = NULL;
+   }
+   if (seq != NULL) {
+      delete(seq);
+      seq = NULL;
+   }
+
+   if (0 == strcmp(movementName, "calibration")) {
+      calibration();
+      return;
    }
    handMovement = hmf->getByName(movementName);
    if (handMovement != NULL) {
       handMovement->start();
    }
+}
+
+void MessageProcessor::calibration() {
+  log_i("Starting calibration sequence.");
+  Hand *hand = new Hand(true);
+  HandMovementFactory *hmf = new HandMovementFactory(hand);
+  seq = new Sequence(0); // 0 is repeat forever
+  seq->addMovement(hmf->five(), 5000);
+  seq->addMovement(hmf->fist(), 1000);
+  seq->start();
 }

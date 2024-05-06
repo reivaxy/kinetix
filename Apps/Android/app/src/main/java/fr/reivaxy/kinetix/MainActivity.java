@@ -11,6 +11,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 
@@ -21,6 +22,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import fr.reivaxy.kinetix.databinding.ActivityMainBinding;
+import fr.reivaxy.kinetix.databinding.PreferencesBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -69,8 +71,16 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Log.i(TAG, "cliqued Settings");
+            PreferencesBinding prefBinding = PreferencesBinding.inflate(getLayoutInflater());
+            setContentView(prefBinding.getRoot());
+//            Handler handler = new Handler();
+//            handler.postDelayed(new Runnable() {
+//                public void run() {
+//                    setContentView(binding.getRoot().getRootView());
+//                }
+//            }, 10000);
             return true;
         }
 

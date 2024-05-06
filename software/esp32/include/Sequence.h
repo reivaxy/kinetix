@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include "HandMovement.h"
 #define MAX_MOVEMENTS 50
 

@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">Kinetix</string>
+    <string name="app_name" translatable="false">Kinetix</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">Kinetix</string>
+    <string name="first_fragment_label" translatable="false">Kinetix</string>
     <string name="fist">Close</string>
     <string name="open">Open</string>
     <string name="pinch">Pinch</string>
@@ -12,13 +12,21 @@
     <string name="four">Four</string>
     <string name="five">Five</string>
     <string name="ok">Ok</string>
-    <string name="fu">Fuck you</string>
+    <string name="calibration">Calibration</string>
+    <string name="fu" translatable="false">Fuck you</string>
     <string name="connect">Connect</string>
+    <string name="connectProto">Connect Proto</string>
     <string name="connected">Connected</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Start Calibration</string>
+    <string name="calibMessage">Cancel if servos are already wired!</string>
+    <string name="calibTitle">WARNING</string>
+    <string name="macAddress">MAC Address</string>
 
     <string name="notConnected">Not connected to Kinetix device</string>
 
 
     <color name="red">#E31616</color>
     <color name="green">#FF3CE316</color>
+    <color name="orange">#E0790A</color>
 </resources>

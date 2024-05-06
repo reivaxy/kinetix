@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "Hand.h"
+#include "Sequence.h"
 #include "HandMovement.h"
 #include "HandMovementFactory.h"
 #include <BLEDevice.h>
@@ -17,9 +18,11 @@ public:
    void processWriteMsg(MessageType type, char *message);
    void processReadMsg(MessageType type, char *message, BLECharacteristic *characteristic);
    void startMovement(char *movementName);
+   void calibration();
 
-   Hand *hand;
-   HandMovement *handMovement;
-   HandMovementFactory *hmf;
+   Hand *hand = NULL;
+   Sequence *seq = NULL;
+   HandMovement *handMovement = NULL;
+   HandMovementFactory *hmf = NULL;
 
 };
