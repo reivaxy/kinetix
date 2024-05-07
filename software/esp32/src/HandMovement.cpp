@@ -11,9 +11,11 @@ HandMovement::HandMovement(Hand *_hand, String _name) {
 }
 
 HandMovement::~HandMovement() {
+   stop();
    for(uint i = 0  ; i < FINGER_COUNT ; i++) {
      log_i("Deleting finger movement %d", i);
      delete(fingerMovement[i]);
+     fingerMovement[i] = NULL;
    }
 }
 
@@ -54,6 +56,5 @@ boolean HandMovement::isFinished() {
 }
 
 void HandMovement::printMovement() {
-   Serial.print("Move to ");
-   Serial.println(name);
+   log_i("Move to %s\n", name);
 }

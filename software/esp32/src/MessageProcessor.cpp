@@ -54,8 +54,8 @@ void MessageProcessor::run() {
 }
 
 void MessageProcessor::startMovement(char *movementName) {
+   hand->stop();
    if (handMovement != NULL) {
-     handMovement->stop();
      delete(handMovement);
      handMovement = NULL;
    }
@@ -75,11 +75,11 @@ void MessageProcessor::startMovement(char *movementName) {
 }
 
 void MessageProcessor::calibration() {
-  log_i("Starting calibration sequence.");
-  Hand *hand = new Hand(true);
-  HandMovementFactory *hmf = new HandMovementFactory(hand);
+  log_i("Starting calibration sequence");
+  Hand *hand = new Hand(true);  // true: use the finger calibration settings
+  HandMovementFactory *calibrationHmf = new HandMovementFactory(hand);
   seq = new Sequence(0); // 0 is repeat forever
-  seq->addMovement(hmf->five(), 5000);
-  seq->addMovement(hmf->fist(), 1000);
+  seq->addMovement(calibrationHmf->five(), 5000);
+  seq->addMovement(calibrationHmf->fist(), 1000);
   seq->start();
 }

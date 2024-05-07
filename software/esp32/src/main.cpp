@@ -42,6 +42,7 @@ void setup() {
   seq->addMovement(hmf->five());
   seq->addMovement(hmf->half());
   seq->addMovement(hmf->five());
+  log_i("Running init sequence");
   seq->start();   
   #endif
 

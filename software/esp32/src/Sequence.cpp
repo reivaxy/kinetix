@@ -9,6 +9,18 @@ Sequence::Sequence(uint8_t _repeatCount) {
    }
 }
 
+Sequence::~Sequence() {
+   log_i("Deleting sequence of %d movements", movementCount);
+   stop();
+   for(int m=0 ; m < movementCount; m++) {
+      log_i("Deleting hand movement %d", m);
+      movements[m]->stop();
+      delete(movements[m]);
+      movements[m] = NULL;
+   }
+   movementCount = 0;
+}
+
 void Sequence::addMovement(HandMovement *movement, uint32_t duration) {
    // Ignore when full
    if (movementCount == MAX_MOVEMENTS) {
@@ -21,6 +33,7 @@ void Sequence::addMovement(HandMovement *movement, uint32_t duration) {
 }
 
 void Sequence::start(uint8_t start) {
+   log_i("Starting sequence of %d movements", movementCount);
    current = start;
    if (movements[current] != NULL) {
       running = true;
@@ -48,7 +61,7 @@ void Sequence::run() {
          loopCount++;
       }
       if (repeatCount && loopCount >= repeatCount) {
-         Serial.println("Sequence finished.");
+         log_i("Sequence finished\n");
          stop();
          return;
       }
@@ -60,14 +73,9 @@ void Sequence::run() {
 }
 
 void Sequence::stop() {
-   running = false;
-   for(int m=0 ; m < movementCount; m++) {
-      log_i("Deleting hand movement %d", m);
-      movements[m]->stop();
-      delete(movements[m]);
-      movements[m] = NULL;
-      movementCount --;
+   HandMovement *currentMovement = movements[current];
+   if (currentMovement != NULL) {
+      currentMovement->stop();
    }
-   movementCount = 0;
-
+   running = false;
 }

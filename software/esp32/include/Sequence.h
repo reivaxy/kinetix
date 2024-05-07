@@ -7,6 +7,7 @@
 class Sequence {
 public:
    Sequence(uint8_t _repeatCount = 1);
+   ~Sequence();
 
    void addMovement(HandMovement* movement, uint32_t movementDuration = 2000);
    void start(uint8_t start = 0);

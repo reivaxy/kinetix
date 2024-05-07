@@ -90,9 +90,7 @@ void Finger::setMovement(FingerMovement *fingerMovement) {
       target = map(fingerMovement->relativeTargetPosition, 0, 100, maxClosed, maxOpen);
       target = maxOpen - target + maxClosed;
    }
-   char msg[20];
-   sprintf(msg, "Target f%d: %d", number, target);
-   Serial.println(msg);
+   log_d("Target f%d: %d", number, target);
    step = fingerMovement->step;
 }
 
