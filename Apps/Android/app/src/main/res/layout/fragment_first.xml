@@ -27,15 +27,15 @@
                 android:text="@string/connect"
                 tools:layout_editor_absoluteX="135dp" />
 
-            <Button
-                android:id="@+id/button_connect_proto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="80dp"
-                android:layout_marginBottom="8dp"
-                android:backgroundTint="@color/red"
-                android:text="@string/connectProto"
-                tools:layout_editor_absoluteX="135dp" />
+<!--            <Button-->
+<!--                android:id="@+id/button_connect_proto"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginLeft="80dp"-->
+<!--                android:layout_marginBottom="8dp"-->
+<!--                android:backgroundTint="@color/red"-->
+<!--                android:text="@string/connectProto"-->
+<!--                tools:layout_editor_absoluteX="135dp" />-->
         </LinearLayout>
 
         <Button
@@ -151,7 +151,7 @@
 
         <Button
             android:id="@+id/button_calib"
-            android:layout_width="134dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:backgroundTint="@color/orange"

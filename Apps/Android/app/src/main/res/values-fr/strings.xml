@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Kinetix</string>
     <string name="action_settings">Réglages</string>
     <string name="fist">Fermer</string>
     <string name="open">Ouvrir</string>
@@ -19,6 +18,11 @@
     <string name="confirm">Démarrer calibration</string>
     <string name="calibMessage">Annuler si les servos sont déjà cablés</string>
     <string name="calibTitle">ATTENTION</string>
-    <string name="notConnected">Non connecté à un appareil Kinetic</string>
+    <string name="notConnected">Non connecté à un appareil Kinetix</string>
     <string name="macAddress">Addresse MAC</string>
+    <string name="kinetixDevice">Appareil Kinetix</string>
+    <string name="title_activity_settings">Préférences</string>
+    <string name="deviceName">Nom de l\'appareil</string>
+    <string name="noMacAddress">Aucune address MAC configurée</string>
+    <string name="closeView">Fermer</string>
 </resources>

@@ -1,6 +1,8 @@
 package fr.reivaxy.kinetix;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +13,8 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
+
 import com.google.android.material.snackbar.Snackbar;
 import java.nio.charset.StandardCharsets;
 import fr.reivaxy.kinetix.databinding.FragmentFirstBinding;
@@ -102,13 +106,29 @@ public class FirstFragment extends Fragment {
         );
 
         binding.buttonConnect.setOnClickListener(v -> {
-                    connectTo(view, "74:4D:BD:99:3F:95", binding.buttonConnect);
+                    SharedPreferences sharedPreferences =
+                            PreferenceManager.getDefaultSharedPreferences(getContext());
+                    String address = sharedPreferences.getString("macAddress", "");
+                    if (address.isEmpty()) {
+                        final Snackbar snackBar = Snackbar.make(view, R.string.noMacAddress, Snackbar.LENGTH_LONG)
+                                .setAnchorView(binding.buttonConnect.getId());
+                        snackBar.setAction(R.string.closeView, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    snackBar.dismiss();
+                                }
+
+                            });
+                        snackBar.show();
+                        return;
+                    }
+                    connectTo(view, address, binding.buttonConnect);
                 }
         );
-        binding.buttonConnectProto.setOnClickListener(v -> {
-                    connectTo(view, "74:4D:BD:99:59:01", binding.buttonConnectProto);
-                }
-        );
+//        binding.buttonConnectProto.setOnClickListener(v -> {
+//                    connectTo(view, "74:4D:BD:99:59:01", binding.buttonConnectProto);
+//                }
+//        );
     }
 
     private void connectTo(View view, String address, Button button ) {
@@ -130,7 +150,7 @@ public class FirstFragment extends Fragment {
             BluetoothHandler.getInstance().writeCustomCharacteristic(position.getBytes(StandardCharsets.UTF_8));
         } else {
             Log.e(TAG, "sendPosition: not connected");
-            showConnected(binding.buttonConnectProto, false);
+//            showConnected(binding.buttonConnectProto, false);
             showConnected(binding.buttonConnect, false);
             Snackbar.make(this.getView(), binding.getRoot().getResources().getString(R.string.notConnected), Snackbar.LENGTH_LONG)
                 .setAnchorView(buttonId)

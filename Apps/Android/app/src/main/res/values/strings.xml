@@ -21,12 +21,21 @@
     <string name="confirm">Start Calibration</string>
     <string name="calibMessage">Cancel if servos are already wired!</string>
     <string name="calibTitle">WARNING</string>
-    <string name="macAddress">MAC Address</string>
+    <string name="closeView">Close</string>
 
     <string name="notConnected">Not connected to Kinetix device</string>
+    <string name="noMacAddress">Please configure MAC Address in settings</string>
 
 
     <color name="red">#E31616</color>
     <color name="green">#FF3CE316</color>
     <color name="orange">#E0790A</color>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- Preference Titles -->
+    <string name="kinetixDevice">Kinetix device</string>
+    <string name="macAddress">MAC Address</string>
+    <string name="deviceName">Device name</string>
+
+
 </resources>

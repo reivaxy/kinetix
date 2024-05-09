@@ -80,6 +80,6 @@ void MessageProcessor::calibration() {
   HandMovementFactory *calibrationHmf = new HandMovementFactory(hand);
   seq = new Sequence(0); // 0 is repeat forever
   seq->addMovement(calibrationHmf->five(), 5000);
-  seq->addMovement(calibrationHmf->fist(), 1000);
+  seq->addMovement(calibrationHmf->fist(), 1500);
   seq->start();
 }

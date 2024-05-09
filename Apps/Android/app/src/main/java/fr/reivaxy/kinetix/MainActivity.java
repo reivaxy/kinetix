@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
@@ -11,9 +12,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.os.Handler;
 import android.util.Log;
-import android.view.View;
 
 import androidx.core.app.ActivityCompat;
 import androidx.navigation.NavController;
@@ -22,12 +21,10 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import fr.reivaxy.kinetix.databinding.ActivityMainBinding;
-import fr.reivaxy.kinetix.databinding.PreferencesBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -73,14 +70,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (id == R.id.action_settings) {
             Log.i(TAG, "cliqued Settings");
-            PreferencesBinding prefBinding = PreferencesBinding.inflate(getLayoutInflater());
-            setContentView(prefBinding.getRoot());
-//            Handler handler = new Handler();
-//            handler.postDelayed(new Runnable() {
-//                public void run() {
-//                    setContentView(binding.getRoot().getRootView());
-//                }
-//            }, 10000);
+            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(i);
             return true;
         }
 
