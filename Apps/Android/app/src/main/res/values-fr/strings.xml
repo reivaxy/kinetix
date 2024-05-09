@@ -21,8 +21,9 @@
     <string name="notConnected">Non connecté à un appareil Kinetix</string>
     <string name="macAddress">Addresse MAC</string>
     <string name="kinetixDevice">Appareil Kinetix</string>
-    <string name="title_activity_settings">Préférences</string>
     <string name="deviceName">Nom de l\'appareil</string>
     <string name="noMacAddress">Aucune address MAC configurée</string>
     <string name="closeView">Fermer</string>
+    <string name="action_about">A propos</string>
+    <string name="tools">Outils</string>
 </resources>

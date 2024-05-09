@@ -14,15 +14,17 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 
 import java.util.Arrays;
 import java.util.UUID;
 
-public class BluetoothHandler extends Service {
+public class BluetoothHandler  {
 
     private final static String TAG = BluetoothHandler.class.getSimpleName();
     public final static String ACTION_GATT_CONNECTED =
@@ -35,24 +37,29 @@ public class BluetoothHandler extends Service {
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
+    public static final String SERVICE_UUID = "89d60870-9908-4472-8f8c-e5b3e6573cd1";
+    public static final String MOVEMENT_CHARACTERISTIC_UUID = "39dea685-a63e-44b2-8819-9a202581f8fe";
+    public static final String CONFIG_CHARACTERISTIC_UUID = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e";
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothGatt mBluetoothGatt;
     private BluetoothManager mBluetoothManager;
     private String mBluetoothDeviceAddress;
     private int mConnectionState = STATE_DISCONNECTED;
     private static BluetoothHandler instance = null;
+    private static Context context = null;
+    private BluetoothGattService mCustomService;
 
     // We want a singleton for the whole app.
     private BluetoothHandler() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        Log.i(TAG, "onBind");
-        return null;
-    }
+//    @Nullable
+//    @Override
+//    public IBinder onBind(Intent intent) {
+//        Log.i(TAG, "onBind");
+//        return null;
+//    }
 
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
@@ -76,8 +83,8 @@ public class BluetoothHandler extends Service {
                 Log.i(TAG, "Connected to GATT server.");
                 mConnectionState = STATE_CONNECTED;
                 broadcastUpdate(ACTION_GATT_CONNECTED);
-                // Attempts to discover services after successful connection.
                 Log.i(TAG, "Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
+
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
@@ -89,6 +96,10 @@ public class BluetoothHandler extends Service {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
 //                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
+                /* check if the service is available on the device */
+                mCustomService = mBluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
+                BluetoothGattCharacteristic configCharacteristic = mCustomService.getCharacteristic(UUID.fromString(CONFIG_CHARACTERISTIC_UUID));
+                mBluetoothGatt.readCharacteristic(configCharacteristic);
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
@@ -99,6 +110,19 @@ public class BluetoothHandler extends Service {
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
 //                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                if (characteristic.getUuid().toString().equals(CONFIG_CHARACTERISTIC_UUID)) {
+                    BluetoothGattCharacteristic configCharacteristic = mCustomService.getCharacteristic(UUID.fromString(CONFIG_CHARACTERISTIC_UUID));
+
+                    String version = configCharacteristic.getStringValue(0);
+                    Log.i(TAG, "Got firmware version " + version);
+
+                    SharedPreferences sharedPref = context.getSharedPreferences(
+                            context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString(context.getString(R.string.saved_version_key), version);
+                    editor.apply();
+
+                }
             }
         }
         @Override
@@ -113,14 +137,13 @@ public class BluetoothHandler extends Service {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-        /*check if the service is available on the device*/
-        BluetoothGattService mCustomService = mBluetoothGatt.getService(UUID.fromString("89d60870-9908-4472-8f8c-e5b3e6573cd1"));
+
         if (mCustomService == null) {
             Log.w(TAG, "Custom BLE Service not found");
             return;
         }
         /*get the movement write characteristic from the service*/
-        BluetoothGattCharacteristic movementWriteCharacteristic = mCustomService.getCharacteristic(UUID.fromString("39dea685-a63e-44b2-8819-9a202581f8fe"));
+        BluetoothGattCharacteristic movementWriteCharacteristic = mCustomService.getCharacteristic(UUID.fromString(MOVEMENT_CHARACTERISTIC_UUID));
         Log.i(TAG, String.format("Sending movement '%s'", new String(value)));
         movementWriteCharacteristic.setValue(value);
         if (!mBluetoothGatt.writeCharacteristic(movementWriteCharacteristic)) {
@@ -138,6 +161,7 @@ public class BluetoothHandler extends Service {
      * callback.
      */
     public boolean connect(Context context, final String address) {
+        this.context = context;
         if (mBluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
             return false;
@@ -165,6 +189,7 @@ public class BluetoothHandler extends Service {
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
         mConnectionState = STATE_CONNECTING;
+
         return true;
 
     }

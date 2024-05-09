@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name" translatable="false">Kinetix</string>
+
+<!--    Menu -->
     <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
+    <string name="action_about">About</string>
+
     <string name="first_fragment_label" translatable="false">Kinetix</string>
     <string name="fist">Close</string>
     <string name="open">Open</string>
@@ -21,21 +24,29 @@
     <string name="confirm">Start Calibration</string>
     <string name="calibMessage">Cancel if servos are already wired!</string>
     <string name="calibTitle">WARNING</string>
+    <string name="tools">Tools</string>
     <string name="closeView">Close</string>
 
     <string name="notConnected">Not connected to Kinetix device</string>
     <string name="noMacAddress">Please configure MAC Address in settings</string>
+    <string name="preference_file_key" translatable="false">fr.reivaxy.kinetix.PREFERENCE_FILE_KEY</string>
+    <string name="saved_version_key" translatable="false">versionKey</string>
+    <string name="macAddressKey" translatable="false">macAddress</string>
 
 
     <color name="red">#E31616</color>
     <color name="green">#FF3CE316</color>
     <color name="orange">#E0790A</color>
-    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_settings" translatable="false">SettingsActivity</string>
+    <string name="title_activity_about" translatable="false">AboutActivity</string>
+    <string name="title_activity_tools" translatable="false">ToolsActivity</string>
 
     <!-- Preference Titles -->
     <string name="kinetixDevice">Kinetix device</string>
     <string name="macAddress">MAC Address</string>
     <string name="deviceName">Device name</string>
+    <string name="githubLink" translatable="false"><u>https://github.com/reivaxy/kinetix</u></string>
+    <string name="ccLink" translatable="false"><u>https://creativecommons.org/licenses/by-nc-sa/4.0/</u></string>
 
 
 </resources>

@@ -75,6 +75,20 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        if (id == R.id.action_about) {
+            Log.i(TAG, "cliqued About");
+            Intent i = new Intent(MainActivity.this, AboutActivity.class);
+            startActivity(i);
+            return true;
+        }
+
+        if (id == R.id.action_tools) {
+            Log.i(TAG, "cliqued Tools");
+            Intent i = new Intent(MainActivity.this, ToolsActivity.class);
+            startActivity(i);
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

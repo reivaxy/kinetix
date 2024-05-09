@@ -24,7 +24,8 @@ public:
     }
   }
   
-    void onRead(BLECharacteristic *characteristic) override {
+  
+  void onRead(BLECharacteristic *characteristic) override {
     log_i("Kinetix received a read request"); 
     char message[MAX_MESSAGE_SIZE];
     size_t len = min((int)characteristic->getLength(), MAX_MESSAGE_SIZE);
