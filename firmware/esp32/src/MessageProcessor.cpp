@@ -55,6 +55,8 @@ void MessageProcessor::run() {
 
 void MessageProcessor::startMovement(char *movementName) {
    hand->stop();
+   hand->setCalibration(false);
+
    if (handMovement != NULL) {
      delete(handMovement);
      handMovement = NULL;
@@ -68,6 +70,11 @@ void MessageProcessor::startMovement(char *movementName) {
       calibration();
       return;
    }
+   if (0 == strcmp(movementName, "scratch")) {
+      scratch();
+      return;
+   }
+
    handMovement = hmf->getByName(movementName);
    if (handMovement != NULL) {
       handMovement->start();
@@ -75,11 +82,20 @@ void MessageProcessor::startMovement(char *movementName) {
 }
 
 void MessageProcessor::calibration() {
-  log_i("Starting calibration sequence");
-  Hand *hand = new Hand(true);  // true: use the finger calibration settings
+  log_i("Starting calibration sequence");  
+  hand->setCalibration(true);  // This shouldn't be done once the finger are wired to the servos, may break.
   HandMovementFactory *calibrationHmf = new HandMovementFactory(hand);
   seq = new Sequence(0); // 0 is repeat forever
   seq->addMovement(calibrationHmf->five(), 5000);
   seq->addMovement(calibrationHmf->fist(), 1500);
+  seq->start();
+}
+
+void MessageProcessor::scratch() {
+  log_i("Starting scratch sequence");
+  HandMovementFactory *calibrationHmf = new HandMovementFactory(hand);
+  seq = new Sequence(0); // 0 is repeat forever
+  seq->addMovement(calibrationHmf->scratchOpen(), 600);
+  seq->addMovement(calibrationHmf->scratchClose(), 600);
   seq->start();
 }

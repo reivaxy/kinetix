@@ -15,6 +15,7 @@
     <string name="four">Four</string>
     <string name="five">Five</string>
     <string name="ok">Ok</string>
+    <string name="scratch">Scratch</string>
     <string name="calibration">Calibration</string>
     <string name="fu" translatable="false">Fuck you</string>
     <string name="connect">Connect</string>
@@ -41,10 +42,16 @@
     <string name="title_activity_about" translatable="false">AboutActivity</string>
     <string name="title_activity_tools" translatable="false">ToolsActivity</string>
 
-    <!-- Preference Titles -->
+    <!-- Preference  -->
     <string name="kinetixDevice">Kinetix device</string>
     <string name="macAddress">MAC Address</string>
     <string name="deviceName">Device name</string>
+    <string name="buttonsPosition">Buttons position</string>
+    <string name="left">Left</string>
+    <string name="center">Center</string>
+    <string name="right">Right</string>
+    <string name="buttonsPositionKey" translatable="false">buttonsPosition</string>
+    <string name="buttonPositionSummary">You will need to restart the application to apply this setting</string>
     <string name="githubLink" translatable="false"><u>https://github.com/reivaxy/kinetix</u></string>
     <string name="ccLink" translatable="false"><u>https://creativecommons.org/licenses/by-nc-sa/4.0/</u></string>
 

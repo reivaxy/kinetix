@@ -19,6 +19,7 @@ public:
    void processReadMsg(MessageType type, char *message, BLECharacteristic *characteristic);
    void startMovement(char *movementName);
    void calibration();
+   void scratch();
 
    Hand *hand = NULL;
    Sequence *seq = NULL;

@@ -105,11 +105,12 @@
 
 class Hand {
 public:
-   Hand(bool servoCalibration=false);
+   Hand();
 
    Finger *fingers[5]; // 0 is thumb
    void close();
    void close(uint finger);
+   void setCalibration(boolean);
 
    void open();
    void open(uint finger);

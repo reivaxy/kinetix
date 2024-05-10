@@ -1,8 +1,10 @@
 package fr.reivaxy.kinetix;
 
-import android.content.DialogInterface;
+import static android.view.Gravity.CENTER;
+import static android.view.Gravity.LEFT;
+import static android.view.Gravity.RIGHT;
+
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
@@ -82,6 +83,11 @@ public class FirstFragment extends Fragment {
                 }
         );
 
+        binding.buttonScratch.setOnClickListener(v -> {
+                    sendPosition(view, "scratch", R.id.button_scratch);
+                }
+        );
+
 
 
         binding.buttonConnect.setOnClickListener(v -> {
@@ -104,7 +110,21 @@ public class FirstFragment extends Fragment {
                     connectTo(view, address, binding.buttonConnect);
                 }
         );
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String buttonsPosition = preferences.getString(getString(R.string.buttonsPositionKey), "center");
+        if (buttonsPosition.equals("right")) {
+            binding.buttonList.setGravity(RIGHT);
+        }
+        if (buttonsPosition.equals("left")) {
+            binding.buttonList.setGravity(LEFT);
+        }
+        if (buttonsPosition.equals("center")) {
+            binding.buttonList.setGravity(CENTER);
+        }
+
     }
+
 
     private void connectTo(View view, String address, Button button ) {
         boolean connected = BluetoothHandler.getInstance().connect(this.getContext(), address);

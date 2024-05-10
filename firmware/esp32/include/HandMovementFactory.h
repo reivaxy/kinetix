@@ -20,6 +20,8 @@ public:
    HandMovement* idle();
    HandMovement* pointing();
    HandMovement* fu();
+   HandMovement* scratchClose();
+   HandMovement* scratchOpen();
    HandMovement* closeFingerBy(int finger, int closedQuantity);
    HandMovement* getByName(char* movementName);
    

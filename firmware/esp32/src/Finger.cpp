@@ -35,6 +35,19 @@ void Finger::open() {
    move(maxOpen);
 }
 
+void Finger::setMaxOpen(int _maxOpen) {
+   maxOpen = _maxOpen;
+}
+
+void Finger::setMaxClosed(int _maxClosed) {
+   maxClosed = _maxClosed;
+}
+
+void Finger::setMax(int _maxOpen, int _maxClosed) {
+   maxOpen = _maxOpen;
+   maxClosed = _maxClosed;
+}
+
 void Finger::close() {
    move(maxClosed);
 }

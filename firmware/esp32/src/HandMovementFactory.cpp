@@ -138,6 +138,28 @@ HandMovement* HandMovementFactory::half() {
    return handMovement;
 }
 
+HandMovement* HandMovementFactory::scratchClose() {
+   HandMovement *handMovement = new HandMovement(hand, "Scratch Close");
+   // Thumb
+   handMovement->setFM(0, new FingerMovement(80, 0, 0.006));
+   handMovement->setFM(1, new FingerMovement(80, 0, 0.006));
+   handMovement->setFM(2, new FingerMovement(75, 0, 0.006));
+   handMovement->setFM(3, new FingerMovement(80, 0, 0.006));
+   handMovement->setFM(4, new FingerMovement(80, 0, 0.006));
+   return handMovement;
+}
+
+HandMovement* HandMovementFactory::scratchOpen() {
+   HandMovement *handMovement = new HandMovement(hand, "Scratch Open");
+   // Thumb
+   handMovement->setFM(0, new FingerMovement(25, 0, 0.006));
+   handMovement->setFM(1, new FingerMovement(25, 0, 0.006));
+   handMovement->setFM(2, new FingerMovement(25, 0, 0.006));
+   handMovement->setFM(3, new FingerMovement(25, 0, 0.006));
+   handMovement->setFM(4, new FingerMovement(25, 0, 0.006));
+   return handMovement;
+}
+
 // Example of having two identical movements with different name
 HandMovement* HandMovementFactory::pointing() {
    return one("Pointing");

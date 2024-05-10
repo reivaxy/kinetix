@@ -1,4 +1,5 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory app:title="@string/kinetixDevice">
 
@@ -12,13 +13,14 @@
             app:title="@string/deviceName"
             app:useSimpleSummaryProvider="true" />
 
-<!--        <ListPreference-->
-<!--            app:defaultValue="reply"-->
-<!--            app:entries="@array/reply_entries"-->
-<!--            app:entryValues="@array/reply_values"-->
-<!--            app:key="reply"-->
-<!--            app:title="@string/reply_title"-->
-<!--            app:useSimpleSummaryProvider="true" />-->
+        <ListPreference
+            app:defaultValue="center"
+            app:entries="@array/buttonsPosition_entries"
+            app:entryValues="@array/buttonsPosition_values"
+            app:key="@string/buttonsPositionKey"
+            app:title="@string/buttonsPosition"
+            android:summary="@string/buttonPositionSummary"
+            app:useSimpleSummaryProvider="false" />
 
     </PreferenceCategory>
 

@@ -1,20 +1,28 @@
 #include "Hand.h"
 
 
-Hand::Hand(bool servoCalibration) {
-   if (servoCalibration) {
-      // This setting should not be used once the wires have been installed, it could break stuff
-      fingers[0] = new Finger(0, THUMB_CTRL_PIN, THUMB_MONITOR_PIN, SERVO_CALIBRATION_OPEN, SERVO_CALIBRATION_CLOSED, 1);
-      fingers[1] = new Finger(1, FINGER1_CTRL_PIN, FINGER1_MONITOR_PIN, SERVO_CALIBRATION_OPEN, SERVO_CALIBRATION_CLOSED, 1);
-      fingers[2] = new Finger(2, FINGER2_CTRL_PIN, FINGER2_MONITOR_PIN, SERVO_CALIBRATION_CLOSED, SERVO_CALIBRATION_OPEN, -1);
-      fingers[3] = new Finger(3, FINGER3_CTRL_PIN, FINGER3_MONITOR_PIN, SERVO_CALIBRATION_OPEN, SERVO_CALIBRATION_CLOSED, 1);
-      fingers[4] = new Finger(4, FINGER4_CTRL_PIN, FINGER4_MONITOR_PIN, SERVO_CALIBRATION_CLOSED, SERVO_CALIBRATION_OPEN, -1);
-   } else {
+Hand::Hand() {
       fingers[0] = new Finger(0, THUMB_CTRL_PIN, THUMB_MONITOR_PIN, THUMB_MAX_OPEN, THUMB_MAX_CLOSED, 1);
       fingers[1] = new Finger(1, FINGER1_CTRL_PIN, FINGER1_MONITOR_PIN, FINGER1_MAX_OPEN, FINGER1_MAX_CLOSED, 1);
       fingers[2] = new Finger(2, FINGER2_CTRL_PIN, FINGER2_MONITOR_PIN, FINGER2_MAX_OPEN, FINGER2_MAX_CLOSED, -1);
       fingers[3] = new Finger(3, FINGER3_CTRL_PIN, FINGER3_MONITOR_PIN, FINGER3_MAX_OPEN, FINGER3_MAX_CLOSED, 1);
       fingers[4] = new Finger(4, FINGER4_CTRL_PIN, FINGER4_MONITOR_PIN, FINGER4_MAX_OPEN, FINGER4_MAX_CLOSED, -1);
+}
+
+void Hand::setCalibration(bool servoCalibration) {
+   if (servoCalibration) {
+      // This setting should not be used once the wires have been installed, it could break stuff
+      fingers[0]->setMax(SERVO_CALIBRATION_OPEN, SERVO_CALIBRATION_CLOSED);
+      fingers[1]->setMax(SERVO_CALIBRATION_OPEN, SERVO_CALIBRATION_CLOSED);
+      fingers[2]->setMax(SERVO_CALIBRATION_CLOSED, SERVO_CALIBRATION_OPEN);
+      fingers[3]->setMax(SERVO_CALIBRATION_OPEN, SERVO_CALIBRATION_CLOSED);
+      fingers[4]->setMax(SERVO_CALIBRATION_CLOSED, SERVO_CALIBRATION_OPEN);
+   } else {
+      fingers[0]->setMax(THUMB_MAX_OPEN, THUMB_MAX_CLOSED);
+      fingers[1]->setMax(FINGER1_MAX_OPEN, FINGER1_MAX_CLOSED);
+      fingers[2]->setMax(FINGER2_MAX_OPEN, FINGER2_MAX_CLOSED);
+      fingers[3]->setMax(FINGER3_MAX_OPEN, FINGER3_MAX_CLOSED);
+      fingers[4]->setMax(FINGER4_MAX_OPEN, FINGER4_MAX_CLOSED);
    }
 }
 

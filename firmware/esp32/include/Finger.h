@@ -13,6 +13,9 @@ public:
 
    void move(int to);
    void setStep(float step);
+   void setMaxOpen(int max);
+   void setMaxClosed(int max);
+   void setMax(int maxOpen, int maxClosed);
    void close();
    void open();
    void run();
