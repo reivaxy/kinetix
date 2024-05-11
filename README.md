@@ -43,6 +43,8 @@ electronic microcontroller to drive the servomotors. I've investigated several s
 
 The cost is estimated around $60.
 
+Please check the [Wiki pages for printing and assembling instructions](https://github.com/reivaxy/kinetix/wiki)
+
 This is still very much a Work In Progress:
 - the onboard current monitoring is still being tested and tweaked, which means **for now the motors will not stop for obstacles and might 
   hurt you** (although they don't have that much strength, better safe than sorry)
@@ -56,7 +58,8 @@ very different capabilities and features.
 Here is the early prototype, testing speed:
 
 https://github.com/reivaxy/kinetix/assets/3592991/b644f965-3c86-4bcd-a1fd-c3cf471b4016
+
+And here is the status on May 11th 2024. Check Release v0.7 for APK with voice control.
+
+https://github.com/reivaxy/kinetix/assets/3592991/b4d3b443-ba91-47ff-b890-49f439fda3eb
                                                                                                             
-
-Please check the [Wiki pages for printing and assembling instructions](https://github.com/reivaxy/kinetix/wiki)
-
