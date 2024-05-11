@@ -1,6 +1,7 @@
 package fr.reivaxy.kinetix;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
@@ -40,6 +41,18 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{android.Manifest.permission.BLUETOOTH_CONNECT},
                     42);
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String requiredPermission = android.Manifest.permission.RECORD_AUDIO;
+
+            // If the user previously denied this permission then show a message explaining why
+            // this permission is needed
+            if (checkCallingOrSelfPermission(requiredPermission) == PackageManager.PERMISSION_DENIED) {
+                requestPermissions(new String[]{requiredPermission}, 101);
+            }
+        }
+
+        
     }
 
     @Override

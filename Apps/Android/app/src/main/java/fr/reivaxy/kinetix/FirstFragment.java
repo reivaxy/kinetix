@@ -19,11 +19,14 @@ import androidx.preference.PreferenceManager;
 
 import com.google.android.material.snackbar.Snackbar;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+
 import fr.reivaxy.kinetix.databinding.FragmentFirstBinding;
 
 public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
+    private CustomSTT cstt;
 
     private final static String TAG = FirstFragment.class.getSimpleName();
 
@@ -40,74 +43,60 @@ public class FirstFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        cstt = new CustomSTT(this.getActivity(), binding, Locale.FRENCH, this);
+        cstt.startCustomSTT();
+
+
         binding.buttonFist.setOnClickListener(v -> {
-                    sendPosition(view, "fist", R.id.button_fist);
+                    sendPosition("fist", R.id.button_fist);
                 }
         );
         binding.buttonOpen.setOnClickListener(v -> {
-                    sendPosition(view, "five", R.id.button_open);
+                    sendPosition("five", R.id.button_open);
                 }
         );
         binding.buttonPinch.setOnClickListener(v -> {
-                    sendPosition(view, "openPinch", R.id.button_pinch);
+                    sendPosition("openPinch", R.id.button_pinch);
                 }
         );
 
         binding.buttonOne.setOnClickListener(v -> {
-                    sendPosition(view, "one", R.id.button_one);
+                    sendPosition("one", R.id.button_one);
                 }
         );
 
         binding.buttonTwo.setOnClickListener(v -> {
-                    sendPosition(view, "two", R.id.button_two);
+                    sendPosition("two", R.id.button_two);
                 }
         );
 
         binding.buttonThree.setOnClickListener(v -> {
-                    sendPosition(view, "three", R.id.button_three);
+                    sendPosition("three", R.id.button_three);
                 }
         );
 
         binding.buttonFour.setOnClickListener(v -> {
-                    sendPosition(view, "four", R.id.button_four);
+                    sendPosition("four", R.id.button_four);
                 }
         );
 
         binding.buttonFive.setOnClickListener(v -> {
-                    sendPosition(view, "five", R.id.button_five);
+                    sendPosition("five", R.id.button_five);
                 }
         );
 
         binding.buttonOk.setOnClickListener(v -> {
-                    sendPosition(view, "ok", R.id.button_ok);
+                    sendPosition("ok", R.id.button_ok);
                 }
         );
 
         binding.buttonScratch.setOnClickListener(v -> {
-                    sendPosition(view, "scratch", R.id.button_scratch);
+                    sendPosition("scratch", R.id.button_scratch);
                 }
         );
 
-
-
         binding.buttonConnect.setOnClickListener(v -> {
-                    SharedPreferences sharedPreferences =
-                            PreferenceManager.getDefaultSharedPreferences(getContext());
-                    String address = sharedPreferences.getString(getString(R.string.macAddressKey), "");
-                    if (address.isEmpty()) {
-                        final Snackbar snackBar = Snackbar.make(view, R.string.noMacAddress, Snackbar.LENGTH_LONG)
-                                .setAnchorView(binding.buttonConnect.getId());
-                        snackBar.setAction(R.string.closeView, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    snackBar.dismiss();
-                                }
-
-                            });
-                        snackBar.show();
-                        return;
-                    }
-                    connectTo(view, address, binding.buttonConnect);
+                    connect();
                 }
         );
 
@@ -126,11 +115,27 @@ public class FirstFragment extends Fragment {
     }
 
 
-    private void connectTo(View view, String address, Button button ) {
+    private void connect() {
+        SharedPreferences sharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(getContext());
+        String address = sharedPreferences.getString(getString(R.string.macAddressKey), "");
+        if (address.isEmpty()) {
+            final Snackbar snackBar = Snackbar.make(binding.getRoot().getRootView(), R.string.noMacAddress, Snackbar.LENGTH_LONG)
+                    .setAnchorView(binding.buttonConnect.getId());
+            snackBar.setAction(R.string.closeView, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    snackBar.dismiss();
+                }
+
+            });
+            snackBar.show();
+            return;
+        }
         boolean connected = BluetoothHandler.getInstance().connect(this.getContext(), address);
         if (!connected) {
-            Snackbar.make(view, "Connection initialization failed.", Snackbar.LENGTH_LONG)
-                    .setAnchorView(button.getId())
+            Snackbar.make(binding.getRoot().getRootView(), "Connection initialization failed.", Snackbar.LENGTH_LONG)
+                    .setAnchorView(R.id.button_connect)
                     .setAction("Action", null).show();
             showConnected(false);
         } else {
@@ -140,18 +145,50 @@ public class FirstFragment extends Fragment {
         }
     }
 
-    private void sendPosition(View view, String position, int buttonId) {
+    public void sendPosition(String position, int buttonId) {
+        if (buttonId == -1) {
+            position = translatePosition(position);
+        }
+        if ("connect".equals(position)) {
+            connect();
+            return;
+        }
+
         if (BluetoothHandler.getInstance().isConnected()) {
             BluetoothHandler.getInstance().writeCustomCharacteristic(position.getBytes(StandardCharsets.UTF_8));
         } else {
             Log.e(TAG, "sendPosition: not connected");
 //            showConnected(binding.buttonConnectProto, false);
             showConnected(false);
-            Snackbar.make(view, binding.getRoot().getResources().getString(R.string.notConnected), Snackbar.LENGTH_LONG)
+            if (buttonId == -1) {
+                buttonId = R.id.button_scratch;
+            }
+            Snackbar.make(binding.getRoot().getRootView(), binding.getRoot().getResources().getString(R.string.notConnected), Snackbar.LENGTH_LONG)
                 .setAnchorView(buttonId)
                 .setAction("Action", null).show();
         }
     }
+
+    private String translatePosition(String position) {
+        switch(position) {
+            case "open":
+            case "ouvre":
+            case "ouvrir":
+                position = "five";
+                break;
+            case "fermer":
+            case "ferme":
+            case "close":
+                position = "fist";
+                break;
+            case "connecter":
+            case "connecte":
+                position = "connect";
+                break;
+        }
+        return position;
+    }
+
     private void showConnected(boolean connected) {
         Button button = binding.buttonConnect;
         if (connected) {
@@ -169,6 +206,9 @@ public class FirstFragment extends Fragment {
         super.onDestroyView();
         BluetoothHandler.getInstance().close();
         binding = null;
+        if (cstt != null) {
+            cstt.stopCustomSTT();
+        }
     }
 
 }

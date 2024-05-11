@@ -16,7 +16,20 @@
         android:gravity="center"
         android:orientation="vertical"
         >
-
+        <TextView
+            android:id="@+id/textView_speech_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:gravity="center"
+            />
+        <TextView
+            android:id="@+id/textView_speech_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_marginTop="12dp"
+            android:gravity="center"/>
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -37,16 +50,6 @@
                     android:backgroundTint="@color/red"
                     android:text="@string/connect"
                     tools:layout_editor_absoluteX="135dp" />
-
-                <!--            <Button-->
-                <!--                android:id="@+id/button_connect_proto"-->
-                <!--                android:layout_width="wrap_content"-->
-                <!--                android:layout_height="wrap_content"-->
-                <!--                android:layout_marginLeft="80dp"-->
-                <!--                android:layout_marginBottom="8dp"-->
-                <!--                android:backgroundTint="@color/red"-->
-                <!--                android:text="@string/connectProto"-->
-                <!--                tools:layout_editor_absoluteX="135dp" />-->
             </LinearLayout>
 
             <Button
