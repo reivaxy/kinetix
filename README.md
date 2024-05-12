@@ -59,7 +59,7 @@ Here is the early prototype, testing speed:
 
 https://github.com/reivaxy/kinetix/assets/3592991/b644f965-3c86-4bcd-a1fd-c3cf471b4016
 
-And here is the status on May 11th 2024. Check Release v0.7 for APK with voice control (please enable sound on this video or it won't make much sense :) )
+And here is the status on May 12th 2024. Check [Release v0.8](https://github.com/reivaxy/kinetix/releases/tag/v0.8) for APK with voice control (please enable sound on this video or it won't make much sense :) )
 
-https://github.com/reivaxy/kinetix/assets/3592991/b4d3b443-ba91-47ff-b890-49f439fda3eb
+https://github.com/reivaxy/kinetix/assets/3592991/68d8df24-c723-40e2-a849-26ecd64f889a
                                                                                                             
