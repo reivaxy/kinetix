@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "fr.reivaxy.kinetix"
-        minSdk = 22
+        minSdk = 23
         targetSdk = 34
         versionCode = 1
         versionName = "0.1"

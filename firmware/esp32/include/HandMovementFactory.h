@@ -22,6 +22,8 @@ public:
    HandMovement* fu();
    HandMovement* scratchClose();
    HandMovement* scratchOpen();
+   HandMovement* comeClose();
+   HandMovement* comeOpen();
    HandMovement* closeFingerBy(int finger, int closedQuantity);
    HandMovement* getByName(char* movementName);
    

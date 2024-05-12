@@ -20,6 +20,7 @@ public:
    void startMovement(char *movementName);
    void calibration();
    void scratch();
+   void come();
 
    Hand *hand = NULL;
    Sequence *seq = NULL;

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_settings">Réglages</string>
-    <string name="fist">Fermer</string>
+    <string name="close">Fermer</string>
     <string name="open">Ouvrir</string>
-    <string name="pinch">Pincer</string>
+    <string name="openPinch">Pince ouverte</string>
+    <string name="closedPinch">Pince fermée</string>
     <string name="one">Un</string>
     <string name="two">Deux</string>
     <string name="three">Trois</string>
@@ -12,7 +13,6 @@
     <string name="ok">Ok</string>
     <string name="calibration">Calibration</string>
     <string name="connect">Connecter</string>
-    <string name="connectProto">Connecter Proto</string>
     <string name="connected">Connecté</string>
     <string name="cancel">Annuler</string>
     <string name="confirm">Démarrer calibration</string>
@@ -32,4 +32,6 @@
     <string name="center">Centre</string>
     <string name="right">Droite</string>
     <string name="scratch">Gratte</string>
+    <string name="prefixPositionLabel">Préfixez les commandes de position avec \"Position\"</string>
+    <string name="come">Viens ici</string>
 </resources>

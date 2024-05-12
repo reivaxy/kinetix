@@ -5,6 +5,7 @@ import static android.view.Gravity.LEFT;
 import static android.view.Gravity.RIGHT;
 
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,8 +27,8 @@ import fr.reivaxy.kinetix.databinding.FragmentFirstBinding;
 public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
-    private CustomSTT cstt;
 
+    private HandHandler handHandler;
     private final static String TAG = FirstFragment.class.getSimpleName();
 
     @Override
@@ -43,60 +44,69 @@ public class FirstFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        cstt = new CustomSTT(this.getActivity(), binding, Locale.FRENCH, this);
-        cstt.startCustomSTT();
-
+        VoiceStatusUI vsui = new VoiceStatusUI(binding.textViewSpeechLocale,
+                                    binding.textViewSpeechStatus, binding.textViewSpeechResult);
+        handHandler = HandHandler.getInstance(this, vsui);
 
         binding.buttonFist.setOnClickListener(v -> {
-                    sendPosition("fist", R.id.button_fist);
+                    sendPosition("fist", binding.buttonFist);
                 }
         );
         binding.buttonOpen.setOnClickListener(v -> {
-                    sendPosition("five", R.id.button_open);
+                    sendPosition("five", binding.buttonOpen);
                 }
         );
-        binding.buttonPinch.setOnClickListener(v -> {
-                    sendPosition("openPinch", R.id.button_pinch);
+        binding.buttonOpenPinch.setOnClickListener(v -> {
+                    sendPosition("openPinch", binding.buttonOpenPinch);
+                }
+        );
+        binding.buttonClosePinch.setOnClickListener(v -> {
+                    sendPosition("closePinch", binding.buttonClosePinch);
                 }
         );
 
         binding.buttonOne.setOnClickListener(v -> {
-                    sendPosition("one", R.id.button_one);
+                    sendPosition("one", binding.buttonOne);
                 }
         );
 
         binding.buttonTwo.setOnClickListener(v -> {
-                    sendPosition("two", R.id.button_two);
+                    sendPosition("two", binding.buttonTwo);
                 }
         );
 
         binding.buttonThree.setOnClickListener(v -> {
-                    sendPosition("three", R.id.button_three);
+                    sendPosition("three", binding.buttonThree);
                 }
         );
 
         binding.buttonFour.setOnClickListener(v -> {
-                    sendPosition("four", R.id.button_four);
+                    sendPosition("four", binding.buttonFour);
                 }
         );
 
-        binding.buttonFive.setOnClickListener(v -> {
-                    sendPosition("five", R.id.button_five);
-                }
-        );
+//        binding.buttonFive.setOnClickListener(v -> {
+//                    sendPosition("five", R.id.button_five);
+//                }
+//        );
 
         binding.buttonOk.setOnClickListener(v -> {
-                    sendPosition("ok", R.id.button_ok);
+                    sendPosition("ok", binding.buttonOk);
                 }
         );
 
         binding.buttonScratch.setOnClickListener(v -> {
-                    sendPosition("scratch", R.id.button_scratch);
+                    sendPosition("scratch", binding.buttonScratch);
+                }
+        );
+
+        binding.buttonCome.setOnClickListener(v -> {
+                    sendPosition("come", binding.buttonCome);
                 }
         );
 
         binding.buttonConnect.setOnClickListener(v -> {
-                    connect();
+                    handHandler.connect();
                 }
         );
 
@@ -114,87 +124,50 @@ public class FirstFragment extends Fragment {
 
     }
 
-
-    private void connect() {
-        SharedPreferences sharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(getContext());
-        String address = sharedPreferences.getString(getString(R.string.macAddressKey), "");
-        if (address.isEmpty()) {
-            final Snackbar snackBar = Snackbar.make(binding.getRoot().getRootView(), R.string.noMacAddress, Snackbar.LENGTH_LONG)
-                    .setAnchorView(binding.buttonConnect.getId());
-            snackBar.setAction(R.string.closeView, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    snackBar.dismiss();
-                }
-
-            });
-            snackBar.show();
-            return;
-        }
-        boolean connected = BluetoothHandler.getInstance().connect(this.getContext(), address);
-        if (!connected) {
-            Snackbar.make(binding.getRoot().getRootView(), "Connection initialization failed.", Snackbar.LENGTH_LONG)
-                    .setAnchorView(R.id.button_connect)
-                    .setAction("Action", null).show();
-            showConnected(false);
-        } else {
-            // TODO: move this under callback/notif to actual connection successful
-            showConnected(true);
-
-        }
-    }
-
-    public void sendPosition(String position, int buttonId) {
-        if (buttonId == -1) {
-            position = translatePosition(position);
-        }
-        if ("connect".equals(position)) {
-            connect();
-            return;
-        }
-
-        if (BluetoothHandler.getInstance().isConnected()) {
-            BluetoothHandler.getInstance().writeCustomCharacteristic(position.getBytes(StandardCharsets.UTF_8));
-        } else {
-            Log.e(TAG, "sendPosition: not connected");
-//            showConnected(binding.buttonConnectProto, false);
-            showConnected(false);
-            if (buttonId == -1) {
-                buttonId = R.id.button_scratch;
+    public void emptyAddress() {
+        final Snackbar snackBar = Snackbar.make(getView(), R.string.noMacAddress, Snackbar.LENGTH_LONG)
+                .setAnchorView(binding.buttonConnect.getId());
+        snackBar.setAction(R.string.closeView, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackBar.dismiss();
             }
-            Snackbar.make(binding.getRoot().getRootView(), binding.getRoot().getResources().getString(R.string.notConnected), Snackbar.LENGTH_LONG)
-                .setAnchorView(buttonId)
-                .setAction("Action", null).show();
-        }
+
+        });
+        snackBar.show();
     }
 
-    private String translatePosition(String position) {
-        switch(position) {
-            case "open":
-            case "ouvre":
-            case "ouvrir":
-                position = "five";
-                break;
-            case "fermer":
-            case "ferme":
-            case "close":
-                position = "fist";
-                break;
-            case "connecter":
-            case "connecte":
-                position = "connect";
-                break;
-        }
-        return position;
+
+    private void sendPosition(String position, Button button) {
+        handHandler.setPosition(position);
+        flashButton(button);
     }
 
-    private void showConnected(boolean connected) {
+    public void flashButton(Button button) {
+        ColorStateList tintList = button.getBackgroundTintList();
+        button.setBackgroundTintList(AppCompatResources.getColorStateList(getContext(), R.color.green));
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Thread.sleep(100);
+                } catch ( InterruptedException e ) {
+                    // not bad if interrupted: sleeps a bit faster (can happen?)
+                }
+                button.setBackgroundTintList(tintList);
+            }
+        }).start();
+    }
+
+
+    public void showConnected(boolean connected) {
         Button button = binding.buttonConnect;
         if (connected) {
             button.setBackgroundTintList(AppCompatResources.getColorStateList(getContext(), R.color.green));
             button.setText(binding.getRoot().getResources().getString(R.string.connected));
         } else {
+            Snackbar.make(binding.getRoot().getRootView(), "Connection initialization failed.", Snackbar.LENGTH_LONG)
+                    .setAnchorView(R.id.button_connect)
+                    .setAction("Action", null).show();
             button.setBackgroundTintList(AppCompatResources.getColorStateList(getContext(), R.color.red));
             button.setText(binding.getRoot().getResources().getString(R.string.connect));
         }
@@ -206,8 +179,8 @@ public class FirstFragment extends Fragment {
         super.onDestroyView();
         BluetoothHandler.getInstance().close();
         binding = null;
-        if (cstt != null) {
-            cstt.stopCustomSTT();
+        if (handHandler != null) {
+            handHandler.stop();
         }
     }
 

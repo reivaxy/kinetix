@@ -75,6 +75,11 @@ void MessageProcessor::startMovement(char *movementName) {
       return;
    }
 
+   if (0 == strcmp(movementName, "come")) {
+      come();
+      return;
+   }
+
    handMovement = hmf->getByName(movementName);
    if (handMovement != NULL) {
       handMovement->start();
@@ -97,5 +102,14 @@ void MessageProcessor::scratch() {
   seq = new Sequence(0); // 0 is repeat forever
   seq->addMovement(calibrationHmf->scratchOpen(), 600);
   seq->addMovement(calibrationHmf->scratchClose(), 600);
+  seq->start();
+}
+
+void MessageProcessor::come() {
+  log_i("Starting come sequence");
+  HandMovementFactory *calibrationHmf = new HandMovementFactory(hand);
+  seq = new Sequence(5);
+  seq->addMovement(calibrationHmf->comeOpen(), 500);
+  seq->addMovement(calibrationHmf->comeClose(), 500);
   seq->start();
 }
