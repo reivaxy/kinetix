@@ -13,6 +13,11 @@
             app:title="@string/deviceName"
             app:useSimpleSummaryProvider="true" />
 
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="voiceControl"
+            android:title="@string/voiceControl" />
+
         <ListPreference
             app:defaultValue="center"
             app:entries="@array/buttonsPosition_entries"

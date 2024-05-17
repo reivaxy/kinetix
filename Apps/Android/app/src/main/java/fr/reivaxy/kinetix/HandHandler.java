@@ -3,17 +3,14 @@ package fr.reivaxy.kinetix;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-
 import androidx.annotation.NonNull;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.preference.PreferenceManager;
-
-import com.google.android.material.snackbar.Snackbar;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class HandHandler {
     private final String TAG = HandHandler.class.getSimpleName();
@@ -22,12 +19,18 @@ public class HandHandler {
     private static FirstFragment fragment = null;
     private static VoiceStatusUI voiceStatusUI = null;
     private CustomSTT cstt;
+    private final Pattern pattern = Pattern.compile(".*\\bposition (\\w*)\\b.*");
 
     private HandHandler(@NonNull FirstFragment fragment, @NonNull VoiceStatusUI voiceStatusUI) {
         this.fragment = fragment;
         this.voiceStatusUI = voiceStatusUI;
-        cstt = new CustomSTT(fragment.getActivity(), Locale.getDefault(), this);
-        cstt.startCustomSTT();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(fragment.getContext());
+        boolean voiceControl = preferences.getBoolean(fragment.getString(R.string.voiceControlKey), false);
+        if (voiceControl) {
+            cstt = new CustomSTT(fragment.getActivity(), Locale.getDefault(), this);
+            cstt.startCustomSTT();
+        }
+
     }
 
     public static HandHandler getInstance(@NonNull FirstFragment fragment, @NonNull VoiceStatusUI voiceStatusUI) {
@@ -67,8 +70,17 @@ public class HandHandler {
     }
 
     public void gotVocalMessage(String message) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(fragment.getContext());
+        boolean voiceControl = preferences.getBoolean(fragment.getString(R.string.voiceControlKey), false);
+        if (!voiceControl) {
+            return;
+        }
+
         String translated = translateMessage(message);
         Log.i(TAG, String.format("Translated '%s' to '%s'", message, translated));
+        if (translated == null) {
+            return;
+        }
         if ("connect".equals(translated)) {
             connect();
             return;
@@ -76,8 +88,8 @@ public class HandHandler {
         if(translated.equalsIgnoreCase("calibration")) {
             return;
         }
+        fragment.flashButton(translated);
         setPosition(translated);
-
     }
 
     public void setPosition(String position) {
@@ -92,19 +104,21 @@ public class HandHandler {
     }
 
     private String translateMessage(String message) {
-        String position = message;
-        if (message.startsWith("position ")) {
-            position = message.substring("position".length() + 1); // remove with trailing space
-            Log.i(TAG, String.format("Position removed: '%s'", position));
-        } else {
-            if (message.startsWith("connect")) {
-                return "connect";
-            }
-            return "";
+        if (message.startsWith("connect")) {
+            return "connect";
         }
+        Matcher matcher = pattern.matcher(message);
+        if (!matcher.matches()) {
+            Log.i(TAG, String.format("No pattern found in: '%s'", message));
+            return null;
+        }
+        String position = matcher.group(1);
+        Log.i(TAG, String.format("Position found: '%s'", position));
         switch(position) {
             case "1":
             case "un":
+            case "pointé":
+            case "pointée":
             case "pointe":
             case "pointer":
             case "montrer":
@@ -117,9 +131,11 @@ public class HandHandler {
 
             case "2":
             case "deux":
+            case "victoire":
             case "de":
             case "to":
             case "too":
+            case "victory":
                 position = "two";
                 break;
 
@@ -158,8 +174,10 @@ public class HandHandler {
             case "fermé":
             case "fermée":
             case "close":
+            case "closed":
             case "clothe":
-            case "clothes":
+            case "fist":
+            case "clothes":  // I need to improve my pronunciation...
                 position = "fist";
                 break;
 
@@ -196,6 +214,14 @@ public class HandHandler {
             case "venez ici":
                 position = "come";
                 break;
+
+            case "rock":
+            case "love":
+                position = position;
+                break;
+
+            default:
+                position = null;
         }
         return position;
     }

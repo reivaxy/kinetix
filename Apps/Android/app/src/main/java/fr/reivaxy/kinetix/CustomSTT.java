@@ -1,7 +1,5 @@
 package fr.reivaxy.kinetix;
 
-import static android.speech.RecognizerIntent.EXTRA_MASK_OFFENSIVE_WORDS;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,7 +30,8 @@ public class CustomSTT implements RecognitionListener {
         }
         handHandler.getVoiceStatusUI().setLanguage(language.getDisplayLanguage());
 
-//        intentSpeech.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
+        intentSpeech.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
+        intentSpeech.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 100);
     }
 
     public void startCustomSTT() {
@@ -81,30 +80,41 @@ public class CustomSTT implements RecognitionListener {
 
     @Override
     public void onError(int error) {
-        String msg = "Didn't get it";
-        if (error == 7) {
-            handHandler.getVoiceStatusUI().setStatus(msg);
-        } else {
-            msg = String.format("onError %d", error);
-            handHandler.getVoiceStatusUI().setStatus(msg);
+        String msg = "";
+        boolean restart = true;
+        switch(error) {
+            case 7:
+                msg = "Didn't get it";
+                break;
+            case 8:
+                msg = "Recognizer Busy";
+                restart = false;
+                break;
+            default:
+                msg = String.format("onError %d", error);
         }
+        handHandler.getVoiceStatusUI().setStatus(msg);
         Log.d(TAG, msg);
-        startCustomSTT();
+        if (restart) {
+            startCustomSTT();
+        }
     }
 
     @Override
     public void onResults(Bundle results) {
         String message = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION).get(0).toLowerCase();
         Log.d(TAG, String.format("onResults %s", message));
-        handHandler.getVoiceStatusUI().setResult(message);
-        handHandler.gotVocalMessage(message);
+//        handHandler.getVoiceStatusUI().setResult(message);
+//        handHandler.gotVocalMessage(message);
         startCustomSTT();
     }
 
     @Override
     public void onPartialResults(Bundle partialResults) {
-        Log.d(TAG, "onPartialResults");
+        String message = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION).get(0).toLowerCase();
+        Log.d(TAG, String.format("onPartialResults %s", message));
         handHandler.getVoiceStatusUI().setStatus("onPartialResults");
+        handHandler.gotVocalMessage(message);
     }
 
     @Override

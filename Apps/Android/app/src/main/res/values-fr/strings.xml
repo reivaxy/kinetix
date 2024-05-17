@@ -20,6 +20,7 @@
     <string name="calibTitle">ATTENTION</string>
     <string name="notConnected">Non connecté à un appareil Kinetix</string>
     <string name="macAddress">Addresse MAC</string>
+    <string name="voiceControl">Commandes Vocales</string>
     <string name="kinetixDevice">Appareil Kinetix</string>
     <string name="deviceName">Nom de l\'appareil</string>
     <string name="noMacAddress">Aucune address MAC configurée</string>
@@ -34,4 +35,6 @@
     <string name="scratch">Gratte</string>
     <string name="prefixPositionLabel">Préfixez les commandes de position avec \"Position\"</string>
     <string name="come">Viens ici</string>
+    <string name="love">Love</string>
+    <string name="rock">Rock</string>
 </resources>

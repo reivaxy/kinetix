@@ -31,6 +31,8 @@ public class FirstFragment extends Fragment {
     private HandHandler handHandler;
     private final static String TAG = FirstFragment.class.getSimpleName();
 
+    private ColorStateList defaultTintList = null;
+
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
@@ -44,8 +46,22 @@ public class FirstFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        defaultTintList = binding.buttonOpenPinch.getBackgroundTintList(); // whichever
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String buttonsPosition = preferences.getString(getString(R.string.buttonsPositionKey), "center");
+        if (buttonsPosition.equals("right")) {
+            binding.buttonList.setGravity(RIGHT);
+        }
+        if (buttonsPosition.equals("left")) {
+            binding.buttonList.setGravity(LEFT);
+        }
+        if (buttonsPosition.equals("center")) {
+            binding.buttonList.setGravity(CENTER);
+        }
+
         VoiceStatusUI vsui = new VoiceStatusUI(binding.textViewSpeechLocale,
-                                    binding.textViewSpeechStatus, binding.textViewSpeechResult);
+                binding.textViewSpeechStatus, binding.textViewSpeechResult);
         handHandler = HandHandler.getInstance(this, vsui);
 
         binding.buttonFist.setOnClickListener(v -> {
@@ -105,22 +121,21 @@ public class FirstFragment extends Fragment {
                 }
         );
 
+        binding.buttonRock.setOnClickListener(v -> {
+                    sendPosition("rock", binding.buttonRock);
+                }
+        );
+
+        binding.buttonLove.setOnClickListener(v -> {
+                    sendPosition("love", binding.buttonLove);
+                }
+        );
+
         binding.buttonConnect.setOnClickListener(v -> {
                     handHandler.connect();
                 }
         );
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String buttonsPosition = preferences.getString(getString(R.string.buttonsPositionKey), "center");
-        if (buttonsPosition.equals("right")) {
-            binding.buttonList.setGravity(RIGHT);
-        }
-        if (buttonsPosition.equals("left")) {
-            binding.buttonList.setGravity(LEFT);
-        }
-        if (buttonsPosition.equals("center")) {
-            binding.buttonList.setGravity(CENTER);
-        }
 
     }
 
@@ -143,8 +158,54 @@ public class FirstFragment extends Fragment {
         flashButton(button);
     }
 
+    public void flashButton(String command) {
+        Button button = null;
+        switch (command) {
+            case "five":
+                button = binding.buttonOpen;
+                break;
+            case "fist":
+                button = binding.buttonFist;
+                break;
+            case "one":
+                button = binding.buttonOne;
+                break;
+            case "two":
+                button = binding.buttonTwo;
+                break;
+            case "three":
+                button = binding.buttonThree;
+                break;
+            case "four":
+                button = binding.buttonFour;
+                break;
+            case "openPinch":
+                button = binding.buttonOpenPinch;
+                break;
+            case "closePinch":
+                button = binding.buttonClosePinch;
+                break;
+            case "ok":
+                button = binding.buttonOk;
+                break;
+            case "rock":
+                button = binding.buttonRock;
+                break;
+            case "love":
+                button = binding.buttonLove;
+                break;
+            case "come":
+                button = binding.buttonCome;
+                break;
+            case "scratch":
+                button = binding.buttonScratch;
+                break;
+        }
+        if (button != null) {
+            flashButton(button);
+        }
+    }
     public void flashButton(Button button) {
-        ColorStateList tintList = button.getBackgroundTintList();
         button.setBackgroundTintList(AppCompatResources.getColorStateList(getContext(), R.color.green));
         new Thread(new Runnable() {
             public void run() {
@@ -153,7 +214,7 @@ public class FirstFragment extends Fragment {
                 } catch ( InterruptedException e ) {
                     // not bad if interrupted: sleeps a bit faster (can happen?)
                 }
-                button.setBackgroundTintList(tintList);
+                button.setBackgroundTintList(defaultTintList);
             }
         }).start();
     }
