@@ -86,8 +86,8 @@
       #define SERVO_CALIBRATION_OPEN 0
       #define SERVO_CALIBRATION_CLOSED 180
 
-      #define THUMB_MAX_OPEN 0
-      #define THUMB_MAX_CLOSED 130
+      #define THUMB_MAX_OPEN 30
+      #define THUMB_MAX_CLOSED 150
 
       #define FINGER1_MAX_OPEN 10 
       #define FINGER1_MAX_CLOSED 180
@@ -96,10 +96,10 @@
       #define FINGER2_MAX_CLOSED 20
 
       #define FINGER3_MAX_OPEN 0
-      #define FINGER3_MAX_CLOSED 170
+      #define FINGER3_MAX_CLOSED 180
 
-      #define FINGER4_MAX_OPEN 170
-      #define FINGER4_MAX_CLOSED 30
+      #define FINGER4_MAX_OPEN 180
+      #define FINGER4_MAX_CLOSED 35
    #endif
 #endif
 

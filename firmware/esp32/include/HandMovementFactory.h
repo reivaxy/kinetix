@@ -20,6 +20,8 @@ public:
    HandMovement* idle();
    HandMovement* pointing();
    HandMovement* fu();
+   HandMovement* rock();
+   HandMovement* love();
    HandMovement* scratchClose();
    HandMovement* scratchOpen();
    HandMovement* comeClose();

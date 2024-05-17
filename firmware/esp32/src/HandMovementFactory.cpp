@@ -138,6 +138,28 @@ HandMovement* HandMovementFactory::half() {
    return handMovement;
 }
 
+HandMovement* HandMovementFactory::rock() {
+   HandMovement *handMovement = new HandMovement(hand, "Rock");
+   // Thumb
+   handMovement->setFM(0, new FingerMovement(100, 0));
+   handMovement->setFM(1, new FingerMovement(0, 0));
+   handMovement->setFM(2, new FingerMovement(100, 0));
+   handMovement->setFM(3, new FingerMovement(100, 0));
+   handMovement->setFM(4, new FingerMovement(0, 0));
+   return handMovement;
+}
+
+HandMovement* HandMovementFactory::love() {
+   HandMovement *handMovement = new HandMovement(hand, "Love");
+   // Thumb
+   handMovement->setFM(0, new FingerMovement(0, 0));
+   handMovement->setFM(1, new FingerMovement(0, 0));
+   handMovement->setFM(2, new FingerMovement(100, 0));
+   handMovement->setFM(3, new FingerMovement(100, 0));
+   handMovement->setFM(4, new FingerMovement(0, 0));
+   return handMovement;
+}
+
 HandMovement* HandMovementFactory::scratchClose() {
    HandMovement *handMovement = new HandMovement(hand, "Scratch Close");
    // Thumb
@@ -162,7 +184,7 @@ HandMovement* HandMovementFactory::scratchOpen() {
 HandMovement* HandMovementFactory::comeClose() {
    HandMovement *handMovement = new HandMovement(hand, "Come Close");
    // Thumb
-   handMovement->setFM(0, new FingerMovement(100, 0));
+   handMovement->setFM(0, new FingerMovement(80, 0));
    handMovement->setFM(1, new FingerMovement(100, 0, 0.01));
    handMovement->setFM(2, new FingerMovement(100, 0));
    handMovement->setFM(3, new FingerMovement(100, 0));
@@ -173,7 +195,7 @@ HandMovement* HandMovementFactory::comeClose() {
 HandMovement* HandMovementFactory::comeOpen() {
    HandMovement *handMovement = new HandMovement(hand, "Come Open");
    // Thumb
-   handMovement->setFM(0, new FingerMovement(100, 0));
+   handMovement->setFM(0, new FingerMovement(80, 0));
    handMovement->setFM(1, new FingerMovement(0, 0, 0.01));
    handMovement->setFM(2, new FingerMovement(100, 0));
    handMovement->setFM(3, new FingerMovement(100, 0));
@@ -230,6 +252,12 @@ HandMovement* HandMovementFactory::getByName(char *movementName) {
    }
    if (0 == strcmp(movementName, "fu")) {
       return fu();
+   }
+   if (0 == strcmp(movementName, "rock")) {
+      return rock();
+   }
+   if (0 == strcmp(movementName, "love")) {
+      return love();
    }
 
    // Requested movement was not found

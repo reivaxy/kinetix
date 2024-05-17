@@ -55,6 +55,7 @@ void MessageProcessor::run() {
 
 void MessageProcessor::startMovement(char *movementName) {
    hand->stop();
+   // Make sure we use the appropriate min and max Servo values when fingers are wired.
    hand->setCalibration(false);
 
    if (handMovement != NULL) {
@@ -98,18 +99,18 @@ void MessageProcessor::calibration() {
 
 void MessageProcessor::scratch() {
   log_i("Starting scratch sequence");
-  HandMovementFactory *calibrationHmf = new HandMovementFactory(hand);
+  HandMovementFactory *hmf = new HandMovementFactory(hand);
   seq = new Sequence(0); // 0 is repeat forever
-  seq->addMovement(calibrationHmf->scratchOpen(), 600);
-  seq->addMovement(calibrationHmf->scratchClose(), 600);
+  seq->addMovement(hmf->scratchOpen(), 600);
+  seq->addMovement(hmf->scratchClose(), 600);
   seq->start();
 }
 
 void MessageProcessor::come() {
   log_i("Starting come sequence");
-  HandMovementFactory *calibrationHmf = new HandMovementFactory(hand);
+  HandMovementFactory *hmf = new HandMovementFactory(hand);
   seq = new Sequence(5);
-  seq->addMovement(calibrationHmf->comeOpen(), 500);
-  seq->addMovement(calibrationHmf->comeClose(), 500);
+  seq->addMovement(hmf->comeOpen(), 500);
+  seq->addMovement(hmf->comeClose(), 500);
   seq->start();
 }
