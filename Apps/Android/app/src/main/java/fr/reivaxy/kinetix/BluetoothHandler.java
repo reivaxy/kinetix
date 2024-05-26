@@ -162,6 +162,7 @@ public class BluetoothHandler  {
      */
     public boolean connect(Context context, final String address) {
         this.context = context;
+        close();
         if (mBluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
             return false;

@@ -3,8 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
@@ -17,6 +20,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Kinetix"
         tools:targetApi="31">
+        <activity
+            android:name=".DeviceListActivity"
+            android:exported="false"
+            android:label="@string/title_activity_device_list"
+            android:theme="@style/Theme.Kinetix.NoActionBar" />
         <activity
             android:name=".SettingsActivity"
             android:exported="false"

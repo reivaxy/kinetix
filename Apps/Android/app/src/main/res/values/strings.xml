@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name" translatable="false">Kinetix</string>
 
-<!--    Menu -->
+    <!--    Menu -->
     <string name="action_settings">Settings</string>
     <string name="action_about">About</string>
 
@@ -40,6 +40,8 @@
     <string name="macAddressKey" translatable="false">macAddress</string>
     <string name="voiceControl" translatable="true">Voice Control</string>
     <string name="voiceControlKey" translatable="false">voiceControl</string>
+    <string name="device_list_title">List of Kinetix devices</string>
+    <string name="device_list_pick">Tap the device you want to connect to</string>
 
 
     <color name="red">#E31616</color>
@@ -61,6 +63,9 @@
     <string name="buttonPositionSummary">You will need to restart the application to apply this setting</string>
     <string name="githubLink" translatable="false"><u>https://github.com/reivaxy/kinetix</u></string>
     <string name="ccLink" translatable="false"><u>https://creativecommons.org/licenses/by-nc-sa/4.0/</u></string>
+    <string name="action_devices">Devices</string>
+    <string name="title_activity_device_list" translatable="false">DeviceListActivity</string>
+    <string name="large_text" translatable="false">Large Text ?</string>
 
 
 </resources>

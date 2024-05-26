@@ -6,4 +6,13 @@
     </style>
 
     <style name="Theme.Kinetix" parent="Base.Theme.Kinetix" />
+
+    <style name="Theme.Kinetix.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.Kinetix.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Kinetix.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

@@ -37,4 +37,7 @@
     <string name="come">Viens ici</string>
     <string name="love">Love</string>
     <string name="rock">Rock</string>
+    <string name="action_devices">Appareils</string>
+    <string name="device_list_title">Liste des appareils Kinetix</string>
+    <string name="device_list_pick">Touchez l\'appareil pour s\'y connecter</string>
 </resources>

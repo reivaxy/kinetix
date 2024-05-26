@@ -51,15 +51,26 @@ public class HandHandler {
     }
 
     public void connect() {
+        connect(null);
+    }
+    public void connect(String macAddress) {
+
         Context context = fragment.getContext();
         SharedPreferences sharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(context);
-        String address = sharedPreferences.getString(context.getString(R.string.macAddressKey), "");
-        if (address.isEmpty()) {
+        if (macAddress != null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(context.getString(R.string.macAddressKey), macAddress);
+            editor.apply();
+        } else {
+            macAddress = sharedPreferences.getString(context.getString(R.string.macAddressKey), "");
+        }
+
+        if (macAddress.isEmpty()) {
             fragment.emptyAddress();
             return;
         }
-        boolean connected = BluetoothHandler.getInstance().connect(context, address);
+        boolean connected = BluetoothHandler.getInstance().connect(context, macAddress);
         if (!connected) {
             fragment.showConnected(false);
         } else {
