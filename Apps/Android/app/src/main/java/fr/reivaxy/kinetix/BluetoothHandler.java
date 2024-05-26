@@ -19,6 +19,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
 import java.util.Arrays;
@@ -28,21 +29,14 @@ public class BluetoothHandler  {
 
     private final static String TAG = BluetoothHandler.class.getSimpleName();
     public final static String ACTION_GATT_CONNECTED =
-            "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
+            "fr.reivaxy.kinetix.ACTION_GATT_CONNECTED";
     public final static String ACTION_GATT_DISCONNECTED =
-            "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
-    public final static String ACTION_GATT_SERVICES_DISCOVERED =
-            "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
-    public final static String ACTION_DATA_AVAILABLE =
-            "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
-    public final static String EXTRA_DATA =
-            "com.example.bluetooth.le.EXTRA_DATA";
+            "fr.reivaxy.kinetix.ACTION_GATT_DISCONNECTED";
     public static final String SERVICE_UUID = "89d60870-9908-4472-8f8c-e5b3e6573cd1";
     public static final String MOVEMENT_CHARACTERISTIC_UUID = "39dea685-a63e-44b2-8819-9a202581f8fe";
     public static final String CONFIG_CHARACTERISTIC_UUID = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e";
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothGatt mBluetoothGatt;
-    private BluetoothManager mBluetoothManager;
     private String mBluetoothDeviceAddress;
     private int mConnectionState = STATE_DISCONNECTED;
     private static BluetoothHandler instance = null;
@@ -54,16 +48,9 @@ public class BluetoothHandler  {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
-//    @Nullable
-//    @Override
-//    public IBinder onBind(Intent intent) {
-//        Log.i(TAG, "onBind");
-//        return null;
-//    }
-
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
-//        sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
     public static BluetoothHandler getInstance() {

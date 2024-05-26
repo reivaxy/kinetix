@@ -71,12 +71,8 @@ public class HandHandler {
             return;
         }
         boolean connected = BluetoothHandler.getInstance().connect(context, macAddress);
-        if (!connected) {
-            fragment.showConnected(false);
-        } else {
-            // TODO: move this under callback/notif to actual connection successful
-            fragment.showConnected(true);
-
+        if (connected) {
+            fragment.showConnecting();
         }
     }
 

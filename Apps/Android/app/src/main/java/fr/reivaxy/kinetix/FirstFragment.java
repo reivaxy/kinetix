@@ -4,6 +4,10 @@ import static android.view.Gravity.CENTER;
 import static android.view.Gravity.LEFT;
 import static android.view.Gravity.RIGHT;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
@@ -16,11 +20,10 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.snackbar.Snackbar;
-import java.nio.charset.StandardCharsets;
-import java.util.Locale;
 
 import fr.reivaxy.kinetix.databinding.FragmentFirstBinding;
 
@@ -32,6 +35,18 @@ public class FirstFragment extends Fragment {
     private final static String TAG = FirstFragment.class.getSimpleName();
 
     private ColorStateList defaultTintList = null;
+    private final BroadcastReceiver connectionReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Handle the connection failure here
+            Log.i(TAG, "onReceive: " + intent.getAction());
+            if (intent.getAction().equals(BluetoothHandler.ACTION_GATT_CONNECTED)) {
+                showConnected(true);
+            } else {
+                showConnected(false);
+            }
+        }
+    };
 
     @Override
     public View onCreateView(
@@ -45,6 +60,11 @@ public class FirstFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(connectionReceiver,
+                new IntentFilter(BluetoothHandler.ACTION_GATT_CONNECTED));
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(connectionReceiver,
+                new IntentFilter(BluetoothHandler.ACTION_GATT_DISCONNECTED));
 
         defaultTintList = binding.buttonOpenPinch.getBackgroundTintList(); // whichever
 
@@ -135,8 +155,6 @@ public class FirstFragment extends Fragment {
                     handHandler.connect();
                 }
         );
-
-
     }
 
     public void emptyAddress() {
@@ -220,13 +238,19 @@ public class FirstFragment extends Fragment {
     }
 
 
+    public void showConnecting() {
+        Button button = binding.buttonConnect;
+        button.setBackgroundTintList(AppCompatResources.getColorStateList(getContext(), R.color.yellow));
+        button.setText(binding.getRoot().getResources().getString(R.string.connecting));
+    }
+
     public void showConnected(boolean connected) {
         Button button = binding.buttonConnect;
         if (connected) {
             button.setBackgroundTintList(AppCompatResources.getColorStateList(getContext(), R.color.green));
             button.setText(binding.getRoot().getResources().getString(R.string.connected));
         } else {
-            Snackbar.make(binding.getRoot().getRootView(), "Connection initialization failed.", Snackbar.LENGTH_LONG)
+            Snackbar.make(binding.getRoot().getRootView(), binding.getRoot().getResources().getString(R.string.connectionFailed), Snackbar.LENGTH_LONG)
                     .setAnchorView(R.id.button_connect)
                     .setAction("Action", null).show();
             button.setBackgroundTintList(AppCompatResources.getColorStateList(getContext(), R.color.red));
@@ -243,6 +267,8 @@ public class FirstFragment extends Fragment {
         if (handHandler != null) {
             handHandler.stop();
         }
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(connectionReceiver);
+
     }
 
 }
