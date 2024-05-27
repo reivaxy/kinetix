@@ -20,6 +20,12 @@
             android:summary="@string/buttonPositionSummary">
         </SwitchPreference>
 
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="safeFilter"
+            android:title="@string/safeFilter">
+        </SwitchPreference>
+
         <ListPreference
             app:defaultValue="center"
             app:entries="@array/buttonsPosition_entries"

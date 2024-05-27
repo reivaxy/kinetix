@@ -59,6 +59,7 @@
     <string name="macAddress">MAC Address</string>
     <string name="deviceName">Device name</string>
     <string name="buttonsPosition">Buttons position</string>
+    <string name="safeFilter">Safe filter</string>
     <string name="left">Left</string>
     <string name="center">Center</string>
     <string name="right">Right</string>

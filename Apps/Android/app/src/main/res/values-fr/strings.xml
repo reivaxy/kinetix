@@ -42,4 +42,5 @@
     <string name="device_list_pick">Touchez l\'appareil pour s\'y connecter</string>
     <string name="connecting">Connexion</string>
     <string name="connectionFailed">Echec de la connexion</string>
+    <string name="safeFilter">Filtrage</string>
 </resources>

@@ -101,7 +101,6 @@ public class HandHandler {
 
     public void setPosition(String position) {
         Log.e(TAG, String.format("setPosition: %s", position));
-
         if (BluetoothHandler.getInstance().isConnected()) {
             BluetoothHandler.getInstance().writeCustomCharacteristic(position.getBytes(StandardCharsets.UTF_8));
         } else {
@@ -121,6 +120,9 @@ public class HandHandler {
         }
         String position = matcher.group(1);
         Log.i(TAG, String.format("Position found: '%s'", position));
+        voiceStatusUI.setResult(position);
+
+        boolean checkFilter = false;
         switch(position) {
             case "1":
             case "un":
@@ -212,6 +214,7 @@ public class HandHandler {
             case "doigt":
             case "doigt d'honneur":
                 position = "fu";
+                checkFilter = true;
                 break;
 
             case "come here":
@@ -224,11 +227,16 @@ public class HandHandler {
 
             case "rock":
             case "love":
-                position = position;
+                position = position;  // yeah, I know.
                 break;
 
             default:
                 position = null;
+        }
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(fragment.getContext());
+        boolean safeFilter = preferences.getBoolean("safeFilter", false);
+        if (safeFilter && checkFilter) {
+            position = null;
         }
         return position;
     }
