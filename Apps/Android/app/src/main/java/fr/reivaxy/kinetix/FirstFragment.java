@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -33,6 +34,7 @@ public class FirstFragment extends Fragment {
 
     private HandHandler handHandler;
     private final static String TAG = FirstFragment.class.getSimpleName();
+    private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
 
     private ColorStateList defaultTintList = null;
     private final BroadcastReceiver connectionReceiver = new BroadcastReceiver() {
@@ -60,6 +62,9 @@ public class FirstFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        VoiceStatusUI vsui = new VoiceStatusUI(binding.textViewSpeechLocale,
+                binding.textViewSpeechStatus, binding.textViewSpeechResult);
+        handHandler = HandHandler.getInstance(this, vsui);
 
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(connectionReceiver,
                 new IntentFilter(BluetoothHandler.ACTION_GATT_CONNECTED));
@@ -69,20 +74,22 @@ public class FirstFragment extends Fragment {
         defaultTintList = binding.buttonOpenPinch.getBackgroundTintList(); // whichever
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String buttonsPosition = preferences.getString(getString(R.string.buttonsPositionKey), "center");
-        if (buttonsPosition.equals("right")) {
-            binding.buttonList.setGravity(RIGHT);
-        }
-        if (buttonsPosition.equals("left")) {
-            binding.buttonList.setGravity(LEFT);
-        }
-        if (buttonsPosition.equals("center")) {
-            binding.buttonList.setGravity(CENTER);
-        }
 
-        VoiceStatusUI vsui = new VoiceStatusUI(binding.textViewSpeechLocale,
-                binding.textViewSpeechStatus, binding.textViewSpeechResult);
-        handHandler = HandHandler.getInstance(this, vsui);
+        // Set up the SharedPreferences listener
+        preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                if (key.equals(getString(R.string.buttonsPositionKey))) {
+                    updateButtonPosition(sharedPreferences);
+                }
+                if (key.equals(getString(R.string.voiceControlKey))) {
+                    updateVoiceControl(sharedPreferences);
+                }
+            }
+        };
+        preferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+        updateButtonPosition(preferences);
+        updateVoiceControl(preferences);
 
         binding.buttonFist.setOnClickListener(v -> {
                     sendPosition("fist", binding.buttonFist);
@@ -121,11 +128,6 @@ public class FirstFragment extends Fragment {
                 }
         );
 
-//        binding.buttonFive.setOnClickListener(v -> {
-//                    sendPosition("five", R.id.button_five);
-//                }
-//        );
-
         binding.buttonOk.setOnClickListener(v -> {
                     sendPosition("ok", binding.buttonOk);
                 }
@@ -155,6 +157,36 @@ public class FirstFragment extends Fragment {
                     handHandler.connect();
                 }
         );
+    }
+
+    private void updateVoiceControl(SharedPreferences preferences) {
+        boolean voiceControl = preferences.getBoolean(getString(R.string.voiceControlKey), false);
+        if (voiceControl) {
+            handHandler.start();
+        } else {
+            handHandler.stop();
+        }
+    }
+    private void updateButtonPosition(SharedPreferences preferences) {
+        String buttonsPosition = preferences.getString(getString(R.string.buttonsPositionKey), "center");
+        LinearLayout.LayoutParams paramsRight = (LinearLayout.LayoutParams) binding.buttonListRight.getLayoutParams();
+        LinearLayout.LayoutParams paramsLeft = (LinearLayout.LayoutParams) binding.buttonListLeft.getLayoutParams();
+        if (buttonsPosition.equals("right")) {
+            // Set the new weight
+            paramsRight.weight = 0;
+            paramsLeft.weight = 2;
+        }
+        if (buttonsPosition.equals("left")) {
+            paramsRight.weight = 2;
+            paramsLeft.weight = 0;
+        }
+        if (buttonsPosition.equals("center")) {
+            paramsRight.weight = 1;
+            paramsLeft.weight = 1;
+        }
+        // Apply the updated LayoutParams back to the view
+        binding.buttonListLeft.setLayoutParams(paramsLeft);
+        binding.buttonListRight.setLayoutParams(paramsRight);
     }
 
     public void emptyAddress() {
@@ -268,6 +300,7 @@ public class FirstFragment extends Fragment {
             handHandler.stop();
         }
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(connectionReceiver);
+
 
     }
 

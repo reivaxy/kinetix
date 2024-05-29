@@ -21,8 +21,8 @@ public class VoiceStatusUI {
         }
     }
 
-    public void setStatus(String value) {
-        if (language != null) {
+    public void setStatus(String value, boolean refresh) {
+        if (language != null && refresh) {
             status.setText(value);
         }
     }
@@ -31,6 +31,12 @@ public class VoiceStatusUI {
         if (language != null) {
             result.setText(value);
         }
+    }
+
+    public void clear() {
+        result.setText("");
+        status.setText("");
+        language.setText("");
     }
 
 

@@ -64,12 +64,11 @@
     <string name="center">Center</string>
     <string name="right">Right</string>
     <string name="buttonsPositionKey" translatable="false">buttonsPosition</string>
-    <string name="buttonPositionSummary">You will need to restart the application to apply this setting</string>
     <string name="githubLink" translatable="false"><u>https://github.com/reivaxy/kinetix</u></string>
     <string name="ccLink" translatable="false"><u>https://creativecommons.org/licenses/by-nc-sa/4.0/</u></string>
     <string name="action_devices">Devices</string>
     <string name="title_activity_device_list" translatable="false">DeviceListActivity</string>
     <string name="large_text" translatable="false">Large Text ?</string>
-
+    <string name="languagePackageMessage">To use voice recognition in %s, you must download this offline language package in the Google Assistant, and restart the application</string>
 
 </resources>

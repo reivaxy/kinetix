@@ -43,4 +43,5 @@
     <string name="connecting">Connexion</string>
     <string name="connectionFailed">Echec de la connexion</string>
     <string name="safeFilter">Filtrage</string>
+    <string name="languagePackageMessage">Pour utiliser la reconnaissance vocale en %s, vous devez téléchargez ce language dans Google Assistant, et relancer l\'appli.</string>
 </resources>

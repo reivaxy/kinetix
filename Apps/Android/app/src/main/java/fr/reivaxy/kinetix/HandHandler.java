@@ -19,18 +19,15 @@ public class HandHandler {
     private static FirstFragment fragment = null;
     private static VoiceStatusUI voiceStatusUI = null;
     private CustomSTT cstt;
-    private final Pattern pattern = Pattern.compile(".*\\bposition (\\w*)\\b.*");
+    private final Pattern pattern1 = Pattern.compile(".*\\bposition (\\w*)\\b.*");
+
+    // Some positions are two words
+    private final Pattern pattern2 = Pattern.compile(".*\\bposition (\\w*\\b \\w*)\\b.*");
 
     private HandHandler(@NonNull FirstFragment fragment, @NonNull VoiceStatusUI voiceStatusUI) {
         this.fragment = fragment;
         this.voiceStatusUI = voiceStatusUI;
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(fragment.getContext());
-        boolean voiceControl = preferences.getBoolean(fragment.getString(R.string.voiceControlKey), false);
-        if (voiceControl) {
-            cstt = new CustomSTT(fragment.getActivity(), Locale.getDefault(), this);
-            cstt.startCustomSTT();
-        }
-
+        cstt = new CustomSTT(fragment.getActivity(), Locale.getDefault(), this);
     }
 
     public static HandHandler getInstance(@NonNull FirstFragment fragment, @NonNull VoiceStatusUI voiceStatusUI) {
@@ -77,21 +74,34 @@ public class HandHandler {
     }
 
     public void gotVocalMessage(String message) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(fragment.getContext());
-        boolean voiceControl = preferences.getBoolean(fragment.getString(R.string.voiceControlKey), false);
-        if (!voiceControl) {
+        if (message.startsWith("connect")) {
+            connect();
             return;
         }
+        Matcher matcher1 = pattern1.matcher(message);
+        if (!matcher1.matches()) {
+            Log.i(TAG, String.format("No pattern found in: '%s'", message));
+            return;
+        }
+        String position = matcher1.group(1);
+        Log.i(TAG, String.format("Position found: '%s'", position));
 
-        String translated = translateMessage(message);
+        String translated = translateMessage(position);
+        if (translated == null) {
+            Matcher matcher2 = pattern2.matcher(message);
+            if (!matcher2.matches()) {
+                Log.i(TAG, String.format("No pattern found in: '%s'", message));
+                return;
+            }
+            position = matcher2.group(1);
+            translated = translateMessage(position);
+        }
+
         Log.i(TAG, String.format("Translated '%s' to '%s'", message, translated));
         if (translated == null) {
             return;
         }
-        if ("connect".equals(translated)) {
-            connect();
-            return;
-        }
+
         if(translated.equalsIgnoreCase("calibration")) {
             return;
         }
@@ -109,17 +119,8 @@ public class HandHandler {
         }
     }
 
-    private String translateMessage(String message) {
-        if (message.startsWith("connect")) {
-            return "connect";
-        }
-        Matcher matcher = pattern.matcher(message);
-        if (!matcher.matches()) {
-            Log.i(TAG, String.format("No pattern found in: '%s'", message));
-            return null;
-        }
-        String position = matcher.group(1);
-        Log.i(TAG, String.format("Position found: '%s'", position));
+    private String translateMessage(String position) {
+
         voiceStatusUI.setResult(position);
 
         boolean checkFilter = false;
@@ -244,6 +245,20 @@ public class HandHandler {
     public void stop() {
         if (cstt != null) {
             cstt.stopCustomSTT();
+        }
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Thread.sleep(200);
+                } catch ( InterruptedException e ) {
+                }
+                voiceStatusUI.clear();
+            }
+        }).start();
+    }
+    public void start() {
+        if (cstt != null) {
+            cstt.startCustomSTT();
         }
     }
 }
