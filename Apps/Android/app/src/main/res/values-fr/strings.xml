@@ -28,7 +28,6 @@
     <string name="action_about">A propos</string>
     <string name="tools">Outils</string>
     <string name="buttonsPosition">Position des boutons</string>
-    <string name="buttonPositionSummary">Vous devrez relancer l\'application pour appliquer la modification</string>
     <string name="left">Gauche</string>
     <string name="center">Centre</string>
     <string name="right">Droite</string>
