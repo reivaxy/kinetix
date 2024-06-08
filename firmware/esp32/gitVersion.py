@@ -2,11 +2,15 @@ from datetime import datetime
 import subprocess
 import sys
 
-revision = (
-    subprocess.check_output(["git", "describe", "--always", "--dirty"])
-    .strip()
-    .decode("utf-8")
-)
+try:
+    revision = (
+        subprocess.check_output(["git", "describe", "--always", "--dirty"])
+        .strip()
+        .decode("utf-8")
+    )
+except Exception as e:
+    revision = "no_git"
+    
 del sys.argv[0]
 for arg in sys.argv:
     print(arg, end = ' ')
