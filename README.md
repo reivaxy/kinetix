@@ -43,6 +43,10 @@ electronic microcontroller to drive the servomotors. I've investigated several s
 
 The cost is estimated around $60.
 
+**BEWARE**: for now, voice control via bluetooth is only available with the ANDROID application. 
+There is no iPhone application. If you are willing to develop a free open source iPhone application please get in touch :) 
+
+
 Please check the [Wiki pages for printing and assembling instructions](https://github.com/reivaxy/kinetix/wiki)
 
 This is still very much a Work In Progress:
