@@ -1,4 +1,4 @@
-June 3 2024:
+June 22 2024:
 
 New version without current monitoring but much easier to mount with a simple soldering iron (no SMDs).
 
