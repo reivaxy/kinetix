@@ -127,11 +127,13 @@ public class HandHandler {
         switch(position) {
             case "1":
             case "un":
+            case "one":
             case "pointé":
             case "pointée":
             case "pointe":
             case "pointer":
             case "montrer":
+            case "show":
             case "clavier":
             case "pointing":
             case "point":
@@ -145,24 +147,22 @@ public class HandHandler {
             case "de":
             case "to":
             case "too":
+            case "two":
             case "victory":
                 position = "two";
                 break;
 
             case "3":
             case "trois":
+            case "three":
                 position = "three";
                 break;
 
             case "4":
             case "quatre":
             case "for":
+            case "four":
                 position = "four";
-                break;
-
-            case "5":
-            case "cinq":
-                position = "five";
                 break;
 
             case "okay":
@@ -176,6 +176,9 @@ public class HandHandler {
             case "ouvrir":
             case "ouvert":
             case "ouverte":
+            case "five":
+            case "cinq":
+            case "5":
                 position = "five";
                 break;
 
@@ -191,12 +194,14 @@ public class HandHandler {
                 position = "fist";
                 break;
 
+            case "scratch":
             case "gratte":
             case "gratter":
             case "gratté":
                 position = "scratch";
                 break;
 
+            case "pinch":
             case "open pinch":
             case "opened pinch":
             case "pince ouverte":
@@ -219,6 +224,7 @@ public class HandHandler {
                 break;
 
             case "come here":
+            case "come":
             case "viens":
             case "viens ici":
             case "venez":
@@ -232,7 +238,7 @@ public class HandHandler {
                 break;
 
             default:
-                position = null;
+                position = null;  // Avoid stopping on non recognized commands
         }
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(fragment.getContext());
         boolean safeFilter = preferences.getBoolean("safeFilter", false);

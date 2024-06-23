@@ -54,7 +54,7 @@ void MessageProcessor::run() {
 }
 
 void MessageProcessor::startMovement(char *movementName) {
-   hand->stop();
+
    // Make sure we use the appropriate min and max Servo values when fingers are wired.
    hand->setCalibration(false);
 
@@ -68,21 +68,25 @@ void MessageProcessor::startMovement(char *movementName) {
    }
 
    if (0 == strcmp(movementName, "calibration")) {
+      hand->stop();
       calibration();
       return;
    }
    if (0 == strcmp(movementName, "scratch")) {
+      hand->stop();
       scratch();
       return;
    }
 
    if (0 == strcmp(movementName, "come")) {
+      hand->stop();
       come();
       return;
    }
-
-   handMovement = hmf->getByName(movementName);
-   if (handMovement != NULL) {
+   HandMovement *newHandMovement = hmf->getByName(movementName);
+   if (newHandMovement != NULL) {
+      hand->stop();
+      handMovement = newHandMovement;  
       handMovement->start();
    }
 }
