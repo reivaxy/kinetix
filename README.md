@@ -26,6 +26,8 @@ completion and testing.
 You build it and use it at your own risks.  
 =====================================================================================================
 ```
+         
+### Important: you need not build the firmware or the android app, binaries are available in the [releases section](https://github.com/reivaxy/kinetix/releases)
 
 I've been a maker and board member of [the French e-Nable association](https://e-nable.fr/fr/) for a few years, and I've 
 worked on several 3D printed devices intended for people missing part of a hand or an arm.
@@ -63,7 +65,7 @@ Here is the early prototype, testing speed:
 
 https://github.com/reivaxy/kinetix/assets/3592991/b644f965-3c86-4bcd-a1fd-c3cf471b4016
 
-And here is the status on May 12th 2024. Check [Release v0.8](https://github.com/reivaxy/kinetix/releases/tag/v0.8) for APK with voice control (please enable sound on this video or it won't make much sense :) )
+And here is the status on May 12th 2024. Check [latest release](https://github.com/reivaxy/kinetix/releases/) for APK with voice control (please enable sound on this video or it won't make much sense :) )
 
 https://github.com/reivaxy/kinetix/assets/3592991/68d8df24-c723-40e2-a849-26ecd64f889a
                                                                                                             
