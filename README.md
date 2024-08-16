@@ -49,7 +49,7 @@ The cost is estimated around $60.
 There is no iPhone application. If you are willing to develop a free open source iPhone application please get in touch :) 
 
 
-Please check the [Wiki pages for printing and assembling instructions](https://github.com/reivaxy/kinetix/wiki)
+BEFORE YOU START ANYTHING, please check the [Wiki pages for printing and assembling instructions](https://github.com/reivaxy/kinetix/wiki), especially the page on parts and Servo Motors that come in different shapes.
 
 This is still very much a Work In Progress:
 - the onboard current monitoring is still being tested and tweaked, which means **for now the motors will not stop for obstacles and might 
