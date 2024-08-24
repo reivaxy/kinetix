@@ -6,7 +6,17 @@ Spanish: https://github-com.translate.goog/reivaxy/kinetix?_x_tr_sl=en&_x_tr_tl=
 
 German: https://github-com.translate.goog/reivaxy/kinetix?_x_tr_sl=en&_x_tr_tl=de&_x_tr_hl=fr
 
-> [!NOTE]
+Back to english: https://github.com/reivaxy/kinetix
+
+> [!TIP]
+> Detailed instructions are available in the [wiki section](https://github.com/reivaxy/kinetix/wiki)<br/>
+> Be sure to read the "parts" chapter about the servo motors that come in many flavors, only one of which is supported for now.
+
+> [!TIP]
+You need not build the firmware or the android app, binaries are available in the [releases section](https://github.com/reivaxy/kinetix/releases)
+
+
+> [!CAUTION] 
 > The work in this repository is released under licence Creative Commons 
 > Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) open-source license<br/>
 > Please read this license to understand what you may and may not do with these files (software and 
@@ -24,7 +34,6 @@ German: https://github-com.translate.goog/reivaxy/kinetix?_x_tr_sl=en&_x_tr_tl=d
 > You build it and use it at your own risks.  
 
          
-### Important: you need not build the firmware or the android app, binaries are available in the [releases section](https://github.com/reivaxy/kinetix/releases)
 
 I've been a maker and board member of [the French e-Nable association](https://e-nable.fr/fr/) for a few years, and I've 
 worked on several 3D printed devices intended for people missing part of a hand or an arm.
