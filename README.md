@@ -2,9 +2,9 @@
 
 French: https://github-com.translate.goog/reivaxy/kinetix?_x_tr_sl=en&_x_tr_tl=fr&_x_tr_hl=fr
 
-Spanish: https://github-com.translate.goog/reivaxy/kinetix?_x_tr_sl=en&_x_tr_tl=fr&_x_tr_hl=fr
+Spanish: https://github-com.translate.goog/reivaxy/kinetix?_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=fr
 
-German: https://github-com.translate.goog/reivaxy/kinetix?_x_tr_sl=en&_x_tr_tl=fr&_x_tr_hl=fr
+German: https://github-com.translate.goog/reivaxy/kinetix?_x_tr_sl=en&_x_tr_tl=de&_x_tr_hl=fr
 
 > [!NOTE]
 > The work in this repository is released under licence Creative Commons 
