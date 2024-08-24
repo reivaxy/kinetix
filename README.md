@@ -1,31 +1,28 @@
 # KINETIX HAND
 
-```
-The 3D part of this work is based on the Kinetic Hand, created and released by Mat Bowtell:
-https://www.thingiverse.com/thing:4618922 
+French: https://github-com.translate.goog/reivaxy/kinetix?_x_tr_sl=en&_x_tr_tl=fr&_x_tr_hl=fr
 
-The work in this repository is released under licence Creative Commons 
-Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) open-source license
+Spanish: https://github-com.translate.goog/reivaxy/kinetix?_x_tr_sl=en&_x_tr_tl=fr&_x_tr_hl=fr
 
-Please read this license to understand what you may and may not do with these files (software and 
-hardware):
+German: https://github-com.translate.goog/reivaxy/kinetix?_x_tr_sl=en&_x_tr_tl=fr&_x_tr_hl=fr
 
-https://creativecommons.org/licenses/by-nc-sa/4.0/
+> [!NOTE]
+> The work in this repository is released under licence Creative Commons 
+> Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) open-source license<br/>
+> Please read this license to understand what you may and may not do with these files (software and 
+> hardware):<br/> 
+> https://creativecommons.org/licenses/by-nc-sa/4.0/<br/><br/>
+> The 3D part of this work is based on the Kinetic Hand, created and released by Mat Bowtell:<br/>
+> https://www.thingiverse.com/thing:4618922<br/><br/>
+> To me, the most important part of it is "non commercial": do not use this work to sell anything, 
+> in any way, no matter how derivative it is.<br/><br/>
+> =============== DISCLAIMER of liability =============== <br/>
+> This is not a medical device. You must not use it as a missing limb replacement without checking with
+> medical professionals if this is appropriate.<br/>
+> Also, this is still a work in progress and should not be used until it has reached some level of 
+> completion and testing.<br/>  
+> You build it and use it at your own risks.  
 
-To me, the most important part of it is "non commercial": do not use this work to sell anything, 
-in any way, no matter how derivative it is.
-
-====================================== DISCLAIMER of liability ====================================== 
- 
-This is not a medical device. You must not use it as a missing limb replacement without checking with
-medical professionals if this is appropriate.
-
-Also, this is still a work in progress and should not be used until it has reached some level of 
-completion and testing.
-
-You build it and use it at your own risks.  
-=====================================================================================================
-```
          
 ### Important: you need not build the firmware or the android app, binaries are available in the [releases section](https://github.com/reivaxy/kinetix/releases)
 
