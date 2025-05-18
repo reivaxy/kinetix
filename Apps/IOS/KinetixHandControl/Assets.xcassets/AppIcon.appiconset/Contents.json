@@ -1,0 +1,14 @@
+{
+  "images" : [
+    {
+      "filename" : "Firefly an application icon for a mobile app called Kinetix and used to control a prothesis hand 130.jpg",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
