@@ -48,7 +48,7 @@ more recent electronic components would allow going further.
 Which is why in 2023 I started to work on this project to combine both new hand design, and recent 
 electronic microcontroller to drive the servomotors. I've investigated several solutions and here is the most promising one.
 
-The cost is estimated around $60, the weight is less than 300g.
+The cost is estimated around $30, the weight is less than 300g.
 
 **BEWARE**: for now, voice control via bluetooth is only available with the ANDROID application. 
 There is a prototype iPhone application that allows control by pressing buttons on the screen.
