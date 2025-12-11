@@ -43,8 +43,6 @@ When I worked on this project, there was only one low cost motor activated 3D pr
 It's a great device, but I found it somehow uneasy to print and assemble, with many small fragile parts, it's still a bit expensive, and I thought
 more recent electronic components would allow going further.
 
-(Since then, a new one showed up, called ["New Hand"](https://new-hand.webflow.io/), that I have not tried to build).
-
 Which is why in 2023 I started to work on this project to combine both new hand design, and recent 
 electronic microcontroller to drive the servomotors. I've investigated several solutions and here is the most promising one.
 
