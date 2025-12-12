@@ -91,6 +91,14 @@ void MessageProcessor::startMovement(char *movementName) {
    }
 }
 
+boolean MessageProcessor::isIdle() {
+   if (handMovement != NULL) {
+      return handMovement->isFinished();
+   } else {
+      return true;
+   }
+}
+
 void MessageProcessor::calibration() {
   log_i("Starting calibration sequence");  
   hand->setCalibration(true);  // This shouldn't be done once the finger are wired to the servos, may break.

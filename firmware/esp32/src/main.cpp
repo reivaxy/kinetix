@@ -5,11 +5,11 @@
 #include "Sequence.h"
 #include "BtServer.h"
 #include "MessageProcessor.h"
+#include "SensorProcessor.h"
 #include <EEPROM.h>
 
-// #include "CurrentMonitor.h"
 
-#if defined HOME_SERVOS || defined DEMO
+#if defined DEMO
 #define NEEDSEQ
 #endif
 
@@ -22,6 +22,7 @@ HandMovementFactory *hmf = new HandMovementFactory(hand);
 
 BtServer *btServer = NULL;
 MessageProcessor *messageProcessor = NULL;
+SensorProcessor *sensorProcessor = NULL;
 Sequence *seq = NULL;
 
 void setup() {
@@ -34,6 +35,11 @@ void setup() {
   start = millis();
   isClosed = true;
 
+  #ifdef SENSOR
+  sensorProcessor = new SensorProcessor(hand);
+  log_i("With Sensor");
+  #endif
+
   #ifndef NEEDSEQ
   messageProcessor = new MessageProcessor(hand);
   btServer = new BtServer(messageProcessor);
@@ -44,13 +50,6 @@ void setup() {
   seq->addMovement(hmf->five());
   log_i("Running init sequence");
   seq->start();   
-  #endif
-
-  #ifdef HOME_SERVOS
-  seq = new Sequence(0); // 0 is repeat forever
-  seq->addMovement(hmf->five(), 5000);
-  seq->addMovement(hmf->fist(), 1000);
-  seq->start();
   #endif
 
   #ifdef DEMO
@@ -65,10 +64,16 @@ void setup() {
   #endif
 
 }
-
+ 
 void loop() {
   #ifndef NEEDSEQ
-  messageProcessor->run();
+    messageProcessor->run();
+  #endif
+  #ifdef SENSOR
+    if ((seq == NULL || !seq->isRunning())
+          && messageProcessor->isIdle()) {
+      sensorProcessor->run();
+    }
   #endif
   if (seq != NULL) {
     seq->run();

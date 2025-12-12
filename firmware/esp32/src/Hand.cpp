@@ -37,6 +37,12 @@ void Hand::close(uint finger) {
    fingers[finger]->close();
 }
 
+void Hand::moveRelative(int to) {
+   for (uint i=0 ; i < FINGER_COUNT; i++) {
+      fingers[i]->moveRelative(to);
+   }
+}
+
 void Hand::open() {
    for (uint i=0 ; i < FINGER_COUNT; i++) {
       open(i);

@@ -12,7 +12,6 @@
 Finger::Finger(int _number, int _controlPin, int _monitorPin, int _maxOpen, int _maxClosed, int _direction) {
    number = _number; // finger number, to help in logs
    controlPin = _controlPin;
-   currentMonitor.setPin(_monitorPin);
    
    direction = _direction;
    maxOpen = _maxOpen;
@@ -70,13 +69,6 @@ void Finger::run() {
          update = true;
       }
    }
-   int current = currentMonitor.getValue();
-   // if (number == 4 && current > 200) {
-   //    sprintf(msg, "Stopping f%d, input: %d", number, current);
-   //    Serial.println(msg);      
-   //    stop();
-   //    update = false;
-   // } 
 
    if (update) {     
       myServo.write(currentPosition);      
@@ -105,6 +97,15 @@ void Finger::setMovement(FingerMovement *fingerMovement) {
    }
    log_d("Target f%d: %d", number, target);
    step = fingerMovement->step;
+}
+
+void Finger::moveRelative(int relativeTo) {
+   if (direction == 1) {
+      target = map(relativeTo, 0, 100, maxOpen, maxClosed);
+   } else {
+      target = map(relativeTo, 0, 100, maxClosed, maxOpen);
+      target = maxOpen - target + maxClosed;
+   }
 }
 
 void Finger::stop() {

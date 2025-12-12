@@ -21,6 +21,7 @@ public:
    void calibration();
    void scratch();
    void come();
+   boolean isIdle();
 
    Hand *hand = NULL;
    Sequence *seq = NULL;
