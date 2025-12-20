@@ -151,11 +151,6 @@ BtServer::BtServer(MessageProcessor* _messageProcessor) {
   // Required by many clients to enable notifications
   pOtaCharacteristic->addDescriptor(new BLE2902());
 
-  // Human-readable name (Characteristic User Description 0x2901)
-  BLEDescriptor* otaDesc = new BLEDescriptor(BLEUUID((uint16_t)0x2901));
-  otaDesc->setValue("OTA Control");
-  pOtaCharacteristic->addDescriptor(otaDesc);
-
   pService->start();
 
   BLEAdvertising* pAdvertising = BLEDevice::getAdvertising();
