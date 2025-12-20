@@ -105,29 +105,29 @@ bool OtaWifiUploadServer::ensureWifi(const String &ssid, const String &pass)
 
   WiFi.mode(WIFI_STA);
   WiFi.persistent(false);
-  WiFi.setAutoReconnect(true);
-  WiFi.disconnect(false);
   delay(50);
 
-  WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info)
-               {
-  switch (event) {
-    case ARDUINO_EVENT_WIFI_STA_START:
-      Serial.println("[WIFI] STA_START");
-      break;
-    case ARDUINO_EVENT_WIFI_STA_CONNECTED:
-      Serial.println("[WIFI] CONNECTED to AP");
-      break;
-    case ARDUINO_EVENT_WIFI_STA_GOT_IP:
-      Serial.print("[WIFI] GOT_IP: ");
-      Serial.println(WiFi.localIP());
-      break;
-    case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
-      Serial.printf("[WIFI] DISCONNECTED reason=%d\n", info.wifi_sta_disconnected.reason);
-      break;
-    default:
-      break;
-  } });
+  WiFi.onEvent([&](WiFiEvent_t event, WiFiEventInfo_t info) {
+    switch (event) {
+      case ARDUINO_EVENT_WIFI_STA_START:
+        Serial.println("[WIFI] STA_START");
+        break;
+      case ARDUINO_EVENT_WIFI_STA_CONNECTED:
+        Serial.println("[WIFI] CONNECTED to AP");
+        break;
+      case ARDUINO_EVENT_WIFI_STA_GOT_IP:
+        Serial.print("[WIFI] GOT_IP: ");
+        Serial.println(WiFi.localIP());
+        break;
+      case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
+        Serial.printf("[WIFI] DISCONNECTED reason=%d\n", info.wifi_sta_disconnected.reason);
+        WiFi.disconnect(true);
+        this->_stopTask = true;
+        break;
+      default:
+        break;
+    } 
+  });
 
   setState(State::ConnectingWifi, "WiFi.begin(" + ssid + ")");
   WiFi.begin(ssid.c_str(), pass.c_str());
@@ -154,8 +154,8 @@ bool OtaWifiUploadServer::ensureWifi(const String &ssid, const String &pass)
 
 void OtaWifiUploadServer::installRoutes()
 {
-  static const char* kHeaders[] = { "Content-Length" };
-  _server.collectHeaders(kHeaders, 1);
+  static const char* kHeaders[] = { "Content-Length", "X-OTA-Token", "Content-Type" };
+  _server.collectHeaders(kHeaders, 3);
   _server.on("/", HTTP_GET, [this]()
              { handleRoot(); });
 
@@ -175,7 +175,7 @@ void OtaWifiUploadServer::handleRoot()
 {
   _server.send(200, "text/plain",
                "ESP32 OTA upload server running.\n"
-               "POST /update?token=... with Content-Type: application/octet-stream\n");
+               "POST /update?token=... with Content-Type: multipart/form-data\n");
 }
 
 static uint32_t nowMs() { return (uint32_t)millis(); }
@@ -230,10 +230,15 @@ void OtaWifiUploadServer::maybeSendProgress(bool force)
 
 void OtaWifiUploadServer::handleUpdateUpload()
 {
-  if (_server.arg("token") != _token)
-    return;
+  String token = _server.header("X-OTA-Token");
+
+  if (token != _token) {
+      _server.send(403, "text/plain", "Forbidden");
+      return;
+  }
 
   HTTPUpload &upload = _server.upload();
+
   noteActivity();
 
   if (upload.status == UPLOAD_FILE_START)
@@ -303,7 +308,10 @@ void OtaWifiUploadServer::handleUpdateUpload()
 
 void OtaWifiUploadServer::handleUpdate()
 {
-  if (_server.arg("token") != _token)
+  String token = _server.header("X-OTA-Token");
+  log_i("Received token: %s", token.c_str());
+  
+  if (token != _token)
   {
     _server.send(403, "text/plain", "Forbidden");
     return;
@@ -339,10 +347,8 @@ void OtaWifiUploadServer::taskMain()
   }
 
   _token = makeToken();
-
-  installRoutes();
+   installRoutes();
   _server.begin();
-
   IPAddress ip = WiFi.localIP();
   _url = "http://" + ip.toString() + ":" + String(_port) + "/update?token=" + _token;
 
@@ -364,6 +370,7 @@ void OtaWifiUploadServer::taskMain()
     if ((t - sessionStart) > OTA_SESSION_TIMEOUT_MS)
     {
       replyLine("OTA_TIMEOUT session");
+      _stopTask = true;
       break;
     }
 
@@ -371,10 +378,12 @@ void OtaWifiUploadServer::taskMain()
     if (!_uploading && (t - _lastActivityMs) > OTA_IDLE_TIMEOUT_MS)
     {
       replyLine("OTA_TIMEOUT idle");
+      _stopTask = true;
       break;
     }
   }
 
+  log_i("Stopping server");
   // Stop server
   _server.stop();
   _token = "";

@@ -38,6 +38,7 @@ private:
   void handleRoot();
   void handleUpdate();         // final response
   void handleUpdateUpload();   // upload chunks
+  void handleUpdateRaw();   // upload raw
 
   bool ensureWifi(const String& ssid, const String& pass);
   bool parseStartArgs(const String& cmd, String& ssidOut, String& passOut);
@@ -71,7 +72,7 @@ private:
   uint8_t  _lastPctSent = 255;
 
   static constexpr uint32_t OTA_IDLE_TIMEOUT_MS    = 60 * 1000;   // 60s no upload/data -> stop
-  static constexpr uint32_t OTA_SESSION_TIMEOUT_MS = 5  * 60*1000; // 5min total -> stop
+  static constexpr uint32_t OTA_SESSION_TIMEOUT_MS = 2  * 60*1000; // 5min total -> stop
   static constexpr uint32_t OTA_PROGRESS_MIN_MS    = 300;         // throttle notifications
   static constexpr uint8_t  OTA_PROGRESS_STEP_PCT  = 2;           // send every 2%
 
