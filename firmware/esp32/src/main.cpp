@@ -40,9 +40,9 @@ void setup() {
   log_i("With Sensor");
   #endif
 
-  #ifndef NEEDSEQ
   messageProcessor = new MessageProcessor(hand);
   btServer = new BtServer(messageProcessor);
+  #ifndef NEEDSEQ
   // Initialization sequence, do it just once
   seq = new Sequence(1); // this sequence runs just once
   seq->addMovement(hmf->five());

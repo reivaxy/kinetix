@@ -22,6 +22,7 @@ public class CustomSTT implements RecognitionListener {
     private boolean dontRestart = false;
 
     private int error13Count = 0;
+    private int error9Count = 0;
 
     public CustomSTT(Activity activity, Locale locale, HandHandler handHandler) {
         this.handHandler = handHandler;
@@ -119,6 +120,18 @@ public class CustomSTT implements RecognitionListener {
                 if (error13Count > 4) {
                     stopCustomSTT();
                     msg = String.format(activity.getString(R.string.languagePackageMessage), locale.getDisplayLanguage());
+                    dontRestart = true;
+                    handHandler.getVoiceStatusUI().setStatus(msg, true);
+                    refreshErrors = false;
+                } else {
+                    msg = String.format("onError %d", error);
+                }
+                break;
+            case 9:
+                error9Count++;
+                if (error9Count > 4) {
+                    stopCustomSTT();
+                    msg = activity.getString(R.string.audioAuthorization);
                     dontRestart = true;
                     handHandler.getVoiceStatusUI().setStatus(msg, true);
                     refreshErrors = false;

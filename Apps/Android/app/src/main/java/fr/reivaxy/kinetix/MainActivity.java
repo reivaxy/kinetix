@@ -1,8 +1,11 @@
 package fr.reivaxy.kinetix;
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import androidx.core.app.ActivityCompat;
@@ -22,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private final static String TAG = MainActivity.class.getSimpleName();
 
 
+    @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,18 +45,25 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{android.Manifest.permission.BLUETOOTH_CONNECT},
                     42);
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            String requiredPermission = android.Manifest.permission.RECORD_AUDIO;
-
-            // If the user previously denied this permission then show a message explaining why
-            // this permission is needed
-            if (checkCallingOrSelfPermission(requiredPermission) == PackageManager.PERMISSION_DENIED) {
-                requestPermissions(new String[]{requiredPermission}, 101);
-            }
+        if (ActivityCompat.checkSelfPermission(binding.getRoot().getContext(), android.Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+            Log.w(TAG, "Bluetooth scan permission not granted");
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.BLUETOOTH_SCAN},
+                    42);
+        }
+        if (ActivityCompat.checkSelfPermission(binding.getRoot().getContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            Log.w(TAG, "Record audio permission not granted");
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.RECORD_AUDIO},
+                    42);
+        }
+        if (ActivityCompat.checkSelfPermission(binding.getRoot().getContext(), android.Manifest.permission.FOREGROUND_SERVICE_MICROPHONE) != PackageManager.PERMISSION_GRANTED) {
+            Log.w(TAG, "Foreground service microphone permission not granted");
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.FOREGROUND_SERVICE_MICROPHONE},
+                    42);
         }
 
-        
     }
 
     @Override

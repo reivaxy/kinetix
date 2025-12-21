@@ -9,7 +9,7 @@
 #include <BLEDevice.h>
 
 
-enum MessageType {movement, config};
+enum MessageType {movement, config, ota};
 
 class MessageProcessor {
 public:
