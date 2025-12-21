@@ -14,15 +14,16 @@ void SensorProcessor::run() {
    if (millis() - lastMeasureAt > measureIntervalMs) {
       newReading = getAvg();
       lastMeasureAt = millis();
-      Serial.println(newReading);
    }
 
-   // Serial.println(newPosition);
    // We don't want to change position for tiny variation.
-   // ADC is typically 1% accurate to readings vary when voltage does not
-   if (abs(newReading - previousReading > 10)) {
+   // ADC is typically 1% accurate to readings vary even if voltage does not
+   // This setting should be adjustable and saved in config
+   if (abs(newReading - previousReading) > 15) {
      previousReading = newReading;
+     // this offset should be adjustable saved in config
      int position = 380 - (newReading/10);
+     // high limit should be adjustable saved in config
      hand->moveRelative(map(position, 0, 100, 0, 180));
    }
    hand->run();
