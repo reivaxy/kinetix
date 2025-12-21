@@ -220,7 +220,7 @@ class App(ttk.Frame):
     QUICK_MESSAGES = [
         "five", "four", "three", "two", "one",
         "ok", "rock", "love",
-        "open", "fist", "scratch", "come",
+        "fist", "scratch", "come",
     ]
 
     DEFAULT_CHAR_UUID = "39dea685-a63e-44b2-8819-9a202581f8fe"
