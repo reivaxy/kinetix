@@ -1,1 +1,9 @@
-bleak
+bleak>=0.21.1
+
+# ---------- Windows only ----------
+winrt-Windows.Foundation; platform_system == "Windows"
+winrt-Windows.Foundation.Collections; platform_system == "Windows"
+winrt-Windows.Devices.Bluetooth; platform_system == "Windows"
+winrt-Windows.Devices.Bluetooth.Advertisement; platform_system == "Windows"
+winrt-Windows.Devices.Enumeration; platform_system == "Windows"
+winrt-Windows.Storage.Streams; platform_system == "Windows"
