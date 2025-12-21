@@ -1,17 +1,18 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/about"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fillViewport="true"
         android:padding="20dp">
 
-
         <LinearLayout
+            android:id="@+id/aboutContentRoot"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
@@ -33,9 +34,9 @@
 
                 <TextView
                     android:id="@+id/versionNameTextView"
-                    android:paddingLeft="5dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="5dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -50,9 +51,9 @@
 
                 <TextView
                     android:id="@+id/versionCodeTextView"
-                    android:paddingLeft="5dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="5dp" />
 
             </LinearLayout>
 
@@ -76,10 +77,10 @@
 
                 <TextView
                     android:id="@+id/aboutMacAddress"
-                    android:textIsSelectable="true"
-                    android:paddingLeft="5dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="5dp"
+                    android:textIsSelectable="true" />
             </LinearLayout>
 
             <LinearLayout
@@ -94,10 +95,10 @@
 
                 <TextView
                     android:id="@+id/aboutFirmwareVersion"
-                    android:paddingLeft="5dp"
-                    android:textIsSelectable="true"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="5dp"
+                    android:textIsSelectable="true" />
             </LinearLayout>
 
             <TextView
@@ -120,9 +121,9 @@
                 android:text="Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) open-source license" />
 
             <TextView
-                android:paddingTop="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingTop="10dp"
                 android:clickable="true"
                 android:onClick="openLink"
                 android:pointerIcon="hand"
@@ -145,5 +146,16 @@
                 android:text="@string/githubLink" />
 
         </LinearLayout>
-    </FrameLayout>
-</LinearLayout>
+    </ScrollView>
+
+    <!-- Copy all labels + values to clipboard (for easy email pasting) -->
+    <Button
+        android:id="@+id/copyAllButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:text="@string/copy"
+        android:textAllCaps="false" />
+
+</FrameLayout>

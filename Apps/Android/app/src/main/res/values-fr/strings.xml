@@ -62,4 +62,5 @@
     <string name="ota_wifi_password_hint">Mot de passe Wi‑Fi</string>
     <string name="error_ssid_required">SSID is requis</string>
     <string name="error_password_required">Password est requis</string>
+    <string name="copy">Copier</string>
 </resources>

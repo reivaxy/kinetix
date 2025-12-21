@@ -90,4 +90,5 @@
     <string name="ota_wifi_password_hint">Wi‑Fi password</string>
     <string name="error_ssid_required">SSID is mandatory</string>
     <string name="error_password_required">Password is mandatory</string>
+    <string name="copy">Copy</string>
 </resources>
