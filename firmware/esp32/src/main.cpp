@@ -6,7 +6,6 @@
 #include "BtServer.h"
 #include "MessageProcessor.h"
 #include "SensorProcessor.h"
-#include <EEPROM.h>
 
 
 #if defined DEMO
