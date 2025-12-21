@@ -1,13 +1,9 @@
 # The Android application
 
 
-This is for now a very basic app that needs to know the mac address of the ESP32 to connect.
+The android application allows to control the hand by tapping button or by voice recognition.
 
-For now it does not handle disconnection. It does not even have its own icon :) 
-
-The aim is to allow voice control, calibration of finger movements and other settings.
-
-
+It allows to update the firmware on the hand through Wifi.
 
 https://github.com/reivaxy/kinetix/assets/3592991/60400584-b939-4324-b3c6-a6f9eddaee47
 

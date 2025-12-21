@@ -22,12 +22,26 @@
     <string name="rock">Rock</string>
 
     <string name="calibration">Calibration</string>
+
+    <!-- OTA -->
+    <string name="ota_update">Firmware update (OTA)</string>
+    <string name="ota_confirm_title">Firmware update</string>
+    <string name="ota_confirm_message">Upload firmware file:\n%1$s ?</string>
+    <string name="ota_starting">Starting OTA…</string>
+    <string name="ota_uploading">Uploading firmware…</string>
+    <string name="ota_done">OTA complete (device will reboot)</string>
+    <string name="ota_ready_timeout">No response from device (OTA_READY timeout)</string>
+    <string name="ota_no_file">No firmware file selected</string>
+    <string name="ota_http_ok">Upload finished (HTTP %1$d)</string>
+    <string name="ota_http_fail">Upload failed (HTTP %1$d)</string>
+    <string name="ota_http_exception">Upload error: %1$s</string>
     <string name="fu" translatable="false">Fuck you</string>
     <string name="connect">Connect</string>
     <string name="connected">Connected</string>
     <string name="connecting">Connecting</string>
     <string name="cancel">Cancel</string>
-    <string name="confirm">Start Calibration</string>
+    <string name="confirm_calibration">Start Calibration</string>
+    <string name="confirm_ota">Start OTA</string>
     <string name="calibMessage">Cancel if servos are already wired!</string>
     <string name="calibTitle">WARNING</string>
     <string name="tools">Tools</string>
@@ -70,5 +84,10 @@
     <string name="title_activity_device_list" translatable="false">DeviceListActivity</string>
     <string name="large_text" translatable="false">Large Text ?</string>
     <string name="languagePackageMessage">To use voice recognition in %s, you must download this offline language package in the Google Assistant, and restart the application</string>
+    <string name="audioAuthorization">To use voice recognition you need to grant permissions</string>
 
+    <string name="ota_wifi_ssid_hint">Wi‑Fi SSID</string>
+    <string name="ota_wifi_password_hint">Wi‑Fi password</string>
+    <string name="error_ssid_required">SSID is mandatory</string>
+    <string name="error_password_required">Password is mandatory</string>
 </resources>

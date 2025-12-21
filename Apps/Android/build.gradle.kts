@@ -2,3 +2,4 @@
 plugins {
     alias(libs.plugins.androidApplication) apply false
 }
+val compileSdkVersion by extra(10)

@@ -12,10 +12,24 @@
     <string name="five">Cinq</string>
     <string name="ok">Ok</string>
     <string name="calibration">Calibration</string>
+
+    <!-- OTA -->
+    <string name="ota_update">Mise à jour firmware (OTA)</string>
+    <string name="ota_confirm_title">Mise à jour firmware</string>
+    <string name="ota_confirm_message">Téléverser le fichier firmware :\n%1$s ?</string>
+    <string name="ota_starting">Démarrage OTA…</string>
+    <string name="ota_uploading">Téléversement…</string>
+    <string name="ota_done">OTA terminé (redémarrage du dispositif)</string>
+    <string name="ota_ready_timeout">Aucune réponse du dispositif (timeout OTA_READY)</string>
+    <string name="ota_no_file">Aucun fichier firmware sélectionné</string>
+    <string name="ota_http_ok">Téléversement terminé (HTTP %1$d)</string>
+    <string name="ota_http_fail">Échec du téléversement (HTTP %1$d)</string>
+    <string name="ota_http_exception">Erreur de téléversement : %1$s</string>
     <string name="connect">Connecter</string>
     <string name="connected">Connecté</string>
     <string name="cancel">Annuler</string>
-    <string name="confirm">Démarrer calibration</string>
+    <string name="confirm_calibration">Démarrer calibration</string>
+    <string name="confirm_ota">Démarrer OTA</string>
     <string name="calibMessage">Annuler si les servos sont déjà cablés</string>
     <string name="calibTitle">ATTENTION</string>
     <string name="notConnected">Non connecté à un appareil Kinetix</string>
@@ -43,4 +57,9 @@
     <string name="connectionFailed">Echec de la connexion</string>
     <string name="safeFilter">Filtrage</string>
     <string name="languagePackageMessage">Pour utiliser la reconnaissance vocale en %s, vous devez téléchargez ce language dans Google Assistant, et relancer l\'appli.</string>
+    <string name="audioAuthorization">Pour utiliser la reconnaissance vocale vous devez accorder la permission</string>
+    <string name="ota_wifi_ssid_hint">SSID Wi‑Fi</string>
+    <string name="ota_wifi_password_hint">Mot de passe Wi‑Fi</string>
+    <string name="error_ssid_required">SSID is requis</string>
+    <string name="error_password_required">Password est requis</string>
 </resources>
