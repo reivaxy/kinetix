@@ -2,7 +2,8 @@
     <string name="app_name" translatable="false">Kinetix</string>
 
     <!--    Menu -->
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Settings app</string>
+    <string name="action_settings_kinetix">Settings KinetiX</string>
     <string name="action_about">About</string>
 
     <string name="first_fragment_label" translatable="false">Kinetix</string>
@@ -68,7 +69,7 @@
     <string name="title_activity_about" translatable="false">AboutActivity</string>
     <string name="title_activity_tools" translatable="false">ToolsActivity</string>
 
-    <!-- Preference  -->
+    <!-- App Settings  -->
     <string name="kinetixDevice">Kinetix device</string>
     <string name="macAddress">MAC Address</string>
     <string name="deviceName">Device name</string>
@@ -91,4 +92,30 @@
     <string name="error_ssid_required">SSID is mandatory</string>
     <string name="error_password_required">Password is mandatory</string>
     <string name="copy">Copy</string>
+
+    <!-- KinetiX settings -->
+    <string name="title_activity_kinetix_settings">Settings KinetiX</string>
+    <string name="coming_soon">Coming soon…</string>
+    <string name="firmware_settings">Firmware settings</string>
+    <string name="experimental_settings">Experiments settings</string>
+    <string name="flags">Flags</string>
+    <string name="flag">Flag</string>
+    <string name="flag1">Flag 1</string>
+    <string name="flag2">Flag 2</string>
+    <string name="flag3">Flag 3</string>
+    <string name="flag4">Flag 4</string>
+
+    <string name="integers">Integers</string>
+    <string name="integer1">Int 1</string>
+    <string name="integer2">Int 2</string>
+    <string name="integer3">Int 3</string>
+    <string name="integer4">Int 4</string>
+
+    <string name="strings">Strings</string>
+    <string name="string1">String 1</string>
+    <string name="string2">String 2</string>
+    <string name="string3">String 3</string>
+    <string name="string4">String 4</string>
+
+
 </resources>
