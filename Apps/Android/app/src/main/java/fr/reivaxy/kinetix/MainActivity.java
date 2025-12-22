@@ -87,6 +87,13 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        if (id == R.id.action_settings_kinetix) {
+            Log.i(TAG, "clicked Settings KinetiX");
+            Intent i = new Intent(MainActivity.this, KinetixSettingsActivity.class);
+            startActivity(i);
+            return true;
+        }
+
         if (id == R.id.action_about) {
             Log.i(TAG, "cliqued About");
             Intent i = new Intent(MainActivity.this, AboutActivity.class);
