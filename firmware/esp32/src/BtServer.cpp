@@ -133,6 +133,12 @@ BtServer::BtServer(MessageProcessor* _messageProcessor) {
       BLECharacteristic::PROPERTY_WRITE
     );
 
+  BLECharacteristic* pSystemCharacteristic =
+    pService->createCharacteristic(
+      SYSTEM_CHARACTERISTIC_UUID,
+      BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_READ
+    );
+
   BLECharacteristic* pConfigCharacteristic =
     pService->createCharacteristic(
       CONFIG_CHARACTERISTIC_UUID,
@@ -164,6 +170,9 @@ BtServer::BtServer(MessageProcessor* _messageProcessor) {
 
   pMovementCharacteristic->setCallbacks(
     new CharacteristicCallBack(movement, messageProcessor)
+  ); 
+  pSystemCharacteristic->setCallbacks(
+    new CharacteristicCallBack(systemConfig, messageProcessor)
   );
   pConfigCharacteristic->setCallbacks(
     new CharacteristicCallBack(config, messageProcessor)

@@ -5,7 +5,6 @@
 #include "Sequence.h"
 #include "BtServer.h"
 #include "MessageProcessor.h"
-#include <EEPROM.h>
 
 // #include "CurrentMonitor.h"
 
