@@ -27,28 +27,28 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <CheckBox
-                android:id="@+id/ks_bool_1"
+                android:id="@+id/ks_b_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/flag1"  />
 
             <CheckBox
-                android:id="@+id/ks_bool_2"
+                android:id="@+id/ks_b_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/flag2" />
 
             <CheckBox
-                android:id="@+id/ks_bool_3"
+                android:id="@+id/ks_b_3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/flag3" />
 
             <CheckBox
-                android:id="@+id/ks_bool_4"
+                android:id="@+id/ks_b_4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -83,10 +83,11 @@
                     android:paddingEnd="8dp"/>
 
                 <EditText
-                    android:id="@+id/ks_int_1"
+                    android:id="@+id/ks_i_1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberSigned" />
+                    android:inputType="numberSigned"
+                    android:maxLength="8"/>
             </LinearLayout>
 
             <LinearLayout
@@ -101,10 +102,11 @@
                     android:paddingEnd="8dp" />
 
                 <EditText
-                    android:id="@+id/ks_int_2"
+                    android:id="@+id/ks_i_2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberSigned" />
+                    android:inputType="numberSigned"
+                    android:maxLength="8" />
             </LinearLayout>
         </LinearLayout>
 
@@ -124,10 +126,11 @@
                     android:paddingEnd="8dp" />
 
                 <EditText
-                    android:id="@+id/ks_int_3"
+                    android:id="@+id/ks_i_3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberSigned" />
+                    android:inputType="numberSigned"
+                    android:maxLength="8" />
             </LinearLayout>
 
             <LinearLayout
@@ -142,10 +145,11 @@
                     android:paddingEnd="8dp" />
 
                 <EditText
-                    android:id="@+id/ks_int_4"
+                    android:id="@+id/ks_i_4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberSigned" />
+                    android:inputType="numberSigned"
+                    android:maxLength="8" />
             </LinearLayout>
         </LinearLayout>
 
@@ -171,10 +175,10 @@
                 android:paddingEnd="8dp" />
 
             <EditText
-                android:id="@+id/ks_str_1"
+                android:id="@+id/ks_s_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/string1"/>
+                android:maxLength="20"/>
         </LinearLayout>
 
         <LinearLayout
@@ -188,10 +192,10 @@
                 android:paddingEnd="8dp" />
 
             <EditText
-                android:paddingLeft="30dp"
-                android:id="@+id/ks_str_2"
+                android:id="@+id/ks_s_2"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:maxLength="20"/>
         </LinearLayout>
 
         <LinearLayout
@@ -205,9 +209,10 @@
                 android:paddingEnd="8dp" />
 
             <EditText
-                android:id="@+id/ks_str_3"
+                android:id="@+id/ks_s_3"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:maxLength="20" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -220,9 +225,10 @@
                 android:paddingEnd="8dp" />
 
             <EditText
-                android:id="@+id/ks_str_4"
+                android:id="@+id/ks_s_4"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:maxLength="20" />
         </LinearLayout>
 
         <LinearLayout

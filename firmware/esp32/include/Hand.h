@@ -5,6 +5,9 @@
 #include "Finger.h"
 #include "FingerMovement.h"
 
+#include "Settings.h"
+#include "XOLEDDisplay.h"
+
 #define FINGER_COUNT 5
 
 /*
@@ -108,6 +111,7 @@ public:
    Hand();
 
    Finger *fingers[5]; // 0 is thumb
+
    void close();
    void close(uint finger);
    void setCalibration(boolean);
@@ -126,4 +130,5 @@ public:
    void run(uint finger);
    void stop();
    void stop(uint finger);
+
 };

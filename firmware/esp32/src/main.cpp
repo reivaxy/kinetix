@@ -22,6 +22,9 @@ HandMovementFactory *hmf = new HandMovementFactory(hand);
 BtServer *btServer = NULL;
 MessageProcessor *messageProcessor = NULL;
 Sequence *seq = NULL;
+Settings *settings;
+
+// XOLEDDisplayClass *display;
 
 void setup() {
   Serial.begin(115200);
@@ -30,10 +33,14 @@ void setup() {
   #ifdef GIT_REV
   log_i("Version %s\n", GIT_REV);
   #endif 
+
+  // display = new XOLEDDisplayClass(0x3C, SDA, SCL, false, 250);
+  // display->setTitle("KinetiX");
+
   start = millis();
   isClosed = true;
-
-  messageProcessor = new MessageProcessor(hand);
+  settings = new Settings();
+  messageProcessor = new MessageProcessor(hand, settings, NULL);
   btServer = new BtServer(messageProcessor);
   #ifndef NEEDSEQ
   // Initialization sequence, do it just once
@@ -66,6 +73,7 @@ void setup() {
 }
 
 void loop() {
+  // display->refresh();
   #ifndef NEEDSEQ
   messageProcessor->run();
   #endif
