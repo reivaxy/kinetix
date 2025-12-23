@@ -2,8 +2,10 @@
 #include "MessageProcessor.h"
 
 
-MessageProcessor::MessageProcessor(Hand *hand) {
+MessageProcessor::MessageProcessor(Hand *hand, Settings *settings, XOLEDDisplayClass *display) {
    this->hand = hand;
+   this->settings = settings;
+   this->display = display;
    handMovement = NULL;
    hmf = new HandMovementFactory(hand);
 }
@@ -12,23 +14,27 @@ MessageProcessor::MessageProcessor(Hand *hand) {
 // TODO: handle a FIFO stack of messages ?
 void MessageProcessor::processWriteMsg(MessageType type, char* message) {
    log_i("Processing write message type '%d': '%s'", type, message);
+   String line;
    switch (type) {
-   case movement:
-      startMovement(message);
-      break;
+      case movement:
+         // line = "Movement: " + String(message);
+         // display->setLine(1, line.c_str());
+         startMovement(message);
+         break;
 
-   case config:
-      log_i("Processing write config message");
-      break;
+      case setting:
+         log_i("Processing write setting message");
+         settings->updateSetting(message);
+         break;
 
-   default:
-      log_i("Message type %d has no write processing defined", type);
-      break;
+      default:
+         log_i("Message type %d has no write processing defined", type);
+         break;
    }
 }
 
-void MessageProcessor::processReadMsg(MessageType type, char* message, BLECharacteristic *characteristic) {
-   log_i("Processing read message type '%d': '%s'", type, message);
+void MessageProcessor::processReadMsg(MessageType type, BLECharacteristic *characteristic) {
+   log_i("Processing read message type '%d'", type);
    switch (type) {
 
    case systemConfig:
@@ -38,10 +44,10 @@ void MessageProcessor::processReadMsg(MessageType type, char* message, BLECharac
       #endif
       break;
 
-   case config:
-      log_i("Processing read config message");
+   case setting:
+      log_i("Processing read setting message");
       // testing generic params
-      characteristic->setValue("{\"int_1\":42,\"str_1\":\"value2\", \"bool_1\":true, \"int_3\":23}");
+      characteristic->setValue(settings->getSettingJson().c_str() );         
       break;
 
    default:
