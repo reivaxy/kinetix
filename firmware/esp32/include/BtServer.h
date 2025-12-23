@@ -15,7 +15,7 @@
 #define CONFIG_CHARACTERISTIC_UUID "b2a49d41-a2ac-48c3-b6c8-cfd05640654e"
 #define OTA_CHARACTERISTIC_UUID "3168e56f-6ea1-420d-98f8-08a3b34afc9b"
 
-#define MAX_MESSAGE_SIZE 100
+#define MAX_MESSAGE_SIZE 150
 
 class BtServer {
 public:   

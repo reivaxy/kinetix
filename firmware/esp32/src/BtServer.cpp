@@ -94,14 +94,8 @@ public:
 
   void onRead(BLECharacteristic* characteristic) override {
     log_i("Kinetix received a read request");
-
-    char message[MAX_MESSAGE_SIZE];
-    size_t len = min((int)characteristic->getLength(), MAX_MESSAGE_SIZE - 1);
-    strncpy(message, (char*)characteristic->getData(), len);
-    message[len] = 0;
-
     if (messageProcessor != NULL) {
-      messageProcessor->processReadMsg(type, message, characteristic);
+      messageProcessor->processReadMsg(type, characteristic);
     }
   }
 };
@@ -175,7 +169,7 @@ BtServer::BtServer(MessageProcessor* _messageProcessor) {
     new CharacteristicCallBack(systemConfig, messageProcessor)
   );
   pConfigCharacteristic->setCallbacks(
-    new CharacteristicCallBack(config, messageProcessor)
+    new CharacteristicCallBack(setting, messageProcessor)
   );
   pOtaCharacteristic->setCallbacks(
     new CharacteristicCallBack(ota, messageProcessor)

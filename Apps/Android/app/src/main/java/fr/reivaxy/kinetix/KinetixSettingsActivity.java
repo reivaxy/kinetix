@@ -23,8 +23,6 @@ import org.json.JSONObject;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * KinetiX device settings screen.
@@ -38,31 +36,29 @@ public class KinetixSettingsActivity extends AppCompatActivity {
 
     // Field names sent over BLE. Keep them stable: firmware side should parse these.
     private static final String[] BOOL_FIELDS = new String[]{
-            "bool_1",
-            "bool_2",
-            "bool_3"
+            "b_1",
+            "b_2",
+            "b_3",
+            "b_4"
     };
 
     private static final String[] INT_FIELDS = new String[]{
-            "int_1",
-            "int_2",
-            "int_3"
+            "i_1",
+            "i_2",
+            "i_3",
+            "i_4"
     };
     private static final String[] STR_FIELDS = new String[]{
-            "str_1",
-            "str_2",
-            "str_3"
+            "s_1",
+            "s_2",
+            "s_3",
+            "s_4"
     };
 
     private final Map<Integer, String> viewIdToField = new HashMap<>();
 
     // Prevents BLE writes when we are programmatically applying values received from BLE.
     private boolean suppressWrites = false;
-
-    // Accept "key=value" pairs separated by new lines, ';', ','... etc.
-    private static final Pattern KV_PATTERN = Pattern.compile(
-            "([A-Za-z0-9_]+)\\s*=\\s*([^;\\n\\r,\\s]+)"
-    );
 
     private final BroadcastReceiver configReceiver = new BroadcastReceiver() {
         @Override
@@ -97,19 +93,22 @@ public class KinetixSettingsActivity extends AppCompatActivity {
         }
 
         // --- Checkboxes ---
-        bindCheckbox(R.id.ks_bool_1, BOOL_FIELDS[0]);
-        bindCheckbox(R.id.ks_bool_2, BOOL_FIELDS[1]);
-        bindCheckbox(R.id.ks_bool_3, BOOL_FIELDS[2]);
+        bindCheckbox(R.id.ks_b_1, BOOL_FIELDS[0]);
+        bindCheckbox(R.id.ks_b_2, BOOL_FIELDS[1]);
+        bindCheckbox(R.id.ks_b_3, BOOL_FIELDS[2]);
+        bindCheckbox(R.id.ks_b_4, BOOL_FIELDS[3]);
 
         // --- Integers ---
-        bindIntField(R.id.ks_int_1, INT_FIELDS[0]);
-        bindIntField(R.id.ks_int_2, INT_FIELDS[1]);
-        bindIntField(R.id.ks_int_3, INT_FIELDS[2]);
+        bindTxtField(R.id.ks_i_1, INT_FIELDS[0], true);
+        bindTxtField(R.id.ks_i_2, INT_FIELDS[1], true);
+        bindTxtField(R.id.ks_i_3, INT_FIELDS[2], true);
+        bindTxtField(R.id.ks_i_4, INT_FIELDS[3], true);
 
         // --- Strings ---
-        bindIntField(R.id.ks_str_1, STR_FIELDS[0]);
-        bindIntField(R.id.ks_str_2, STR_FIELDS[1]);
-        bindIntField(R.id.ks_str_3, STR_FIELDS[2]);
+        bindTxtField(R.id.ks_s_1, STR_FIELDS[0], false);
+        bindTxtField(R.id.ks_s_2, STR_FIELDS[1], false);
+        bindTxtField(R.id.ks_s_3, STR_FIELDS[2], false);
+        bindTxtField(R.id.ks_s_4, STR_FIELDS[3], false);
     }
 
     @Override
@@ -154,22 +153,9 @@ public class KinetixSettingsActivity extends AppCompatActivity {
         });
     }
 
-    private void bindIntField(int viewId, String fieldName) {
+    private void bindTxtField(int viewId, String fieldName, boolean isInt) {
         viewIdToField.put(viewId, fieldName);
         EditText et = findViewById(viewId);
-
-        // Send update when user leaves the field.
-        et.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) {
-                sendIntIfValid((EditText) v, fieldName);
-            }
-        });
-
-        // Also send update on explicit "Done"/enter.
-        et.setOnEditorActionListener((v, actionId, event) -> {
-            sendIntIfValid((EditText) v, fieldName);
-            return false;
-        });
 
         // Track changes so we don't spam identical writes when focus toggles.
         et.addTextChangedListener(new TextWatcher() {
@@ -188,11 +174,16 @@ public class KinetixSettingsActivity extends AppCompatActivity {
                 if (suppressWrites) return;
 
                 String txt = s.toString().trim();
-                if (txt.isEmpty()) return;
-                try {
-                    Integer.parseInt(txt);
-                } catch (NumberFormatException e) {
-                    return;
+                if (isInt) {
+                    if (txt.isEmpty()) {
+                        txt = "0";
+                    }
+                    try {
+                        Integer.parseInt(txt);
+                    } catch (NumberFormatException e) {
+                        Log.w(TAG, "Invalid integer for " + fieldName + ": '" + txt + "'");
+                        return;
+                    }
                 }
 
                 if (txt.equals(lastSent)) return;
@@ -200,19 +191,6 @@ public class KinetixSettingsActivity extends AppCompatActivity {
                 sendConfigUpdate(fieldName, txt);
             }
         });
-    }
-
-    private void sendIntIfValid(EditText et, String fieldName) {
-        if (suppressWrites) return;
-        String txt = et.getText().toString().trim();
-        if (txt.isEmpty()) return;
-        try {
-            Integer.parseInt(txt);
-        } catch (NumberFormatException e) {
-            Log.w(TAG, "Invalid integer for " + fieldName + ": '" + txt + "'");
-            return;
-        }
-        sendConfigUpdate(fieldName, txt);
     }
 
     private void sendConfigUpdate(String fieldName, String value) {
@@ -243,7 +221,7 @@ public class KinetixSettingsActivity extends AppCompatActivity {
                 String fieldName = fields.getString(i);
                 Log.i(TAG, "applyConfigPayload: " + fieldName);
                 String fieldId = "ks_" + fieldName;
-                if (fieldName.startsWith("bool_")) {
+                if (fieldName.startsWith("b_")) {
                     CheckBox cb = findViewById(getResources().getIdentifier(fieldId, "id", getPackageName()));
                     boolean b = json.getBoolean(fieldName);
                     if (cb != null) cb.setChecked(b);
@@ -251,7 +229,7 @@ public class KinetixSettingsActivity extends AppCompatActivity {
                     EditText et = findViewById(getResources().getIdentifier(fieldId, "id", getPackageName()));
                     if (et != null) {
                         String value;
-                        if (fieldName.startsWith("int_")) {
+                        if (fieldName.startsWith("i_")) {
                             value = String.valueOf(json.getInt(fieldName));
                         } else {
                             value = json.getString(fieldName);
