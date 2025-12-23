@@ -1,6 +1,8 @@
 package fr.reivaxy.kinetix;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -59,6 +61,13 @@ public class KinetixSettingsActivity extends AppCompatActivity {
 
     // Prevents BLE writes when we are programmatically applying values received from BLE.
     private boolean suppressWrites = false;
+
+
+    // Debounce BLE writes from EditText fields: send only after the user pauses typing.
+    private static final long TEXT_UPDATE_DEBOUNCE_MS = 350L;
+    private final Handler debounceHandler = new Handler(Looper.getMainLooper());
+    private final Map<Integer, Runnable> pendingTextUpdates = new HashMap<>();
+
 
     private final BroadcastReceiver configReceiver = new BroadcastReceiver() {
         @Override
@@ -135,6 +144,11 @@ public class KinetixSettingsActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(configReceiver);
+
+        // Prevent delayed updates from firing after the activity is no longer visible.
+        debounceHandler.removeCallbacksAndMessages(null);
+        pendingTextUpdates.clear();
+
         super.onStop();
     }
 
@@ -173,22 +187,38 @@ public class KinetixSettingsActivity extends AppCompatActivity {
                 if (!et.hasFocus()) return;
                 if (suppressWrites) return;
 
-                String txt = s.toString().trim();
-                if (isInt) {
-                    if (txt.isEmpty()) {
-                        txt = "0";
-                    }
-                    try {
-                        Integer.parseInt(txt);
-                    } catch (NumberFormatException e) {
-                        Log.w(TAG, "Invalid integer for " + fieldName + ": '" + txt + "'");
-                        return;
-                    }
+                final String candidateRaw = s.toString().trim();
+
+                // Debounce: only send once the user pauses typing for a short moment.
+                Runnable prev = pendingTextUpdates.get(viewId);
+                if (prev != null) {
+                    debounceHandler.removeCallbacks(prev);
                 }
 
-                if (txt.equals(lastSent)) return;
-                lastSent = txt;
-                sendConfigUpdate(fieldName, txt);
+                Runnable r = new Runnable() {
+                    @Override
+                    public void run() {
+                        String txt = candidateRaw;
+                        if (isInt) {
+                            if (txt.isEmpty()) {
+                                txt = "0";
+                            }
+                            try {
+                                Integer.parseInt(txt);
+                            } catch (NumberFormatException e) {
+                                Log.w(TAG, "Invalid integer for " + fieldName + ": '" + txt + "'");
+                                return;
+                            }
+                        }
+
+                        if (txt.equals(lastSent)) return;
+                        lastSent = txt;
+                        sendConfigUpdate(fieldName, txt);
+                    }
+                };
+
+                pendingTextUpdates.put(viewId, r);
+                debounceHandler.postDelayed(r, TEXT_UPDATE_DEBOUNCE_MS);
             }
         });
     }

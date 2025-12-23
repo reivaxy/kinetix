@@ -86,7 +86,8 @@
                     android:id="@+id/ks_i_1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberSigned" />
+                    android:inputType="numberSigned"
+                    android:maxLength="8"/>
             </LinearLayout>
 
             <LinearLayout
@@ -104,7 +105,8 @@
                     android:id="@+id/ks_i_2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberSigned" />
+                    android:inputType="numberSigned"
+                    android:maxLength="8" />
             </LinearLayout>
         </LinearLayout>
 
@@ -127,7 +129,8 @@
                     android:id="@+id/ks_i_3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberSigned" />
+                    android:inputType="numberSigned"
+                    android:maxLength="8" />
             </LinearLayout>
 
             <LinearLayout
@@ -145,7 +148,8 @@
                     android:id="@+id/ks_i_4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberSigned" />
+                    android:inputType="numberSigned"
+                    android:maxLength="8" />
             </LinearLayout>
         </LinearLayout>
 
@@ -173,7 +177,8 @@
             <EditText
                 android:id="@+id/ks_s_1"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:maxLength="20"/>
         </LinearLayout>
 
         <LinearLayout
@@ -189,7 +194,8 @@
             <EditText
                 android:id="@+id/ks_s_2"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:maxLength="20"/>
         </LinearLayout>
 
         <LinearLayout
@@ -205,7 +211,8 @@
             <EditText
                 android:id="@+id/ks_s_3"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:maxLength="20" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -220,7 +227,8 @@
             <EditText
                 android:id="@+id/ks_s_4"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:maxLength="20" />
         </LinearLayout>
 
         <LinearLayout
