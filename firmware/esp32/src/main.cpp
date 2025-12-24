@@ -6,8 +6,6 @@
 #include "BtServer.h"
 #include "MessageProcessor.h"
 
-// #include "CurrentMonitor.h"
-
 #if defined HOME_SERVOS || defined DEMO
 #define NEEDSEQ
 #endif
@@ -24,7 +22,7 @@ MessageProcessor *messageProcessor = NULL;
 Sequence *seq = NULL;
 Settings *settings;
 
-// XOLEDDisplayClass *display;
+XOLEDDisplayClass *display;
 
 void setup() {
   Serial.begin(115200);
@@ -34,14 +32,15 @@ void setup() {
   log_i("Version %s\n", GIT_REV);
   #endif 
 
-  // display = new XOLEDDisplayClass(0x3C, SDA, SCL, false, 250);
-  // display->setTitle("KinetiX");
+  display = new XOLEDDisplayClass(0x3C, SDA, SCL, false, 120);
+  display->setTitle("KinetiX");
+  log_i("Display initialized");
 
   start = millis();
   isClosed = true;
   settings = new Settings();
-  messageProcessor = new MessageProcessor(hand, settings, NULL);
-  btServer = new BtServer(messageProcessor);
+  messageProcessor = new MessageProcessor(hand, settings, display);
+  btServer = new BtServer(messageProcessor, display);
   #ifndef NEEDSEQ
   // Initialization sequence, do it just once
   seq = new Sequence(1); // this sequence runs just once
@@ -73,7 +72,7 @@ void setup() {
 }
 
 void loop() {
-  // display->refresh();
+  display->refresh();
   #ifndef NEEDSEQ
   messageProcessor->run();
   #endif

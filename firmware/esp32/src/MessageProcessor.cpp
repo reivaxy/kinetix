@@ -17,8 +17,8 @@ void MessageProcessor::processWriteMsg(MessageType type, char* message) {
    String line;
    switch (type) {
       case movement:
-         // line = "Movement: " + String(message);
-         // display->setLine(1, line.c_str());
+         line = "Movement: " + String(message);
+         display->setLine(3, line.c_str());
          startMovement(message);
          break;
 

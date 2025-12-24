@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Kinetix BLE GUI (Tkinter + Bleak)
+KinetiX BLE GUI (Tkinter + Bleak)
 
 - Default target mode: Name
 - Connect button turns RED when disconnected, GREEN when connected
@@ -12,10 +12,11 @@ Requirements:
 
 import asyncio
 import threading
+import json
 import tkinter as tk
 from tkinter import ttk, messagebox
 from dataclasses import dataclass
-from typing import Optional, Callable
+from typing import Optional, Callable, Any, Dict
 
 from bleak import BleakClient, BleakScanner
 
@@ -110,6 +111,21 @@ class BleWorker:
         if not self._loop:
             raise RuntimeError("BLE loop not initialized.")
         return asyncio.run_coroutine_threadsafe(self._send_text(text, response=response, newline=newline), self._loop)
+
+    def read_char(self, uuid: str):
+        """Read a characteristic (bytes). Thread-safe."""
+        if not self._loop:
+            raise RuntimeError("BLE loop not initialized.")
+        return asyncio.run_coroutine_threadsafe(self._read_char(uuid), self._loop)
+
+    def write_text_to_uuid(self, uuid: str, text: str, response: bool = True, newline: bool = False):
+        """Write UTF-8 text to a specific characteristic UUID. Thread-safe."""
+        if not self._loop:
+            raise RuntimeError("BLE loop not initialized.")
+        return asyncio.run_coroutine_threadsafe(
+            self._write_text_to_uuid(uuid, text, response=response, newline=newline),
+            self._loop,
+        )
 
     # ---------- internals ----------
     async def _find_device(self, target: DeviceTarget, timeout: float):
@@ -216,6 +232,208 @@ class BleWorker:
 # Tkinter GUI
 # -----------------------------
 
+    async def _read_char(self, uuid: str) -> bytes:
+        with self._lock:
+            client = self._client
+        if not client or not client.is_connected:
+            raise RuntimeError("Not connected.")
+        data = await client.read_gatt_char(uuid)
+        self._status(f"Read {uuid}: {data!r}")
+        return bytes(data)
+
+    async def _write_text_to_uuid(self, uuid: str, text: str, response: bool = True, newline: bool = False) -> None:
+        with self._lock:
+            client = self._client
+        if not client or not client.is_connected:
+            raise RuntimeError("Not connected.")
+        msg = text + ("\n" if newline else "")
+        await client.write_gatt_char(uuid, msg.encode("utf-8"), response=response)
+        self._status(f"Wrote to {uuid}: {msg!r}")
+
+
+class SettingsDialog(tk.Toplevel):
+    SETTINGS_UUID = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e"
+
+    def __init__(self, master: tk.Misc, worker: BleWorker, set_status: Callable[[str], None]):
+        super().__init__(master)
+        self.worker = worker
+        self._set_status = set_status
+        self.title("Settings")
+        self.resizable(False, False)
+
+        # Debounce timers per field (Tk after ids)
+        self._after_ids: Dict[str, str] = {}
+
+        # Suppress trace-triggered writes while populating fields programmatically
+        self._suppress_writes = 0
+
+        self._vars_bool: Dict[str, tk.BooleanVar] = {
+            f"b_{i}": tk.BooleanVar(value=False) for i in range(1, 5)
+        }
+        self._vars_int: Dict[str, tk.StringVar] = {
+            f"i_{i}": tk.StringVar(value="") for i in range(1, 5)
+        }
+        self._vars_str: Dict[str, tk.StringVar] = {
+            f"s_{i}": tk.StringVar(value="") for i in range(1, 5)
+        }
+
+        self._build_ui()
+        self._wire_traces()
+        self._read_from_device()
+
+    def _build_ui(self) -> None:
+        pad = 10
+        outer = ttk.Frame(self)
+        outer.pack(fill="both", expand=True, padx=pad, pady=pad)
+
+        # Validation commands
+        vcmd_int = (self.register(self._validate_int), "%P")
+        vcmd_str = (self.register(self._validate_str), "%P")
+
+        bool_frame = ttk.LabelFrame(outer, text="Booleans")
+        bool_frame.pack(fill="x", pady=(0, pad))
+        for i in range(1, 5):
+            name = f"b_{i}"
+            cb = ttk.Checkbutton(bool_frame, text=name, variable=self._vars_bool[name])
+            cb.grid(row=0, column=i - 1, sticky="w", padx=8, pady=6)
+
+        int_frame = ttk.LabelFrame(outer, text="Integers")
+        int_frame.pack(fill="x", pady=(0, pad))
+        for i in range(1, 5):
+            name = f"i_{i}"
+            row = ttk.Frame(int_frame)
+            row.pack(fill="x", padx=8, pady=4)
+            ttk.Label(row, text=f"{name}:", width=4).pack(side="left")
+            ent = ttk.Entry(row, textvariable=self._vars_int[name], validate="key", validatecommand=vcmd_int, width=12)
+            ent.pack(side="left")
+
+        str_frame = ttk.LabelFrame(outer, text="Strings")
+        str_frame.pack(fill="x")
+        for i in range(1, 5):
+            name = f"s_{i}"
+            row = ttk.Frame(str_frame)
+            row.pack(fill="x", padx=8, pady=4)
+            ttk.Label(row, text=f"{name}:", width=4).pack(side="left")
+            ent = ttk.Entry(row, textvariable=self._vars_str[name], validate="key", validatecommand=vcmd_str, width=24)
+            ent.pack(side="left")
+
+        ttk.Label(outer, text="Changes are written immediately.").pack(anchor="w", pady=(pad, 0))
+
+    @staticmethod
+    def _validate_int(proposed: str) -> bool:
+        # Allow empty, or up to 8 digits
+        return proposed == "" or (proposed.isdigit() and len(proposed) <= 8)
+
+    @staticmethod
+    def _validate_str(proposed: str) -> bool:
+        # Up to 20 characters
+        return len(proposed) <= 20
+
+    def _wire_traces(self) -> None:
+        for k, v in self._vars_bool.items():
+            v.trace_add("write", lambda *_a, key=k: self._schedule_write(key))
+        for k, v in self._vars_int.items():
+            v.trace_add("write", lambda *_a, key=k: self._schedule_write(key))
+        for k, v in self._vars_str.items():
+            v.trace_add("write", lambda *_a, key=k: self._schedule_write(key))
+
+    def _schedule_write(self, field: str) -> None:
+        # Ignore programmatic updates (e.g., when loading settings)
+        if self._suppress_writes > 0:
+            return
+        # Debounce rapid edits
+        if field in self._after_ids:
+            try:
+                self.after_cancel(self._after_ids[field])
+            except Exception:
+                pass
+        self._after_ids[field] = self.after(300, lambda f=field: self._write_field(f))
+
+    def _write_field(self, field: str) -> None:
+        if not self.worker.connected:
+            self._set_status("Not connected.")
+            return
+
+        if field.startswith("b_"):
+            val = "true" if self._vars_bool[field].get() else "false"
+        elif field.startswith("i_"):
+            raw = self._vars_int[field].get().strip()
+            val = raw if raw != "" else "0"
+        else:
+            val = self._vars_str[field].get()
+
+        payload = f"{field}={val}"
+        try:
+            fut = self.worker.write_text_to_uuid(self.SETTINGS_UUID, payload, response=True, newline=False)
+        except Exception as e:
+            self._set_status(f"Error: {e}")
+            return
+
+        def done():
+            try:
+                fut.result()
+            except Exception as e:
+                self.after(0, lambda: self._set_status(f"Error: {e}"))
+
+        threading.Thread(target=done, daemon=True).start()
+
+    def _read_from_device(self) -> None:
+        if not self.worker.connected:
+            self._set_status("Not connected.")
+            return
+        try:
+            fut = self.worker.read_char(self.SETTINGS_UUID)
+        except Exception as e:
+            self._set_status(f"Error: {e}")
+            return
+
+        def done():
+            try:
+                data = fut.result()
+                text = data.decode("utf-8", errors="ignore").strip()
+                obj: Dict[str, Any] = {}
+                if text:
+                    obj = json.loads(text)
+            except Exception as e:
+                self.after(0, lambda: self._set_status(f"Error reading settings: {e}"))
+                return
+
+            def apply():
+                # Apply values without triggering immediate writes
+                self._suppress_writes += 1
+                try:
+                    # Cancel any pending debounced writes from earlier interactions
+                    for _fid in list(self._after_ids.values()):
+                        try:
+                            self.after_cancel(_fid)
+                        except Exception:
+                            pass
+                    self._after_ids.clear()
+
+                    # Apply values; keep defaults for missing fields
+                    for i in range(1, 5):
+                        bk = f"b_{i}"
+                        if bk in obj:
+                            self._vars_bool[bk].set(bool(obj[bk]))
+                    for i in range(1, 5):
+                        ik = f"i_{i}"
+                        if ik in obj:
+                            try:
+                                self._vars_int[ik].set(str(int(obj[ik]))[:8])
+                            except Exception:
+                                self._vars_int[ik].set("")
+                    for i in range(1, 5):
+                        sk = f"s_{i}"
+                        if sk in obj:
+                            self._vars_str[sk].set(str(obj[sk])[:20])
+
+                    self._set_status("Settings loaded.")
+                finally:
+                    self._suppress_writes = max(0, self._suppress_writes - 1)
+
+            self.after(0, apply)
+
+        threading.Thread(target=done, daemon=True).start()
 class App(ttk.Frame):
     QUICK_MESSAGES = [
         "five", "four", "three", "two", "one",
@@ -232,12 +450,12 @@ class App(ttk.Frame):
         self.status_var = tk.StringVar(value="Idle.")
         self.mode_var = tk.StringVar(value="name")  # default is NAME
         self.address_var = tk.StringVar(value="")
-        self.name_var = tk.StringVar(value="Kinetix")
-        self.uuid_var = tk.StringVar(value=self.DEFAULT_CHAR_UUID)
+        self.name_var = tk.StringVar(value="KinetiX")
         self.timeout_var = tk.StringVar(value="30")
         self.response_var = tk.BooleanVar(value=False)
         self.newline_var = tk.BooleanVar(value=False)
 
+        self.settings_dialog: Optional[SettingsDialog] = None
         self._build_ui()
 
         # BleWorker posts status messages by scheduling back onto Tk thread.
@@ -247,7 +465,7 @@ class App(ttk.Frame):
         self.master.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def _build_ui(self):
-        self.master.title("Kinetix BLE Sender")
+        self.master.title("KinetiX BLE Sender")
         self.pack(fill="both", expand=True, padx=12, pady=12)
 
         # Target frame
@@ -278,11 +496,6 @@ class App(ttk.Frame):
         self.addr_entry = ttk.Entry(addr_row, textvariable=self.address_var, width=26)
         self.addr_entry.pack(side="left", padx=8)
 
-        uuid_row = ttk.Frame(target)
-        uuid_row.pack(fill="x", pady=4)
-        ttk.Label(uuid_row, text="Characteristic UUID:").pack(side="left")
-        ttk.Entry(uuid_row, textvariable=self.uuid_var, width=36).pack(side="left", padx=8)
-
         opts_row = ttk.Frame(target)
         opts_row.pack(fill="x", pady=4)
         ttk.Label(opts_row, text="Timeout (s):").pack(side="left")
@@ -300,6 +513,9 @@ class App(ttk.Frame):
 
         self.disconnect_btn = ttk.Button(conn_row, text="Disconnect", command=self.on_disconnect)
         self.disconnect_btn.pack(side="left", padx=8)
+        self.settings_btn = ttk.Button(conn_row, text="Settings", command=self.on_settings)
+        self.settings_btn.pack(side="left")
+
 
         # Quick messages
         msg_frame = ttk.LabelFrame(self, text="Send")
@@ -356,6 +572,7 @@ class App(ttk.Frame):
         # Connect/Disconnect state
         self.connect_btn.configure(state=("disabled" if connected else "normal"))
         self.disconnect_btn.state(["!disabled"] if connected else ["disabled"])
+        if hasattr(self, "settings_btn"): self.settings_btn.state(["!disabled"] if connected else ["disabled"])
 
         # Connect button color
         self._set_connect_button_color(connected)
@@ -386,7 +603,7 @@ class App(ttk.Frame):
         try:
             target = self._get_target()
             timeout = float(self.timeout_var.get().strip() or "30")
-            uuid = (self.uuid_var.get().strip() or None)
+            uuid = self.DEFAULT_CHAR_UUID
         except Exception as e:
             messagebox.showerror("Input error", str(e))
             return
@@ -413,6 +630,7 @@ class App(ttk.Frame):
             fut = self.worker.disconnect()
         except Exception:
             return
+        self._close_settings_dialog()
 
         def done():
             try:
@@ -422,6 +640,27 @@ class App(ttk.Frame):
 
         threading.Thread(target=done, daemon=True).start()
 
+
+    def on_settings(self):
+        if not self.worker.connected:
+            messagebox.showinfo("Not connected", "Connect to a device first.")
+            return
+
+        if self.settings_dialog is not None and self.settings_dialog.winfo_exists():
+            self.settings_dialog.lift()
+            self.settings_dialog.focus_force()
+            return
+
+        self.settings_dialog = SettingsDialog(self.master, self.worker, self._set_status)
+        self.settings_dialog.transient(self.master)
+        self.settings_dialog.grab_set()
+        self.settings_dialog.protocol("WM_DELETE_WINDOW", self._close_settings_dialog)
+
+    def _close_settings_dialog(self):
+        if self.settings_dialog is not None and self.settings_dialog.winfo_exists():
+            self.settings_dialog.grab_release()
+            self.settings_dialog.destroy()
+        self.settings_dialog = None
     def on_send(self, text: str):
         try:
             fut = self.worker.send_text(text, response=self.response_var.get(), newline=self.newline_var.get())

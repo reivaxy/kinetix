@@ -19,7 +19,8 @@
 
 class BtServer {
 public:   
-   BtServer(MessageProcessor *messageProcessor);
+   BtServer(MessageProcessor *messageProcessor, XOLEDDisplayClass *display);
 
    MessageProcessor *messageProcessor;
+   XOLEDDisplayClass *display = NULL;
 };

@@ -101,23 +101,35 @@ public:
 };
 
 class MyServerCallback : public BLEServerCallbacks {
-  void onConnect(BLEServer* pServer) override {
-    log_i("Client connected.");
+  XOLEDDisplayClass *display;
+  
+public:
+  MyServerCallback(XOLEDDisplayClass *display) : display(display) {
+    this->display = display;
   }
 
+private:
+
+  void onConnect(BLEServer* pServer) override {
+    log_i("Client connected.");
+    display->setLine(1, "BT Connected");
+  }
+  
   void onDisconnect(BLEServer* pServer) override {
     log_i("Client disconnected");
+    display->setLine(1, "BT Disconnected");
     // Need to restart advertising to be able to reconnect
     pServer->getAdvertising()->start();
   }
 };
 
-BtServer::BtServer(MessageProcessor* _messageProcessor) {
+BtServer::BtServer(MessageProcessor* _messageProcessor, XOLEDDisplayClass *display) {
   messageProcessor = _messageProcessor;
+  this->display = display;
 
-  BLEDevice::init("Kinetix");
+  BLEDevice::init("KinetiX");
   BLEServer* pServer = BLEDevice::createServer();
-  pServer->setCallbacks(new MyServerCallback());
+  pServer->setCallbacks(new MyServerCallback(display));
 
   BLEService* pService = pServer->createService(SERVICE_UUID);
 
@@ -183,5 +195,5 @@ BtServer::BtServer(MessageProcessor* _messageProcessor) {
     xTaskCreatePinnedToCore(bleTxTask, "ble_tx", 4096, nullptr, 1, nullptr, 1);
   }
 
-  Serial.println("Kinetix now available for BT connection.");
+  Serial.println("KinetiX now available for BT connection.");
 }
