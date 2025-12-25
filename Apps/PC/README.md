@@ -4,7 +4,7 @@ This python script allows to connect to the hand and send it commands, and upgra
 
 <img width="512px" src="https://github.com/user-attachments/assets/f8a4f54d-439f-4846-b640-edd77aa169e8">
 
-It should work on Linux, Windows and Mac (but was tested only on Windows so far).
+It was tested on Linux (Ubuntu) and Windows abut should work on Mac too.
 
 > [!WARNING] 
 > You need to have a Bluetooth LE stack on your PC. With a regular Bluetooth you won't be able to connect.
