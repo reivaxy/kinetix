@@ -450,11 +450,9 @@ class SettingsPopup(Popup):
         def done():
             try:
                 fut.result()
-                # Persist BLE address if we connected using address mode
-                if (self.mode or '').strip() == 'address' and (self.device_address or '').strip():
-                    Clock.schedule_once(lambda _dt: self._save_prefs(), 0)
             except Exception as e:
-                Clock.schedule_once(lambda _dt: self._set_status(f"Error: {e}"), 0)
+                msg = f"Error: {e}"
+                Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
 
         threading.Thread(target=done, daemon=True).start()
 
@@ -476,7 +474,8 @@ class SettingsPopup(Popup):
                 text = data.decode("utf-8", errors="ignore").strip()
                 obj: Dict[str, Any] = json.loads(text) if text else {}
             except Exception as e:
-                Clock.schedule_once(lambda _dt: self._set_status(f"Error reading settings: {e}"), 0)
+                msg = f"Error reading settings: {e}"
+                Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
                 return
 
             def apply(_dt):
@@ -712,22 +711,6 @@ KV = r"""
                 multiline: False
                 input_filter: "int"
                 on_text: root.timeout_s = self.text
-            CheckBox:
-                id: resp_cb
-                active: root.write_with_response
-                on_active: root.write_with_response = self.active
-            Label:
-                text: "Write with response"
-                size_hint_x: None
-                width: dp(160)
-            CheckBox:
-                id: nl_cb
-                active: root.append_newline
-                on_active: root.append_newline = self.active
-            Label:
-                text: "Append newline"
-                size_hint_x: None
-                width: dp(120)
 
     BoxLayout:
         orientation: "horizontal"
@@ -760,7 +743,7 @@ KV = r"""
         spacing: dp(6)
 
         Label:
-            text: "Send"
+            text: "Positions / Movements"
             size_hint_y: None
             height: dp(24)
             bold: True
@@ -838,7 +821,7 @@ class RootWidget(BoxLayout):
     mode = StringProperty("name")  # "name" or "address"
     device_name = StringProperty("KinetiX")
     device_address = StringProperty("")
-    timeout_s = StringProperty("30")
+    timeout_s = StringProperty("60")
     write_with_response = BooleanProperty(False)
     append_newline = BooleanProperty(False)
     custom_text = StringProperty("")
@@ -990,7 +973,8 @@ class RootWidget(BoxLayout):
             try:
                 fut.result()
             except Exception as e:
-                Clock.schedule_once(lambda _dt: self._set_status(f"Error: {e}"), 0)
+                msg = f"Error: {e}"
+                Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
 
         threading.Thread(target=done, daemon=True).start()
 
@@ -1017,7 +1001,8 @@ class RootWidget(BoxLayout):
             try:
                 fut.result()
             except Exception as e:
-                Clock.schedule_once(lambda _dt: self._set_status(f"Error: {e}"), 0)
+                msg = f"Error: {e}"
+                Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
 
         threading.Thread(target=done, daemon=True).start()
 
@@ -1107,7 +1092,8 @@ class RootWidget(BoxLayout):
                 fut.result()
                 Clock.schedule_once(lambda _dt: self._set_status("OTA_START sent. Waiting for OTA_READY..."), 0)
             except Exception as e:
-                Clock.schedule_once(lambda _dt: self._set_status(f"Error: {e}"), 0)
+                msg = f"Error: {e}"
+                Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
 
         threading.Thread(target=done, daemon=True).start()
 
@@ -1167,7 +1153,8 @@ class RootWidget(BoxLayout):
             if not token:
                 raise ValueError("No token in URL.")
         except Exception as e:
-            Clock.schedule_once(lambda _dt: self._set_status(f"Bad OTA URL: {e}"), 0)
+            msg = f"Bad OTA URL: {e}"
+            Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
             return
 
         total = os.path.getsize(fp)
@@ -1205,7 +1192,8 @@ class RootWidget(BoxLayout):
                 r = requests.post(url, files=files, headers=headers, timeout=(10, 300))
                 r.raise_for_status()
         except Exception as e:
-            Clock.schedule_once(lambda _dt: self._set_status(f"OTA upload failed: {e}"), 0)
+            msg = f"OTA upload failed: {e}"
+            Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
             return
 
         Clock.schedule_once(lambda _dt: self._set_status("OTA upload finished (HTTP OK). Waiting for device..."), 0)
@@ -1235,10 +1223,12 @@ class RootWidget(BoxLayout):
 
         def done():
             try:
+                msg = f"Sent: {text}"
                 fut.result()
-                Clock.schedule_once(lambda _dt: self._set_status(f"Sent: {text}"), 0)
+                Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
             except Exception as e:
-                Clock.schedule_once(lambda _dt: self._set_status(f"Error: {e}"), 0)
+                msg = f"Error: {e}"
+                Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
 
         threading.Thread(target=done, daemon=True).start()
 
