@@ -2,6 +2,8 @@
 
 This python script allows to connect to the hand and send it commands, and upgrade its firmware through Wifi, from a personal computer.
 
+<img width="512px" src="https://github.com/user-attachments/assets/f8a4f54d-439f-4846-b640-edd77aa169e8">
+
 It should work on Linux, Windows and Mac (but was tested only on Windows so far).
 
 > [!WARNING] 
