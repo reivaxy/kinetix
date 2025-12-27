@@ -15,7 +15,7 @@ enum MessageType {movement, setting, ota, systemConfig};
 
 class MessageProcessor {
 public:
-   MessageProcessor(Hand *hand, Settings *settings, XOLEDDisplayClass *display);
+   MessageProcessor(Hand *hand, Settings *settings, Display *display);
    void run();
    void processWriteMsg(MessageType type, char *message);
    void processReadMsg(MessageType type, BLECharacteristic *characteristic);
@@ -25,7 +25,7 @@ public:
    void come();
 
    Hand *hand = NULL;
-   XOLEDDisplayClass *display = NULL;
+   Display *display = NULL;
    Sequence *seq = NULL;
    HandMovement *handMovement = NULL;
    HandMovementFactory *hmf = NULL;

@@ -19,7 +19,8 @@
 
 class BtServer {
 public:   
-   BtServer(MessageProcessor *messageProcessor);
+   BtServer(MessageProcessor *messageProcessor, Display *display);
 
    MessageProcessor *messageProcessor;
+   Display *display = NULL;
 };

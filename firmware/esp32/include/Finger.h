@@ -4,12 +4,10 @@
 #include <Arduino.h>
 #include <Servo.h>
 #include "FingerMovement.h"
-#include "CurrentMonitor.h"
-
 
 class Finger {
 public:   
-   Finger(int number, int controlPin, int monitorPin, int maxOpen, int maxClosed, int direction);
+   Finger(int number, int controlPin, int maxOpen, int maxClosed, int direction);
 
    void move(int to);
    void setStep(float step);
@@ -27,7 +25,6 @@ public:
 
    int number = 0;
    int controlPin = D6;
-   CurrentMonitor currentMonitor;
    int maxOpen = 0; 
    int maxClosed = 180;
 

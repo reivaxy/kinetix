@@ -6,11 +6,17 @@
 #include "BtServer.h"
 #include "MessageProcessor.h"
 
-// #include "CurrentMonitor.h"
-
 #if defined HOME_SERVOS || defined DEMO
 #define NEEDSEQ
 #endif
+
+// Display instanciation must not happen before setup so we will use a pointer and new...
+#ifdef WITH_OLED_DISPLAY
+RealDisplay *display;
+#else
+MockDisplay *display;
+#endif
+
 
 int start = 0;
 int finger = 0;
@@ -24,8 +30,6 @@ MessageProcessor *messageProcessor = NULL;
 Sequence *seq = NULL;
 Settings *settings;
 
-// XOLEDDisplayClass *display;
-
 void setup() {
   Serial.begin(115200);
   delay(3000);
@@ -34,14 +38,18 @@ void setup() {
   log_i("Version %s\n", GIT_REV);
   #endif 
 
-  // display = new XOLEDDisplayClass(0x3C, SDA, SCL, false, 250);
-  // display->setTitle("KinetiX");
+  #ifdef WITH_OLED_DISPLAY
+  display = new RealDisplay();
+  #else
+  display = new MockDisplay();
+  #endif
+  display->setTitle("KinetiX");
 
   start = millis();
   isClosed = true;
   settings = new Settings();
-  messageProcessor = new MessageProcessor(hand, settings, NULL);
-  btServer = new BtServer(messageProcessor);
+  messageProcessor = new MessageProcessor(hand, settings, display);
+  btServer = new BtServer(messageProcessor, display);
   #ifndef NEEDSEQ
   // Initialization sequence, do it just once
   seq = new Sequence(1); // this sequence runs just once
@@ -73,11 +81,11 @@ void setup() {
 }
 
 void loop() {
-  // display->refresh();
   #ifndef NEEDSEQ
   messageProcessor->run();
   #endif
   if (seq != NULL) {
     seq->run();
   }
+  display->refresh();
 }

@@ -17,6 +17,8 @@ import asyncio
 import json
 import threading
 import os
+import sys
+import traceback
 from configparser import ConfigParser
 from urllib.parse import urlparse, parse_qs
 
@@ -127,6 +129,7 @@ class BleWorker:
         try:
             self._on_status(msg)
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             pass
 
     def _start_loop_thread(self) -> None:
@@ -143,6 +146,7 @@ class BleWorker:
             try:
                 loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
             except Exception:
+                traceback.print_exc(file=sys.stdout)
                 pass
             loop.close()
 
@@ -178,6 +182,7 @@ class BleWorker:
             try:
                 await client.get_services()  # type: ignore[attr-defined]
             except TypeError:
+                traceback.print_exc(file=sys.stdout)
                 client.get_services()  # type: ignore[attr-defined]
         return client.services
 
@@ -239,6 +244,7 @@ class BleWorker:
                 self._status("Disconnecting...")
                 await client.disconnect()
             except Exception:
+                traceback.print_exc(file=sys.stdout)
                 pass
             self._status("Disconnected.")
 
@@ -252,6 +258,7 @@ class BleWorker:
             try:
                 callback(bytes(data))
             except Exception:
+                traceback.print_exc(file=sys.stdout)
                 pass
 
         await client.start_notify(uuid, _cb)
@@ -264,6 +271,7 @@ class BleWorker:
         try:
             await client.stop_notify(uuid)
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             pass
 
     async def _send_text(self, text: str, response: bool = False, newline: bool = False) -> None:
@@ -424,6 +432,7 @@ class SettingsPopup(Popup):
             try:
                 ev.cancel()
             except Exception:
+                traceback.print_exc(file=sys.stdout)
                 pass
         self._debounce_events[field] = Clock.schedule_once(lambda _dt, f=field: self._write_field(f), 0.30)
 
@@ -444,6 +453,7 @@ class SettingsPopup(Popup):
         try:
             fut = self.worker.write_text_to_uuid(self.SETTINGS_UUID, payload, response=True, newline=False)
         except Exception as e:
+            traceback.print_exc(file=sys.stdout)
             self._set_status(f"Error: {e}")
             return
 
@@ -451,6 +461,7 @@ class SettingsPopup(Popup):
             try:
                 fut.result()
             except Exception as e:
+                traceback.print_exc(file=sys.stdout)
                 msg = f"Error: {e}"
                 Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
 
@@ -465,6 +476,7 @@ class SettingsPopup(Popup):
         try:
             fut = self.worker.read_char(self.SETTINGS_UUID)
         except Exception as e:
+            traceback.print_exc(file=sys.stdout)
             self._set_status(f"Error: {e}")
             return
 
@@ -474,6 +486,7 @@ class SettingsPopup(Popup):
                 text = data.decode("utf-8", errors="ignore").strip()
                 obj: Dict[str, Any] = json.loads(text) if text else {}
             except Exception as e:
+                traceback.print_exc(file=sys.stdout)
                 msg = f"Error reading settings: {e}"
                 Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
                 return
@@ -493,6 +506,7 @@ class SettingsPopup(Popup):
                             try:
                                 self._int_widgets[k].text = str(int(obj[k]))[:8]
                             except Exception:
+                                traceback.print_exc(file=sys.stdout)
                                 self._int_widgets[k].text = ""
 
                     for i in range(1, 5):
@@ -844,6 +858,7 @@ class RootWidget(BoxLayout):
         try:
             cp.read(ini_path, encoding="utf-8")
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             # ignore broken ini
             cp = ConfigParser()
         self._prefs = cp
@@ -857,18 +872,22 @@ class RootWidget(BoxLayout):
             if mode in ("name", "address"):
                 self.mode = mode
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             pass
         try:
             self.device_address = sec.get("ble_address", fallback="").strip()
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             pass
         try:
             self._ota_ssid = sec.get("ssid", fallback="").strip()
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             pass
         try:
             self._ota_last_dir = sec.get("last_fw_dir", fallback="").strip()
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             pass
 
     def _save_prefs(self):
@@ -894,11 +913,13 @@ class RootWidget(BoxLayout):
         try:
             os.makedirs(os.path.dirname(self._prefs_path), exist_ok=True)
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             pass
         try:
             with open(self._prefs_path, "w", encoding="utf-8") as f:
                 cp.write(f)
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             pass
 
     def __init__(self, **kwargs):
@@ -959,6 +980,7 @@ class RootWidget(BoxLayout):
                     raise ValueError("Please enter a device name.")
                 target = DeviceTarget(name=name)
         except Exception as e:
+            traceback.print_exc(file=sys.stdout)
             self._set_status(f"Input error: {e}")
             return
 
@@ -966,6 +988,7 @@ class RootWidget(BoxLayout):
         try:
             fut = self._worker.connect(target, timeout=timeout, preferred_uuid=uuid)
         except Exception as e:
+            traceback.print_exc(file=sys.stdout)
             self._set_status(f"Error: {e}")
             return
 
@@ -973,6 +996,7 @@ class RootWidget(BoxLayout):
             try:
                 fut.result()
             except Exception as e:
+                traceback.print_exc(file=sys.stdout)
                 msg = f"Error: {e}"
                 Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
 
@@ -982,6 +1006,7 @@ class RootWidget(BoxLayout):
         try:
             fut = self._worker.disconnect()
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             return
         # Stop OTA notifications (best-effort)
         if getattr(self, "_ota_notify_on", False):
@@ -989,6 +1014,7 @@ class RootWidget(BoxLayout):
                 futn = self._worker.stop_notify(self.OTA_CHAR_UUID)
                 threading.Thread(target=lambda: futn.result(), daemon=True).start()
             except Exception:
+                traceback.print_exc(file=sys.stdout)
                 pass
             self._ota_notify_on = False
         self.ota_active = False
@@ -1001,6 +1027,7 @@ class RootWidget(BoxLayout):
             try:
                 fut.result()
             except Exception as e:
+                traceback.print_exc(file=sys.stdout)
                 msg = f"Error: {e}"
                 Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
 
@@ -1034,6 +1061,7 @@ class RootWidget(BoxLayout):
                 self._ota_last_dir = os.path.dirname(fp) if fp else ""
                 self._save_prefs()
             except Exception:
+                traceback.print_exc(file=sys.stdout)
                 pass
             cred = OtaCredentialsPopup(
                 initial_ssid=self._ota_ssid,
@@ -1053,6 +1081,7 @@ class RootWidget(BoxLayout):
         try:
             self._save_prefs()
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             pass
 
         if not self._ota_file:
@@ -1070,6 +1099,7 @@ class RootWidget(BoxLayout):
                 threading.Thread(target=lambda: futn.result(), daemon=True).start()
                 self._ota_notify_on = True
             except Exception as e:
+                traceback.print_exc(file=sys.stdout)
                 self._set_status(f"OTA notify error: {e}")
 
         # Send OTA_START over BLE
@@ -1078,12 +1108,14 @@ class RootWidget(BoxLayout):
         try:
             print(f"[BLE TX] {msg}")
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             pass
         Clock.schedule_once(lambda _dt: self._set_status(f"TX: {msg}"), 0)
 
         try:
             fut = self._worker.write_text_to_uuid(self.OTA_CHAR_UUID, msg, response=True, newline=False)
         except Exception as e:
+            traceback.print_exc(file=sys.stdout)
             self._set_status(f"Error: {e}")
             return
 
@@ -1092,6 +1124,7 @@ class RootWidget(BoxLayout):
                 fut.result()
                 Clock.schedule_once(lambda _dt: self._set_status("OTA_START sent. Waiting for OTA_READY..."), 0)
             except Exception as e:
+                traceback.print_exc(file=sys.stdout)
                 msg = f"Error: {e}"
                 Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
 
@@ -1102,6 +1135,7 @@ class RootWidget(BoxLayout):
         try:
             text = data.decode("utf-8", errors="ignore").strip()
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             return
         Clock.schedule_once(lambda _dt, t=text: self._handle_ota_message(t), 0)
 
@@ -1129,6 +1163,7 @@ class RootWidget(BoxLayout):
                 sent = int(sent_s)
                 total = int(total_s)
             except Exception:
+                traceback.print_exc(file=sys.stdout)
                 self._set_status(f"Unparsed OTA_PROGRESS: {msg}")
                 return
             self.ota_progress_value = max(0, min(100, pct))
@@ -1153,6 +1188,7 @@ class RootWidget(BoxLayout):
             if not token:
                 raise ValueError("No token in URL.")
         except Exception as e:
+            traceback.print_exc(file=sys.stdout)
             msg = f"Bad OTA URL: {e}"
             Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
             return
@@ -1173,6 +1209,7 @@ class RootWidget(BoxLayout):
                     try:
                         self._on_progress(self._sent)
                     except Exception:
+                        traceback.print_exc(file=sys.stdout)
                         pass
                 return chunk
 
@@ -1192,6 +1229,7 @@ class RootWidget(BoxLayout):
                 r = requests.post(url, files=files, headers=headers, timeout=(10, 300))
                 r.raise_for_status()
         except Exception as e:
+            traceback.print_exc(file=sys.stdout)
             msg = f"OTA upload failed: {e}"
             Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
             return
@@ -1218,6 +1256,7 @@ class RootWidget(BoxLayout):
         try:
             fut = self._worker.send_text(text, response=self.write_with_response, newline=self.append_newline)
         except Exception as e:
+            traceback.print_exc(file=sys.stdout)
             self._set_status(f"Error: {e}")
             return
 
@@ -1227,6 +1266,7 @@ class RootWidget(BoxLayout):
                 fut.result()
                 Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
             except Exception as e:
+                traceback.print_exc(file=sys.stdout)
                 msg = f"Error: {e}"
                 Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
 
@@ -1242,6 +1282,7 @@ class KinetixKivyApp(KivyApp):
             ini_path = os.path.join(self.user_data_dir, "kinetix.ini")
             root.load_prefs(ini_path)
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             pass
         return root
 
@@ -1252,6 +1293,7 @@ class KinetixKivyApp(KivyApp):
             if root and getattr(root, "_worker", None):
                 root.on_disconnect()
         except Exception:
+            traceback.print_exc(file=sys.stdout)
             pass
 
 
