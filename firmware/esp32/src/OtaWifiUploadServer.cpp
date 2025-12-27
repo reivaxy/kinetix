@@ -26,6 +26,7 @@ void OtaWifiUploadServer::setReply(ReplyFn reply) { _reply = std::move(reply); }
 
 void OtaWifiUploadServer::replyLine(const String &s)
 {
+  log_i(" %s", s.c_str());
   if (_reply)
     _reply(s);
 }
@@ -154,8 +155,8 @@ bool OtaWifiUploadServer::ensureWifi(const String &ssid, const String &pass)
 
 void OtaWifiUploadServer::installRoutes()
 {
-  static const char* kHeaders[] = { "Content-Length", "X-OTA-Token", "Content-Type" };
-  _server.collectHeaders(kHeaders, 3);
+  static const char* kHeaders[] = { "Content-Length", "X-OTA-Token", "Content-Type", "Origin" };
+  _server.collectHeaders(kHeaders, 4);
   _server.on("/", HTTP_GET, [this]()
              { handleRoot(); });
 
@@ -165,10 +166,31 @@ void OtaWifiUploadServer::installRoutes()
       [this]()
       { handleUpdate(); },
       [this]()
-      { handleUpdateUpload(); });
+      { 
+        // _server.sendHeader("Access-Control-Allow-Origin", _server.header("Origin"), true);
+        handleUpdateUpload(); 
+      });
+      
+      _server.on(
+        "/update",
+        HTTP_OPTIONS,
+        [this]() { 
+        // To allow OTA from Chrome web page
+        // send header Access-Control-Allow-Origin set to Origin 
+        log_i("ORIGIN1 %s", _server.header("Origin").c_str());
+        _server.sendHeader("Access-Control-Allow-Origin", _server.header("Origin"), true);
+        _server.sendHeader("Access-Control-Allow-Headers", "X-OTA-Token", false);
+        _server.send(200, "text/plain", "Yo1");
+      },
+      [this]() { 
+        log_i("ORIGIN2 %s", _server.header("Origin").c_str());
+        _server.sendHeader("Access-Control-Allow-Origin", _server.header("Origin"), true);
+        _server.send(200, "text/plain", "Yo2");
+      });
 
   _server.onNotFound([this]()
                      { _server.send(404, "text/plain", "Not Found"); });
+
 }
 
 void OtaWifiUploadServer::handleRoot()

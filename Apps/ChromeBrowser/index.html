@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KinetiX</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 20px; }
+    h1 { margin: 0 0 10px; font-size: 20px; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .card { border: 1px solid rgba(127,127,127,.35); border-radius: 12px; padding: 12px; margin: 12px 0; }
+    .muted { opacity: .8; }
+    button { padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(127,127,127,.35); background: transparent; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    input[type="text"], input[type="password"], input[type="number"] {
+      padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(127,127,127,.35); background: transparent; min-width: 220px;
+    }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 8px; }
+    .status { padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(127,127,127,.35); }
+    dialog { border: 1px solid rgba(127,127,127,.35); border-radius: 12px; padding: 0; width: min(860px, calc(100vw - 24px)); }
+    dialog header { padding: 12px 14px; border-bottom: 1px solid rgba(127,127,127,.35); display:flex; justify-content: space-between; align-items:center; gap: 10px;}
+    dialog .content { padding: 12px 14px; }
+    dialog footer { padding: 12px 14px; border-top: 1px solid rgba(127,127,127,.35); display:flex; justify-content:flex-end; gap: 10px;}
+    .kv { display:grid; grid-template-columns: 90px 1fr; gap: 10px; align-items:center; margin: 8px 0;}
+    .two { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .tiny { font-size: 12px; }
+    progress { width: 320px; height: 16px; }
+    .nowrap { white-space: nowrap; }
+    .danger { color: #ff6b6b; }
+    .ok { color: #38d9a9; }
+  </style>
+</head>
+<body>
+  <h1>KinetiX BLE Web (Chrome)</h1>
+  <div class="muted tiny">
+    Requires Chrome/Edge with <b>Web Bluetooth</b>, served over <b>https://</b> or <b>http://localhost</b>.
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <button id="btnConnect">Connect</button>
+      <button id="btnDisconnect" disabled>Disconnect</button>
+      <button id="btnSettings" disabled>Settings</button>
+      <button id="btnOta" disabled>OTA</button>
+     </div>
+
+    <div class="row" style="margin-top:10px;">
+      <div class="muted tiny">Connected device:</div>
+      <div id="deviceLabel" class="tiny">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between;">
+      <div><b>Positions / Movements</b></div>
+    </div>
+    <div id="quickGrid" class="grid" style="margin-top:10px;"></div>
+
+    <div class="row" style="margin-top:12px;">
+      <label class="nowrap" for="txtCustom">Custom:</label>
+      <input id="txtCustom" type="text" placeholder="Type command…" />
+      <button id="btnSendCustom" disabled>Send</button>
+    </div>
+  </div>
+
+  <div id="otaCard" class="card" style="display:none;">
+    <div class="row" style="justify-content:space-between;">
+      <div><b>OTA</b></div>
+      <div class="tiny muted" id="otaHint"></div>
+    </div>
+    <div class="row" style="margin-top:10px; gap: 14px;">
+      <progress id="otaProgress" value="0" max="100"></progress>
+      <div id="otaProgressText" class="tiny muted">Idle.</div>
+    </div>
+  </div>
+
+  <div id="status" class="status">Idle.</div>
+
+  <!-- Settings dialog -->
+  <dialog id="dlgSettings">
+    <header>
+      <div><b>Settings</b></div>
+      <button id="btnCloseSettings">Close</button>
+    </header>
+    <div class="content">
+      <div class="two">
+        <div class="card" style="margin:0;">
+          <div><b>Booleans</b></div>
+          <div id="boolGrid"></div>
+        </div>
+
+        <div class="card" style="margin:0;">
+          <div><b>Integers</b></div>
+          <div id="intBox"></div>
+
+          <div style="margin-top:10px;">
+          <div><b>Strings</b></div>
+          <div id="strBox"></div>
+        </div>
+      </div>
+
+      <div class="muted tiny" style="margin-top:10px;">
+        Changes are written immediately (debounced).
+      </div>
+    </div>
+    <footer>
+      <button id="btnReloadSettings">Reload from device</button>
+      <button id="btnCloseSettings2">Close</button>
+    </footer>
+  </dialog>
+
+  <!-- OTA dialog -->
+  <dialog id="dlgOta">
+    <header>
+      <div><b>OTA Firmware Update</b></div>
+      <button id="btnCloseOta">Close</button>
+    </header>
+    <div class="content">
+      <div class="kv">
+        <div>Firmware</div>
+        <div class="row" style="justify-content:space-between; width: 100%;">
+          <input id="fwFileName" type="text" readonly placeholder="Select a firmware file (.bin/.hex/.zip) …" />
+          <input id="fwFile" type="file" accept=".bin,.hex,.zip,*/*" />
+        </div>
+      </div>
+
+      <div class="kv">
+        <div>SSID</div>
+        <input id="otaSsid" type="text" placeholder="Wi‑Fi SSID (no spaces)" />
+      </div>
+
+      <div class="kv">
+        <div>Password</div>
+        <div class="row" style="gap:10px; align-items:center;">
+          <input id="otaPw" type="password" placeholder="Wi‑Fi password" />
+          <label class="row" style="gap:8px;">
+            <input id="otaShowPw" type="checkbox" />
+            <span class="nowrap">Show</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="otaErr" class="tiny danger" style="min-height:18px;"></div>
+
+      <div class="muted tiny">
+        This follows the same protocol as the Python app:
+        sends <code>OTA_START ssid;password</code> over BLE, waits for <code>OTA_READY &lt;url&gt;</code>,
+        then uploads the selected file to that URL with header <code>x-ota-token</code>.
+      </div>
+    </div>
+    <footer>
+      <button id="btnStartOta">Start</button>
+      <button id="btnCloseOta2">Cancel</button>
+    </footer>
+  </dialog>
+
+<script>
+(() => {
+  // ====== Constants (mirrors main.py) ======
+  const SERVICE_UUID   = "89d60870-9908-4472-8f8c-e5b3e6573cd1"; // provided by you
+  const CMD_CHAR_UUID  = "39dea685-a63e-44b2-8819-9a202581f8fe"; // RootWidget.DEFAULT_CHAR_UUID
+  const SETTINGS_UUID  = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e"; // SettingsPopup.SETTINGS_UUID
+  const OTA_CHAR_UUID  = "3168e56f-6ea1-420d-98f8-08a3b34afc9b"; // RootWidget.OTA_CHAR_UUID
+
+  const QUICK_MESSAGES = [
+    "five","four","three","two","one",
+    "ok","rock","love",
+    "fist","scratch","come",
+  ];
+
+  // ====== UI helpers ======
+  const $ = (id) => document.getElementById(id);
+  const statusEl = $("status");
+  const setStatus = (msg, cls) => {
+    statusEl.textContent = msg;
+    statusEl.classList.remove("danger","ok");
+    if (cls) statusEl.classList.add(cls);
+    console.log("[STATUS]", msg);
+  };
+
+  // ====== BLE state ======
+  let device = null;
+  let server = null;
+  let service = null;
+  let cmdChar = null;
+  let settingsChar = null;
+  let otaChar = null;
+
+  let connected = false;
+
+  const updateUi = () => {
+    $("btnConnect").disabled = connected;
+    $("btnDisconnect").disabled = !connected;
+    $("btnSettings").disabled = !connected;
+    $("btnOta").disabled = !connected;
+    $("btnSendCustom").disabled = !connected;
+    // quick buttons
+    document.querySelectorAll("[data-quick]").forEach(btn => btn.disabled = !connected);
+    $("txtCustom").disabled = !connected;
+  };
+
+  const utf8 = new TextEncoder();
+  const utf8dec = new TextDecoder("utf-8");
+
+  async function ensureChars() {
+    if (!service) throw new Error("Service not available.");
+    // Get known characteristics. If some are missing, we'll throw a clear error.
+    const chars = await service.getCharacteristics();
+    const byUuid = new Map(chars.map(c => [c.uuid.toLowerCase(), c]));
+    const missing = [];
+    const pick = (uuid) => {
+      const c = byUuid.get(uuid.toLowerCase());
+      if (!c) missing.push(uuid);
+      return c || null;
+    };
+    cmdChar = pick(CMD_CHAR_UUID);
+    settingsChar = pick(SETTINGS_UUID);
+    otaChar = pick(OTA_CHAR_UUID);
+
+    if (missing.length) {
+      throw new Error(
+        "Missing expected characteristic(s):\n" +
+        missing.map(u => "  - " + u).join("\n") +
+        "\n\nFound:\n" + [...byUuid.keys()].map(u => "  - " + u).join("\n")
+      );
+    }
+  }
+
+  async function connect() {
+    if (!navigator.bluetooth) {
+      throw new Error("Web Bluetooth not supported in this browser.");
+    }
+    setStatus("Opening device picker…");
+    device = await navigator.bluetooth.requestDevice({
+      filters: [{ services: [SERVICE_UUID] }],
+      optionalServices: [SERVICE_UUID],
+    });
+
+    device.addEventListener("gattserverdisconnected", () => {
+      connected = false;
+      server = null; service = null; cmdChar = null; settingsChar = null; otaChar = null;
+      $("deviceLabel").textContent = "—";
+      updateUi();
+      stopOtaNotifyBestEffort();
+      setStatus("Disconnected.");
+    });
+
+    setStatus("Connecting…");
+    server = await device.gatt.connect();
+    service = await server.getPrimaryService(SERVICE_UUID);
+    await ensureChars();
+
+    connected = true;
+    $("deviceLabel").textContent = `${device.name || "(unnamed)"} (${device.id})`;
+    updateUi();
+    setStatus("Connected.", "ok");
+  }
+
+  async function disconnect() {
+    try { stopOtaNotifyBestEffort(); } catch (_) {}
+    if (device?.gatt?.connected) device.gatt.disconnect();
+  }
+
+  async function writeText(characteristic, text, {withResponse=false, newline=false} = {}) {
+    if (!connected || !characteristic) throw new Error("Not connected.");
+    const payload = text + (newline ? "\n" : "");
+    const data = utf8.encode(payload);
+
+    // Web Bluetooth: writeValueWithResponse / writeValueWithoutResponse
+    if (withResponse && characteristic.writeValueWithResponse) {
+      await characteristic.writeValueWithResponse(data);
+    } else if (!withResponse && characteristic.writeValueWithoutResponse) {
+      await characteristic.writeValueWithoutResponse(data);
+    } else {
+      // Fallback: try generic writeValue()
+      await characteristic.writeValue(data);
+    }
+  }
+
+  // ====== Quick commands / custom ======
+  function buildQuickButtons() {
+    const grid = $("quickGrid");
+    grid.innerHTML = "";
+    for (const txt of QUICK_MESSAGES) {
+      const b = document.createElement("button");
+      b.textContent = txt;
+      b.dataset.quick = "1";
+      b.disabled = true;
+      b.addEventListener("click", async () => {
+        try {
+          setStatus(`TX: ${txt}`);
+          await writeText(cmdChar, txt);
+          setStatus(`Sent: ${txt}`, "ok");
+        } catch (e) {
+          console.error(e);
+          setStatus(`Error: ${e.message || e}`, "danger");
+        }
+      });
+      grid.appendChild(b);
+    }
+  }
+
+  // ====== Settings ======
+  const settingsState = {
+    loading: false,
+    debounce: new Map(), // field -> timeoutId
+  };
+
+  function buildSettingsUi() {
+    const boolGrid = $("boolGrid");
+    boolGrid.innerHTML = "";
+    for (let i = 1; i <= 4; i++) {
+      const key = `b_${i}`;
+      const wrap = document.createElement("div");
+      wrap.className = "row";
+      wrap.style.justifyContent = "flex-start";
+      wrap.style.gap = "8px";
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.id = `set_${key}`;
+      cb.addEventListener("change", () => onSettingChanged(key));
+
+      const lbl = document.createElement("label");
+      lbl.htmlFor = cb.id;
+      lbl.textContent = key;
+
+      wrap.appendChild(cb);
+      wrap.appendChild(lbl);
+      boolGrid.appendChild(wrap);
+    }
+
+    const intBox = $("intBox");
+    intBox.innerHTML = "";
+    for (let i = 1; i <= 4; i++) {
+      const key = `i_${i}`;
+      const row = document.createElement("div");
+      row.className = "kv";
+      const k = document.createElement("div");
+      k.textContent = key;
+      const inp = document.createElement("input");
+      inp.type = "text";
+      inp.inputMode = "numeric";
+      inp.placeholder = "0";
+      inp.id = `set_${key}`;
+      inp.addEventListener("input", () => {
+        // max 8 chars like Python
+        if (inp.value.length > 8) inp.value = inp.value.slice(0, 8);
+        onSettingChanged(key);
+      });
+      row.appendChild(k);
+      row.appendChild(inp);
+      intBox.appendChild(row);
+    }
+
+    const strBox = $("strBox");
+    strBox.innerHTML = "";
+    for (let i = 1; i <= 4; i++) {
+      const key = `s_${i}`;
+      const row = document.createElement("div");
+      row.className = "kv";
+      const k = document.createElement("div");
+      k.textContent = key;
+      const inp = document.createElement("input");
+      inp.type = "text";
+      inp.placeholder = "";
+      inp.id = `set_${key}`;
+      inp.addEventListener("input", () => {
+        // max 20 chars like Python
+        if (inp.value.length > 20) inp.value = inp.value.slice(0, 20);
+        onSettingChanged(key);
+      });
+      row.appendChild(k);
+      row.appendChild(inp);
+      strBox.appendChild(row);
+    }
+  }
+
+  function scheduleSettingWrite(field) {
+    const old = settingsState.debounce.get(field);
+    if (old) clearTimeout(old);
+    const t = setTimeout(() => writeSettingField(field).catch(e => {
+      console.error(e);
+      setStatus(`Error: ${e.message || e}`, "danger");
+    }), 300);
+    settingsState.debounce.set(field, t);
+  }
+
+  function onSettingChanged(field) {
+    if (settingsState.loading) return;
+    scheduleSettingWrite(field);
+  }
+
+  async function writeSettingField(field) {
+    if (!connected) { setStatus("Not connected.", "danger"); return; }
+    let val = "";
+    const el = $(`set_${field}`);
+    if (!el) return;
+
+    if (field.startsWith("b_")) {
+      val = el.checked ? "true" : "false";
+    } else if (field.startsWith("i_")) {
+      const raw = (el.value || "").trim();
+      val = raw !== "" ? raw : "0";
+    } else {
+      val = el.value || "";
+    }
+
+    const payload = `${field}=${val}`;
+    setStatus(`TX: ${payload}`);
+    await writeText(settingsChar, payload, {withResponse: true, newline: false});
+    setStatus(`Settings written: ${field}`, "ok");
+  }
+
+  async function reloadSettingsFromDevice() {
+    if (!connected) { setStatus("Not connected.", "danger"); return; }
+    setStatus("Reading settings…");
+    settingsState.loading = true;
+    try {
+      const v = await settingsChar.readValue();
+      const text = utf8dec.decode(v.buffer).trim();
+      const obj = text ? JSON.parse(text) : {};
+      // populate
+      for (let i = 1; i <= 4; i++) {
+        const b = $(`set_b_${i}`); if (b && (`b_${i}` in obj)) b.checked = !!obj[`b_${i}`];
+      }
+      for (let i = 1; i <= 4; i++) {
+        const el = $(`set_i_${i}`); if (el && (`i_${i}` in obj)) el.value = String(parseInt(obj[`i_${i}`], 10) || 0).slice(0, 8);
+      }
+      for (let i = 1; i <= 4; i++) {
+        const el = $(`set_s_${i}`); if (el && (`s_${i}` in obj)) el.value = String(obj[`s_${i}`] ?? "").slice(0, 20);
+      }
+      setStatus("Settings loaded.", "ok");
+    } catch (e) {
+      console.error(e);
+      setStatus(`Error reading settings: ${e.message || e}`, "danger");
+    } finally {
+      settingsState.loading = false;
+    }
+  }
+
+  // ====== OTA ======
+  const otaState = {
+    notifyOn: false,
+    readyUrl: "",
+    file: null,
+  };
+
+  function showOtaCard(show) {
+    $("otaCard").style.display = show ? "" : "none";
+    if (!show) {
+      $("otaProgress").value = 0;
+      $("otaProgressText").textContent = "Idle.";
+      $("otaHint").textContent = "";
+    }
+  }
+
+  function setOtaProgress(pct, text) {
+    $("otaProgress").value = Math.max(0, Math.min(100, pct));
+    $("otaProgressText").textContent = text || "";
+  }
+
+  function stopOtaNotifyBestEffort() {
+    if (!otaChar) return;
+    if (!otaState.notifyOn) return;
+    try {
+      otaChar.stopNotifications();
+    } catch (_) {}
+    otaState.notifyOn = false;
+  }
+
+  async function startOtaNotify() {
+    if (!otaChar) throw new Error("OTA characteristic not available.");
+    if (otaState.notifyOn) return;
+
+    otaChar.addEventListener("characteristicvaluechanged", (ev) => {
+      const dv = ev.target.value;
+      const msg = utf8dec.decode(dv.buffer).trim();
+      if (msg) handleOtaMessage(msg);
+    });
+    await otaChar.startNotifications();
+    otaState.notifyOn = true;
+  }
+
+  function handleOtaMessage(msg) {
+    console.log("[OTA RX]", msg);
+
+    if (msg.startsWith("OTA_READY")) {
+      const parts = msg.split(/\s+/, 2);
+      if (parts.length < 2) {
+        setStatus("OTA_READY received without URL.", "danger");
+        return;
+      }
+      otaState.readyUrl = parts[1].trim();
+      setStatus(`OTA_READY: uploading to ${otaState.readyUrl}`);
+      $("otaHint").textContent = "Uploading…";
+      setOtaProgress(0, "Uploading…");
+      uploadFirmware(otaState.readyUrl, otaState.file).catch(e => {
+        console.error(e);
+        setStatus(`OTA upload failed: ${e.message || e}`, "danger");
+      });
+      return;
+    }
+
+    if (msg.startsWith("OTA_PROGRESS")) {
+      // Format: OTA_PROGRESS <pct> <sent>/<total>
+      try {
+        const parts = msg.split(/\s+/, 3);
+        const pct = parseInt(parts[1], 10);
+        const [sent, total] = (parts[2] || "0/0").split("/", 2).map(x => parseInt(x, 10));
+        setOtaProgress(pct, `OTA ${pct}%  ${sent}/${total} bytes`);
+      } catch (_) {
+        setStatus(`Unparsed OTA_PROGRESS: ${msg}`, "danger");
+      }
+      return;
+    }
+
+    if (msg.startsWith("OTA_")) {
+      setStatus(msg);
+    }
+  }
+
+  function parseTokenFromUrl(url) {
+    const u = new URL(url);
+    return u.searchParams.get("token") || "";
+  }
+
+  function uploadFirmware(url, file) {
+    if (!url) throw new Error("Missing OTA URL.");
+    if (!file) throw new Error("No firmware file selected.");
+    const token = parseTokenFromUrl(url);
+    if (!token) throw new Error("No token in OTA URL.");
+
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("x-ota-token", token);
+
+      xhr.upload.onprogress = (evt) => {
+        if (evt.lengthComputable) {
+          const pct = Math.floor((evt.loaded * 100) / evt.total);
+          setOtaProgress(pct, `Uploading (local) ${pct}%  ${evt.loaded}/${evt.total} bytes`);
+        } else {
+          setOtaProgress(0, `Uploading (local) ${evt.loaded} bytes`);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          setStatus("OTA upload finished (HTTP OK). Waiting for device…", "ok");
+          $("otaHint").textContent = "Waiting for device…";
+          resolve();
+        } else {
+          reject(new Error(`HTTP ${xhr.status}: ${xhr.responseText || "upload failed"}`));
+        }
+      };
+      xhr.onerror = () => reject(new Error("Network error during upload."));
+      xhr.ontimeout = () => reject(new Error("Upload timed out."));
+      xhr.timeout = 300000; // 5 min
+
+      const form = new FormData();
+      form.append("binary", file, file.name);
+      xhr.send(form);
+    });
+  }
+
+  async function startOtaFlow() {
+    $("otaErr").textContent = "";
+
+    const file = $("fwFile").files?.[0] || null;
+    const ssid = ($("otaSsid").value || "").trim();
+    const pw = $("otaPw").value || "";
+
+    if (!connected) { $("otaErr").textContent = "Not connected."; return; }
+    if (!file) { $("otaErr").textContent = "Please select a firmware file."; return; }
+    if (!ssid) { $("otaErr").textContent = "SSID must not be empty."; return; }
+    if (!pw.trim()) { $("otaErr").textContent = "Password must not be empty."; return; }
+    if (ssid.includes(" ")) { $("otaErr").textContent = "SSID must not contain spaces."; return; }
+
+    otaState.file = file;
+    showOtaCard(true);
+    setOtaProgress(0, `Preparing OTA: ${file.name}`);
+    $("otaHint").textContent = "Waiting for OTA_READY…";
+
+    // Ensure notifications
+    await startOtaNotify();
+
+    const msg = `OTA_START ${ssid};${pw}`;
+    console.log("[BLE TX]", msg);
+    setStatus(`TX: ${msg}`);
+    await writeText(otaChar, msg, {withResponse: true, newline: false});
+    setStatus("OTA_START sent. Waiting for OTA_READY…", "ok");
+    $("dlgOta").close();
+  }
+
+  // ====== Wire up UI ======
+  buildQuickButtons();
+  buildSettingsUi();
+  updateUi();
+
+  $("btnConnect").addEventListener("click", async () => {
+    try {
+      await connect();
+    } catch (e) {
+      console.error(e);
+      setStatus(`Error: ${e.message || e}`, "danger");
+    }
+  });
+
+  $("btnDisconnect").addEventListener("click", async () => {
+    try {
+      await disconnect();
+    } catch (e) {
+      console.error(e);
+      setStatus(`Error: ${e.message || e}`, "danger");
+    }
+  });
+
+  $("btnSendCustom").addEventListener("click", async () => {
+    const txt = ($("txtCustom").value || "").trim();
+    if (!txt) { setStatus("Nothing to send.", "danger"); return; }
+    try {
+      setStatus(`TX: ${txt}`);
+      await writeText(cmdChar, txt);
+      setStatus(`Sent: ${txt}`, "ok");
+    } catch (e) {
+      console.error(e);
+      setStatus(`Error: ${e.message || e}`, "danger");
+    }
+  });
+
+  $("btnSettings").addEventListener("click", async () => {
+    try {
+      await reloadSettingsFromDevice();
+      $("dlgSettings").showModal();
+    } catch (e) {
+      console.error(e);
+      setStatus(`Error: ${e.message || e}`, "danger");
+    }
+  });
+
+  $("btnReloadSettings").addEventListener("click", reloadSettingsFromDevice);
+  $("btnCloseSettings").addEventListener("click", () => $("dlgSettings").close());
+  $("btnCloseSettings2").addEventListener("click", () => $("dlgSettings").close());
+
+  $("btnOta").addEventListener("click", () => $("dlgOta").showModal());
+  $("btnCloseOta").addEventListener("click", () => $("dlgOta").close());
+  $("btnCloseOta2").addEventListener("click", () => $("dlgOta").close());
+  $("btnStartOta").addEventListener("click", () => startOtaFlow().catch(e => {
+    console.error(e);
+    $("otaErr").textContent = e.message || String(e);
+  }));
+
+  $("fwFile").addEventListener("change", () => {
+    const f = $("fwFile").files?.[0];
+    $("fwFileName").value = f ? f.name : "";
+  });
+
+  $("otaShowPw").addEventListener("change", () => {
+    $("otaPw").type = $("otaShowPw").checked ? "text" : "password";
+  });
+
+  // Try to keep button enable/disable coherent with checkbox toggles.
+  // (No extra wiring needed; updateUi() handles most.)
+})();
+</script>
+</body>
+</html>
