@@ -70,7 +70,7 @@ void Settings::saveSettings() {
 }
 
 int Settings::getInt(const char* key, int defaultValue) {
-   if (doc.containsKey(key)) {
+   if (doc[key].is<int>()) {
       return doc[key];
    }
    return defaultValue;
@@ -82,7 +82,7 @@ void Settings::setString(const char* key, const char* value) {
    doc[key] = value;
 }
 const char* Settings::getString(const char* key, const char* defaultValue) {
-   if (doc.containsKey(key)) {
+   if (doc[key].is<const char*>()) {
       return doc[key];
    }
    return defaultValue;
@@ -92,7 +92,7 @@ void Settings::setBool(const char* key, boolean value) {
    doc[key] = value;
 }
 boolean Settings::getBool(const char* key, boolean defaultValue) {
-   if (doc.containsKey(key)) {
+   if (doc[key].is<bool>()) {
       return doc[key];
    }
    return defaultValue;

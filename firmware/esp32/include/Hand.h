@@ -6,7 +6,7 @@
 #include "FingerMovement.h"
 
 #include "Settings.h"
-#include "XOLEDDisplay.h"
+#include "OptionalDisplay.h"
 
 #define FINGER_COUNT 5
 

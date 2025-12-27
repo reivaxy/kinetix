@@ -2,7 +2,7 @@
 #include "MessageProcessor.h"
 
 
-MessageProcessor::MessageProcessor(Hand *hand, Settings *settings, XOLEDDisplayClass *display) {
+MessageProcessor::MessageProcessor(Hand *hand, Settings *settings, Display *display) {
    this->hand = hand;
    this->settings = settings;
    this->display = display;

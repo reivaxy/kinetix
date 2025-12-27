@@ -101,10 +101,10 @@ public:
 };
 
 class MyServerCallback : public BLEServerCallbacks {
-  XOLEDDisplayClass *display;
+  Display *display;
   
 public:
-  MyServerCallback(XOLEDDisplayClass *display) : display(display) {
+  MyServerCallback(Display *display) : display(display) {
     this->display = display;
   }
 
@@ -123,7 +123,7 @@ private:
   }
 };
 
-BtServer::BtServer(MessageProcessor* _messageProcessor, XOLEDDisplayClass *display) {
+BtServer::BtServer(MessageProcessor* _messageProcessor, Display *display) {
   messageProcessor = _messageProcessor;
   this->display = display;
 

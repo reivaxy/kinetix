@@ -1,0 +1,16 @@
+# Core app
+kivy>=2.3.0
+bleak>=0.22.0
+requests>=2.31.0
+
+# Packaging
+pyinstaller>=6.8.0
+pyinstaller-hooks-contrib>=2024.6
+
+# Kivy on Windows pulls these wheels; usually installed automatically,
+# but listing them explicitly avoids "works on dev machine" issues.
+kivy-deps.angle>=0.4.0
+kivy-deps.glew>=0.3.1
+kivy-deps.sdl2>=0.8.0
+
+pywin32>=306

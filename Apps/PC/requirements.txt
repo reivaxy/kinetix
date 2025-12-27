@@ -1,0 +1,3 @@
+kivy>=2.2.1
+bleak>=0.22.0
+requests>=2.31.0

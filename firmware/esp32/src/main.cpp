@@ -10,6 +10,14 @@
 #define NEEDSEQ
 #endif
 
+// Display instanciation must not happen before setup so we will use a pointer and new...
+#ifdef WITH_OLED_DISPLAY
+RealDisplay *display;
+#else
+MockDisplay *display;
+#endif
+
+
 int start = 0;
 int finger = 0;
 bool isClosed = true;
@@ -22,8 +30,6 @@ MessageProcessor *messageProcessor = NULL;
 Sequence *seq = NULL;
 Settings *settings;
 
-XOLEDDisplayClass *display;
-
 void setup() {
   Serial.begin(115200);
   delay(3000);
@@ -32,9 +38,12 @@ void setup() {
   log_i("Version %s\n", GIT_REV);
   #endif 
 
-  display = new XOLEDDisplayClass(0x3C, SDA, SCL, false, 120);
+  #ifdef WITH_OLED_DISPLAY
+  display = new RealDisplay();
+  #else
+  display = new MockDisplay();
+  #endif
   display->setTitle("KinetiX");
-  log_i("Display initialized");
 
   start = millis();
   isClosed = true;
@@ -72,11 +81,11 @@ void setup() {
 }
 
 void loop() {
-  display->refresh();
   #ifndef NEEDSEQ
   messageProcessor->run();
   #endif
   if (seq != NULL) {
     seq->run();
   }
+  display->refresh();
 }
