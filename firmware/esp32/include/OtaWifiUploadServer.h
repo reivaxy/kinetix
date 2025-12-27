@@ -71,7 +71,7 @@ private:
   uint32_t _lastActivityMs = 0;
   uint8_t  _lastPctSent = 255;
 
-  static constexpr uint32_t OTA_IDLE_TIMEOUT_MS    = 60 * 1000;   // 60s no upload/data -> stop
+  static constexpr uint32_t OTA_IDLE_TIMEOUT_MS    = 10 * 1000;   // 10s no upload/data -> stop waiting
   static constexpr uint32_t OTA_SESSION_TIMEOUT_MS = 2  * 60*1000; // 5min total -> stop
   static constexpr uint32_t OTA_PROGRESS_MIN_MS    = 300;         // throttle notifications
   static constexpr uint8_t  OTA_PROGRESS_STEP_PCT  = 2;           // send every 2%
