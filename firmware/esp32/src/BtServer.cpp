@@ -112,12 +112,12 @@ private:
 
   void onConnect(BLEServer* pServer) override {
     log_i("Client connected.");
-    display->setLine(1, "BT Connected");
+    display->setLine(CONNECTED_DISPLAY_LINE, "BT Connected");
   }
   
   void onDisconnect(BLEServer* pServer) override {
     log_i("Client disconnected");
-    display->setLine(1, "BT Disconnected");
+    display->setLine(CONNECTED_DISPLAY_LINE, "BT Disconnected");
     // Need to restart advertising to be able to reconnect
     pServer->getAdvertising()->start();
   }

@@ -50,14 +50,16 @@ void setup() {
 
   start = millis();
   isClosed = true;
+ 
+  settings = new Settings();
 
   #ifdef SENSOR
-  sensorProcessor = new SensorProcessor(hand);
+  sensorProcessor = new SensorProcessor(hand, settings, display);
   log_i("With Sensor");
   #endif
 
-  settings = new Settings();
   messageProcessor = new MessageProcessor(hand, settings, display);
+  
   btServer = new BtServer(messageProcessor, display);
   #ifndef NEEDSEQ
   // Initialization sequence, do it just once
