@@ -9,7 +9,7 @@
  * @param maxOpen 
  * @param maxClosed
  */
-Finger::Finger(int _number, int _controlPin, int _monitorPin, int _maxOpen, int _maxClosed, int _direction) {
+Finger::Finger(int _number, int _controlPin, int _maxOpen, int _maxClosed, int _direction) {
    number = _number; // finger number, to help in logs
    controlPin = _controlPin;
    

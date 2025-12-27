@@ -35,6 +35,10 @@
             android:exported="false"
             android:label="@string/title_activity_settings" />
         <activity
+            android:name=".KinetixSettingsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_kinetix_settings" />
+        <activity
             android:name=".AboutActivity"
             android:exported="false"
             android:label="@string/title_activity_about" />

@@ -3,7 +3,6 @@ package fr.reivaxy.kinetix;
 import static android.bluetooth.BluetoothAdapter.*;
 
 import android.annotation.SuppressLint;
-import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -11,19 +10,16 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.preference.PreferenceManager;
 
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class BluetoothHandler  {
@@ -38,9 +34,20 @@ public class BluetoothHandler  {
     public static final String ACTION_OTA_MESSAGE =
             "fr.reivaxy.kinetix.ACTION_OTA_MESSAGE";
     public static final String EXTRA_OTA_MESSAGE = "fr.reivaxy.kinetix.EXTRA_OTA_MESSAGE";
+
+    // Broadcasted when the CONFIG characteristic is read.
+    public static final String ACTION_SYSTEM_MESSAGE =
+            "fr.reivaxy.kinetix.ACTION_SYSTEM_MESSAGE";
+    public static final String EXTRA_SYSTEM_MESSAGE = "fr.reivaxy.kinetix.EXTRA_SYSTEM_MESSAGE";
+
+    // Broadcasted when the SYSTEM characteristic is read.
+    public static final String ACTION_CONFIG_MESSAGE =
+            "fr.reivaxy.kinetix.ACTION_CONFIG_MESSAGE";
+    public static final String EXTRA_CONFIG_MESSAGE = "fr.reivaxy.kinetix.EXTRA_CONFIG_MESSAGE";
     public static final String SERVICE_UUID = "89d60870-9908-4472-8f8c-e5b3e6573cd1";
     public static final String MOVEMENT_CHARACTERISTIC_UUID = "39dea685-a63e-44b2-8819-9a202581f8fe";
     public static final String CONFIG_CHARACTERISTIC_UUID = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e";
+    public static final String SYSTEM_CHARACTERISTIC_UUID = "68b788da-819b-4feb-b478-8d237ef29f5f";
     // OTA characteristic UUID (must match firmware)
     public static final String OTA_CHARACTERISTIC_UUID = "3168e56f-6ea1-420d-98f8-08a3b34afc9b";
     private BluetoothAdapter mBluetoothAdapter;
@@ -52,9 +59,25 @@ public class BluetoothHandler  {
     private BluetoothGattService mCustomService;
     private BluetoothGattCharacteristic mOtaCharacteristic;
 
+    // Cache last CONFIG payload so activities opened after the initial read can still initialize.
+    @Nullable
+    private String mLastConfigPayload = null;
+
     private void broadcastOtaMessage(final String msg) {
         final Intent intent = new Intent(ACTION_OTA_MESSAGE);
         intent.putExtra(EXTRA_OTA_MESSAGE, msg);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    }
+
+    private void broadcastConfigMessage(final String msg) {
+        final Intent intent = new Intent(ACTION_CONFIG_MESSAGE);
+        intent.putExtra(EXTRA_CONFIG_MESSAGE, msg);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    }
+
+    private void broadcastSystemMessage(final String msg) {
+        final Intent intent = new Intent(ACTION_SYSTEM_MESSAGE);
+        intent.putExtra(EXTRA_SYSTEM_MESSAGE, msg);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
@@ -139,10 +162,10 @@ public class BluetoothHandler  {
 
             // Now it's safe to start the next GATT operation
             if (mCustomService != null) {
-                BluetoothGattCharacteristic configCharacteristic =
-                        mCustomService.getCharacteristic(UUID.fromString(CONFIG_CHARACTERISTIC_UUID));
-                if (configCharacteristic != null) {
-                    boolean started = mBluetoothGatt.readCharacteristic(configCharacteristic);
+                BluetoothGattCharacteristic systemCharacteristic =
+                        mCustomService.getCharacteristic(UUID.fromString(SYSTEM_CHARACTERISTIC_UUID));
+                if (systemCharacteristic != null) {
+                    boolean started = mBluetoothGatt.readCharacteristic(systemCharacteristic);
                     Log.i(TAG, "readCharacteristic(config) started=" + started);
                 }
             }
@@ -154,18 +177,27 @@ public class BluetoothHandler  {
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
 //                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-                if (characteristic.getUuid().toString().equals(CONFIG_CHARACTERISTIC_UUID)) {
-                    BluetoothGattCharacteristic configCharacteristic = mCustomService.getCharacteristic(UUID.fromString(CONFIG_CHARACTERISTIC_UUID));
-
-                    String version = configCharacteristic.getStringValue(0);
-                    Log.i(TAG, "Got firmware version " + version);
-
+                if (characteristic.getUuid().toString().equals(SYSTEM_CHARACTERISTIC_UUID)) {
+                    // CONFIG characteristic is now used for device configuration.
+                    // We broadcast the full payload so UI screens can initialize.
+                    byte[] raw = characteristic.getValue();
+                    String msg = raw == null ? null : new String(raw, StandardCharsets.UTF_8);
+                    Log.i(TAG, "Got config payload: " + msg);
                     SharedPreferences sharedPref = context.getSharedPreferences(
                             context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString(context.getString(R.string.saved_version_key), version);
+                    editor.putString(context.getString(R.string.saved_version_key), msg);
                     editor.apply();
+                }
 
+                if (characteristic.getUuid().toString().equals(CONFIG_CHARACTERISTIC_UUID)) {
+                    byte[] raw = characteristic.getValue();
+                    String msg = raw == null ? null : new String(raw, StandardCharsets.UTF_8);
+
+                    if (msg != null) {
+                        mLastConfigPayload = msg;
+                        broadcastConfigMessage(msg);
+                    }
                 }
             }
         }
@@ -181,6 +213,15 @@ public class BluetoothHandler  {
             }
         }
     };
+
+    /**
+     * Returns the last CONFIG characteristic payload received from the device (if any).
+     * Useful for initializing UI screens that may open after the initial read broadcast.
+     */
+    @Nullable
+    public String getLastConfigPayload() {
+        return mLastConfigPayload;
+    }
 
     @SuppressLint("MissingPermission")
     private void enableNotifications(BluetoothGattCharacteristic characteristic) {
@@ -234,6 +275,86 @@ public class BluetoothHandler  {
         if (!mBluetoothGatt.writeCharacteristic(movementWriteCharacteristic)) {
             Log.w(TAG, "Failed to write characteristic");
         }
+    }
+
+    /**
+     * Writes to the CONFIG characteristic of the custom service.
+     * Payload is expected to be UTF-8 text, e.g. "field=value".
+     */
+    @SuppressLint("MissingPermission")
+    public void writeConfigCharacteristic(byte[] value) {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized");
+            return;
+        }
+
+        if (mCustomService == null) {
+            Log.w(TAG, "Custom BLE Service not found");
+            return;
+        }
+
+        BluetoothGattCharacteristic configCharacteristic =
+                mCustomService.getCharacteristic(UUID.fromString(CONFIG_CHARACTERISTIC_UUID));
+        if (configCharacteristic == null) {
+            Log.w(TAG, "Config characteristic not found");
+            return;
+        }
+
+        Log.i(TAG, String.format("Sending config '%s'", new String(value)));
+        configCharacteristic.setValue(value);
+        if (!mBluetoothGatt.writeCharacteristic(configCharacteristic)) {
+            Log.w(TAG, "Failed to write config characteristic");
+        }
+    }
+
+    /**
+     * Requests a read of the CONFIG characteristic. The result will be broadcast via
+     * {@link #ACTION_CONFIG_MESSAGE} with {@link #EXTRA_SYSTEM_MESSAGE}.
+     */
+    @SuppressLint("MissingPermission")
+    public boolean readConfigCharacteristic() {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized");
+            return false;
+        }
+        if (mCustomService == null) {
+            Log.w(TAG, "Custom BLE Service not found");
+            return false;
+        }
+        BluetoothGattCharacteristic configCharacteristic =
+                mCustomService.getCharacteristic(UUID.fromString(CONFIG_CHARACTERISTIC_UUID));
+        if (configCharacteristic == null) {
+            Log.w(TAG, "Config characteristic not found");
+            return false;
+        }
+        boolean started = mBluetoothGatt.readCharacteristic(configCharacteristic);
+        Log.i(TAG, "readCharacteristic(config) started=" + started);
+        return started;
+    }
+
+    /**
+     * Requests a read of the SYSTEM characteristic. The result will be broadcast via
+     * {@link #ACTION_SYSTEM_MESSAGE} with {@link #EXTRA_SYSTEM_MESSAGE}.
+     */
+    @SuppressLint("MissingPermission")
+    public boolean readSystemCharacteristic() {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized");
+            return false;
+        }
+        if (mCustomService == null) {
+            Log.w(TAG, "Custom BLE Service not found");
+            return false;
+        }
+        BluetoothGattCharacteristic systemCharacteristic =
+                mCustomService.getCharacteristic(UUID.fromString(SYSTEM_CHARACTERISTIC_UUID));
+        if (systemCharacteristic == null) {
+            Log.w(TAG, "Config characteristic not found");
+            return false;
+        }
+        boolean started = mBluetoothGatt.readCharacteristic(systemCharacteristic);
+        Log.i(TAG, "readCharacteristic(config) started=" + started);
+        return started;
     }
 
     /**

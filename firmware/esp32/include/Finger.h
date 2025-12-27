@@ -5,10 +5,9 @@
 #include <Servo.h>
 #include "FingerMovement.h"
 
-
 class Finger {
 public:   
-   Finger(int number, int controlPin, int monitorPin, int maxOpen, int maxClosed, int direction);
+   Finger(int number, int controlPin, int maxOpen, int maxClosed, int direction);
 
    void move(int to);
    void moveRelative(int to);

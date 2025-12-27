@@ -12,6 +12,14 @@
 #define NEEDSEQ
 #endif
 
+// Display instanciation must not happen before setup so we will use a pointer and new...
+#ifdef WITH_OLED_DISPLAY
+RealDisplay *display;
+#else
+MockDisplay *display;
+#endif
+
+
 int start = 0;
 int finger = 0;
 bool isClosed = true;
@@ -23,6 +31,7 @@ BtServer *btServer = NULL;
 MessageProcessor *messageProcessor = NULL;
 SensorProcessor *sensorProcessor = NULL;
 Sequence *seq = NULL;
+Settings *settings;
 
 void setup() {
   Serial.begin(115200);
@@ -31,6 +40,14 @@ void setup() {
   #ifdef GIT_REV
   log_i("Version %s\n", GIT_REV);
   #endif 
+
+  #ifdef WITH_OLED_DISPLAY
+  display = new RealDisplay();
+  #else
+  display = new MockDisplay();
+  #endif
+  display->setTitle("KinetiX");
+
   start = millis();
   isClosed = true;
 
@@ -39,8 +56,9 @@ void setup() {
   log_i("With Sensor");
   #endif
 
-  messageProcessor = new MessageProcessor(hand);
-  btServer = new BtServer(messageProcessor);
+  settings = new Settings();
+  messageProcessor = new MessageProcessor(hand, settings, display);
+  btServer = new BtServer(messageProcessor, display);
   #ifndef NEEDSEQ
   // Initialization sequence, do it just once
   seq = new Sequence(1); // this sequence runs just once
@@ -77,4 +95,5 @@ void loop() {
   if (seq != NULL) {
     seq->run();
   }
+  display->refresh();
 }

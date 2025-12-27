@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="action_settings">Réglages</string>
+    <string name="action_settings">Réglages App</string>
+    <string name="action_settings_kinetix">Réglages KinetiX</string>
+
     <string name="close">Fermer</string>
     <string name="open">Ouvrir</string>
     <string name="openPinch">Pince ouverte</string>
@@ -63,4 +65,30 @@
     <string name="error_ssid_required">SSID is requis</string>
     <string name="error_password_required">Password est requis</string>
     <string name="copy">Copier</string>
+
+    <!-- KinetiX settings -->
+    <string name="title_activity_kinetix_settings">Réglages KinetiX</string>
+    <string name="coming_soon">Bientôt…</string>
+    <string name="firmware_settings">Réglages du firmware</string>
+    <string name="experimental_settings">Réglages d\'expérimentations</string>
+    <string name="flags">Flags</string>
+    <string name="flag">Flag</string>
+    <string name="flag1">Flag 1</string>
+    <string name="flag2">Flag 2</string>
+    <string name="flag3">Flag 3</string>
+    <string name="flag4">Flag 4</string>
+
+    <string name="integers">Entiers</string>
+    <string name="integer1">Entier 1</string>
+    <string name="integer2">Entier 2</string>
+    <string name="integer3">Entier 3</string>
+    <string name="integer4">Entier 4</string>
+
+    <string name="strings">Chaînes</string>
+    <string name="string1">Chaîne 1</string>
+    <string name="string2">Chaîne 2</string>
+    <string name="string3">Chaîne 3</string>
+    <string name="string4">Chaîne 4</string>
+
+
 </resources>

@@ -5,25 +5,23 @@
 #include "Finger.h"
 #include "FingerMovement.h"
 
+#include "Settings.h"
+#include "OptionalDisplay.h"
+
 #define FINGER_COUNT 5
 
 /*
  *   Thumb pulley expects 120°, other pulleys expect 180°
  */
 #define THUMB_CTRL_PIN D6
-#define THUMB_MONITOR_PIN A0
 
 #define FINGER1_CTRL_PIN D10
-#define FINGER1_MONITOR_PIN A1
 
 #define FINGER2_CTRL_PIN D9
-#define FINGER2_MONITOR_PIN A2
 
 #define FINGER3_CTRL_PIN D8
-#define FINGER3_MONITOR_PIN A3
 
 #define FINGER4_CTRL_PIN D7
-#define FINGER4_MONITOR_PIN A4
 
 /* Fingers 3 and 5 servos are mounted in oposite direction so their min and max are reversed compared to other fingers. */
 /* Left hand and right hand are symetrical so min and max need to be reversed */
@@ -74,6 +72,7 @@ public:
    Hand();
 
    Finger *fingers[5]; // 0 is thumb
+
    void close();
    void close(uint finger);
    void setCalibration(boolean);

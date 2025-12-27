@@ -94,36 +94,42 @@ public:
 
   void onRead(BLECharacteristic* characteristic) override {
     log_i("Kinetix received a read request");
-
-    char message[MAX_MESSAGE_SIZE];
-    size_t len = min((int)characteristic->getLength(), MAX_MESSAGE_SIZE - 1);
-    strncpy(message, (char*)characteristic->getData(), len);
-    message[len] = 0;
-
     if (messageProcessor != NULL) {
-      messageProcessor->processReadMsg(type, message, characteristic);
+      messageProcessor->processReadMsg(type, characteristic);
     }
   }
 };
 
 class MyServerCallback : public BLEServerCallbacks {
-  void onConnect(BLEServer* pServer) override {
-    log_i("Client connected.");
+  Display *display;
+  
+public:
+  MyServerCallback(Display *display) : display(display) {
+    this->display = display;
   }
 
+private:
+
+  void onConnect(BLEServer* pServer) override {
+    log_i("Client connected.");
+    display->setLine(1, "BT Connected");
+  }
+  
   void onDisconnect(BLEServer* pServer) override {
     log_i("Client disconnected");
+    display->setLine(1, "BT Disconnected");
     // Need to restart advertising to be able to reconnect
     pServer->getAdvertising()->start();
   }
 };
 
-BtServer::BtServer(MessageProcessor* _messageProcessor) {
+BtServer::BtServer(MessageProcessor* _messageProcessor, Display *display) {
   messageProcessor = _messageProcessor;
+  this->display = display;
 
-  BLEDevice::init("Kinetix");
+  BLEDevice::init("KinetiX");
   BLEServer* pServer = BLEDevice::createServer();
-  pServer->setCallbacks(new MyServerCallback());
+  pServer->setCallbacks(new MyServerCallback(display));
 
   BLEService* pService = pServer->createService(SERVICE_UUID);
 
@@ -131,6 +137,12 @@ BtServer::BtServer(MessageProcessor* _messageProcessor) {
     pService->createCharacteristic(
       MOVEMENT_CHARACTERISTIC_UUID,
       BLECharacteristic::PROPERTY_WRITE
+    );
+
+  BLECharacteristic* pSystemCharacteristic =
+    pService->createCharacteristic(
+      SYSTEM_CHARACTERISTIC_UUID,
+      BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_READ
     );
 
   BLECharacteristic* pConfigCharacteristic =
@@ -164,9 +176,12 @@ BtServer::BtServer(MessageProcessor* _messageProcessor) {
 
   pMovementCharacteristic->setCallbacks(
     new CharacteristicCallBack(movement, messageProcessor)
+  ); 
+  pSystemCharacteristic->setCallbacks(
+    new CharacteristicCallBack(systemConfig, messageProcessor)
   );
   pConfigCharacteristic->setCallbacks(
-    new CharacteristicCallBack(config, messageProcessor)
+    new CharacteristicCallBack(setting, messageProcessor)
   );
   pOtaCharacteristic->setCallbacks(
     new CharacteristicCallBack(ota, messageProcessor)
@@ -180,5 +195,5 @@ BtServer::BtServer(MessageProcessor* _messageProcessor) {
     xTaskCreatePinnedToCore(bleTxTask, "ble_tx", 4096, nullptr, 1, nullptr, 1);
   }
 
-  Serial.println("Kinetix now available for BT connection.");
+  Serial.println("KinetiX now available for BT connection.");
 }
