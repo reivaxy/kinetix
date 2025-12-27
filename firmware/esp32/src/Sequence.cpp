@@ -79,3 +79,7 @@ void Sequence::stop() {
    }
    running = false;
 }
+
+boolean Sequence::isRunning() {
+   return running;
+}

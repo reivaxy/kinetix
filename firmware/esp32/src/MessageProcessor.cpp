@@ -18,7 +18,7 @@ void MessageProcessor::processWriteMsg(MessageType type, char* message) {
    switch (type) {
       case movement:
          line = "Movement: " + String(message);
-         display->setLine(3, line.c_str());
+         display->setLine(MOVEMENT_DISPLAY_LINE, line.c_str());
          startMovement(message);
          break;
 
@@ -100,6 +100,14 @@ void MessageProcessor::startMovement(char *movementName) {
       hand->stop();
       handMovement = newHandMovement;  
       handMovement->start();
+   }
+}
+
+boolean MessageProcessor::isIdle() {
+   if (handMovement != NULL) {
+      return handMovement->isFinished();
+   } else {
+      return true;
    }
 }
 

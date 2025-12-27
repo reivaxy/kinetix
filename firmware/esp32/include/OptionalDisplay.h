@@ -3,6 +3,10 @@
 #include <Arduino.h>
 #include "XOLEDDisplay.h"
 
+#define CONNECTED_DISPLAY_LINE 0
+#define SENSOR_DISPLAY_LINE 1
+#define MOVEMENT_DISPLAY_LINE 2
+
 
 class Display {
 public:

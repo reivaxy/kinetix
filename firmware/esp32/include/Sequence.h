@@ -13,6 +13,7 @@ public:
    void start(uint8_t start = 0);
    void stop();
    void run();
+   boolean isRunning();
 
    HandMovement *movements[MAX_MOVEMENTS];
    uint8_t movementCount = 0;

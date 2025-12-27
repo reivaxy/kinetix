@@ -99,6 +99,15 @@ void Finger::setMovement(FingerMovement *fingerMovement) {
    step = fingerMovement->step;
 }
 
+void Finger::moveRelative(int relativeTo) {
+   if (direction == 1) {
+      target = map(relativeTo, 0, 100, maxOpen, maxClosed);
+   } else {
+      target = map(relativeTo, 0, 100, maxClosed, maxOpen);
+      target = maxOpen - target + maxClosed;
+   }
+}
+
 void Finger::stop() {
    target = currentPosition;
 }

@@ -10,6 +10,7 @@ public:
    Finger(int number, int controlPin, int maxOpen, int maxClosed, int direction);
 
    void move(int to);
+   void moveRelative(int to);
    void setStep(float step);
    void setMaxOpen(int max);
    void setMaxClosed(int max);
