@@ -18,7 +18,7 @@
     }
     .grid { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 8px; }
     .status { padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(127,127,127,.35); }
-    dialog { border: 1px solid rgba(127,127,127,.35); border-radius: 12px; padding: 0; width: min(860px, calc(100vw - 24px)); }
+    dialog { border: 1px solid rgba(127,127,127,.35); border-radius: 12px; padding: 0; width: min(860px, calc(100% - 24px)); }
     dialog header { padding: 12px 14px; border-bottom: 1px solid rgba(127,127,127,.35); display:flex; justify-content: space-between; align-items:center; gap: 10px;}
     dialog .content { padding: 12px 14px; }
     dialog footer { padding: 12px 14px; border-top: 1px solid rgba(127,127,127,.35); display:flex; justify-content:flex-end; gap: 10px;}
@@ -29,7 +29,61 @@
     .nowrap { white-space: nowrap; }
     .danger { color: #ff6b6b; }
     .ok { color: #38d9a9; }
-  </style>
+  
+
+    /* ===== Responsive tweaks (phone portrait) ===== */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body { margin: 0; padding: clamp(12px, 2.5vw, 20px); }
+
+    /* Make inputs/buttons behave nicely in flex/grid containers */
+    input[type="text"], input[type="password"], input[type="number"], input[type="file"], button {
+      max-width: 100%;
+    }
+    input[type="text"], input[type="password"], input[type="number"] { min-width: 0; }
+
+    /* Quick grid: fill available width and adapt column count */
+    .grid { width: 100%; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+
+    /* Dialogs: fit within viewport and ensure inner content doesn't overflow */
+    dialog { width: min(860px, calc(100% - 24px)); max-width: calc(100% - 24px); max-height: 90vh; }
+    dialog .content { overflow: auto; max-height: calc(90vh - 120px); overflow-x: hidden; }
+    /* Make form controls and generated grids size to the *inner* dialog content area */
+    dialog .content, dialog header, dialog footer { box-sizing: border-box; }
+    dialog .content * { max-width: 100%; }
+    dialog input[type="text"], dialog input[type="password"], dialog input[type="number"], dialog select, dialog textarea { 
+      width: 100%; min-width: 0;
+    }
+    dialog #boolGrid, dialog #intBox, dialog #strBox { width: 100%; }
+
+    /* OTA progress bar shouldn't overflow */
+    progress { width: min(420px, 100%); }
+
+    @media (max-width: 640px) {
+      h1 { font-size: 18px; }
+
+      .row { gap: 8px; }
+      .card { padding: 12px; }
+
+      /* Stack settings columns on small screens */
+      .two { grid-template-columns: 1fr; }
+
+      /* Key/value rows stack to avoid cramped label column */
+      .kv { grid-template-columns: 1fr; }
+      .kv > div:first-child { font-weight: 600; opacity: .9; }
+
+      /* Make text inputs full width on small screens */
+      input[type="text"], input[type="password"], input[type="number"] { width: 100%; }
+
+      /* Quick buttons fit better */
+      .grid { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 6px; }
+
+      /* OTA firmware picker row: stack controls */
+      #dlgOta .kv .row { flex-direction: column; align-items: stretch; }
+      #dlgOta #fwFile { width: 100%; }
+    }
+
+</style>
 </head>
 <body>
   <h1>KinetiX BLE Web (Chrome)</h1>
