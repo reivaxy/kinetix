@@ -18,6 +18,6 @@ Then click the buttons to send orders. Custom orders can also be sent through th
 
 If you don't want to install and use Python, a standalone executable for windows (generated from the python script) will be provided in the Releases.
 
-A standalone for Mac should also be doable, as well as apps for mobile, which remains to be investigated.
+A standalone for Mac should also be doable using PyInstaller
 
-I'm currently working on producing an android app from this script using Buildozer, which also might work for iPhones at some point.
+I'm currently working on producing an android app from this script using Buildozer, which also might work to build an iPhone app at some point.
