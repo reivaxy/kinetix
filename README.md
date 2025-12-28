@@ -13,7 +13,7 @@
 > [!TIP]
 > You need not build the firmware or the android app, binaries are available in the [releases section](https://github.com/reivaxy/kinetix/releases)
 > 
-> **BEWARE**: for now, voice control via bluetooth is only available with the **ANDROID application**. 
+> **BEWARE**: for now, voice control via bluetooth is only available with the **ANDROID application**, but soon via a webpage opened in Chrome browser for all platforms where Chrome is supported.
 > There is a prototype iPhone application that allows control by pressing buttons on the screen.
  
 
@@ -34,7 +34,7 @@
 > completion and testing.<br/>  
 > You build it and use it at your own risks.  
 
-         
+Main features (WIP): 5 independantly controlled fingers, bluetooth connexion to control movements from a mobile phone, edit settings, wirelessly update the firmware (using also Wifi), extensibility to add sensors and more.
 
 I've been a maker and board member of [the French e-Nable association](https://e-nable.fr/fr/) for a few years, and I've 
 worked on several 3D printed devices intended for people missing part of a hand or an arm.
