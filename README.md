@@ -7,11 +7,15 @@
 
 > [!TIP]
 > Detailed instructions are available in the [wiki section](https://github.com/reivaxy/kinetix/wiki)<br/>
-> Be sure to read the "parts" chapter about the servo motors that come in many flavors, only one of which is supported for now.
+> 
+> **Be sure to read the "parts" chapter about the servo motors** that come in many flavors, only one of which is supported for now.
 
 > [!TIP]
-You need not build the firmware or the android app, binaries are available in the [releases section](https://github.com/reivaxy/kinetix/releases)
-
+> You need not build the firmware or the android app, binaries are available in the [releases section](https://github.com/reivaxy/kinetix/releases)
+> 
+> **BEWARE**: for now, voice control via bluetooth is only available with the **ANDROID application**. 
+> There is a prototype iPhone application that allows control by pressing buttons on the screen.
+ 
 
 > [!CAUTION] 
 > The work in this repository is released under licence Creative Commons 
@@ -48,16 +52,11 @@ electronic microcontroller to drive the servomotors. I've investigated several s
 
 The cost is estimated around $30, the weight is less than 300g.
 
-**BEWARE**: for now, voice control via bluetooth is only available with the ANDROID application. 
-There is a prototype iPhone application that allows control by pressing buttons on the screen.
-
-
-BEFORE YOU START ANYTHING, please check the [Wiki pages for printing and assembling instructions](https://github.com/reivaxy/kinetix/wiki), especially the page on parts and Servo Motors that come in different shapes.
 
 This is still very much a Work In Progress:
-- the onboard current monitoring is still being tested and tweaked, which means **for now the motors will not stop for obstacles and might 
-  hurt you** (although they don't have that much strength, better safe than sorry)
-- the bluetooth connectivity is not secured, and voice control will work with anyone's voice.
+- The bluetooth connectivity is not secured, and voice control will work with anyone's voice.
+- The wires tension is not adjustable
+...
 
                                                       
 Like the Hackberry and unlike the Kinetic, due to tight mechanical constraints, the Kinetix can't be resized to fit smaller limbs.
