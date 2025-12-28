@@ -6,4 +6,6 @@ If you cloned or forked this repo, you can run a local server on your machine an
 
 https://reivaxy.github.io/kinetix/
 
+The content of this folder is deployed by a github workflow to the page above each time something is pushed to it.
+
 <img width="609" height="572" alt="image" src="https://github.com/user-attachments/assets/85504220-1158-4c98-baad-01b530fdf6be" />
