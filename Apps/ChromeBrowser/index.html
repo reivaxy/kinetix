@@ -589,7 +589,7 @@
       if (device?.gatt?.connected) device.gatt.disconnect();
     }
 
-    async function writeText(characteristic, text, {withResponse = false, newline = false} = {}) {
+    async function writeText(characteristic, text, {withResponse = true, newline = false} = {}) {
       if (!connected || !characteristic) throw new Error("Not connected.");
       const payload = text + (newline ? "\n" : "");
       const data = utf8.encode(payload);
