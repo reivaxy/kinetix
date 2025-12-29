@@ -15,6 +15,7 @@ Before contributing, please:
 ## 2. How to Contribute
 
 ### 🐛 Bug Reports & Feature Requests
+- Preferrably use english.
 - Use the *Issues* tab to report bugs or suggest improvements.
 - Include clear steps to reproduce, environment info, and expected vs. actual behavior.
 
@@ -23,7 +24,7 @@ PRs should:
 1. Reference the relevant issue (e.g., “closes #42”).
 2. Be atomic and focused — one feature or fix per PR.
 3. Follow coding standards:
-    - C++: consistent style, meaningful variable names, comment logic where needed.
+    - C++: consistent style, meaningful variable names, (english) comment logic where needed.
     - Java: follow Android / Java conventions.
     - 3D models/PCB: include metadata (units, scale), and comments/labels where helpful.
 
