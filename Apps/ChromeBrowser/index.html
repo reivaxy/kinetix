@@ -486,7 +486,7 @@
       otaChar = pick(OTA_CHAR_UUID);
 
       if (missing.length) {
-        throw new Error(
+        console.log(
           "Missing expected characteristic(s):\n" +
           missing.map(u => "  - " + u).join("\n") +
           "\n\nFound:\n" + [...byUuid.keys()].map(u => "  - " + u).join("\n")
