@@ -451,14 +451,18 @@
     let settingsChar = null;
     let aboutChar = null;
     let otaChar = null;
+    
+    let noOTA = false;
+    let noSettings = false;
+    let noSystem = false;
 
     let connected = false;
 
     const updateUi = () => {
       $("btnConnect").disabled = connected;
       $("btnDisconnect").disabled = !connected;
-      $("btnSettings").disabled = !connected;
-      $("btnOta").disabled = !connected;
+      $("btnSettings").disabled = !connected || noSettings;
+      $("btnOta").disabled = !connected || noOTA;
       $("btnAbout").disabled = !connected;
       $("btnSendCustom").disabled = !connected;
       // quick command buttons
@@ -488,10 +492,40 @@
       if (missing.length) {
         console.log(
           "Missing expected characteristic(s):\n" +
-          missing.map(u => "  - " + u).join("\n") +
+          missing.map(u => {
+            // disable OTA button if OTA characteristic not found
+            if (u === OTA_CHAR_UUID) {
+              console.log("OTA characteristic not found")
+              noOTA = true;
+            }
+            // disable Settings button if Settings characteristics is not found
+            if (u === SETTINGS_UUID) {
+              console.log("Settings characteristic not found")
+              noSettings = true;
+            }
+            if (u === SYSTEM_UUID) {
+              console.log("System (about) characteristic not found")
+              noSystem = true;
+            }
+            return "  - " + u
+          }).join("\n") +
           "\n\nFound:\n" + [...byUuid.keys()].map(u => "  - " + u).join("\n")
         );
+        
+        // If no system characteristic found but settings characteristic found, let's use the latter for "about"
+        // I stupidly reused the uuid from the old "config" when I implemented settings
+        // and created a new one with new uuid for the "system" one that returns version info
+        if (!noSettings && noSystem) {
+          console.log("Backward compatibility mode: about uses settings uuid.")
+          noSystem = false;
+          noSettings = true;
+          aboutChar = settingsChar;
+          settingsChar = null;
+        }
+        
+        updateUi();
       }
+      
     }
 
     async function connect() {
