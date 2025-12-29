@@ -9,9 +9,16 @@
 
 class SensorProcessor {
 public:
-   SensorProcessor(Hand *hand, Settings *settings, Display *display);
-   void run();
-   uint16_t getAvg();
+   virtual void run();
+   virtual uint16_t getAvg();
+   
+};
+
+class RealSensorProcessor : public SensorProcessor {
+public:
+   RealSensorProcessor(Hand *hand, Settings *settings, Display *display);
+   void run() override;
+   uint16_t getAvg() override;
 
    Hand *hand = NULL;
    time_t lastMeasureAt = 0;
@@ -23,4 +30,19 @@ public:
    int count = 0;
    Display *display = NULL;
    Settings *settings = NULL;
+};
+
+
+class MockSensorProcessor : public SensorProcessor {
+public:
+   MockSensorProcessor() {
+      log_i("Mock Sensor Processor created");
+   };
+   void run() override {
+      // Do nothing
+   } 
+
+   uint16_t getAvg() override {
+      return 0;
+   }
 };

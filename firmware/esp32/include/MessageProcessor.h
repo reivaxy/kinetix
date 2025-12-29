@@ -15,7 +15,7 @@ enum MessageType {movement, setting, ota, systemConfig};
 
 class MessageProcessor {
 public:
-   MessageProcessor(Hand *hand, Settings *settings, Display *display);
+   MessageProcessor(Hand *hand, Settings *settings, Display *display, JsonDocument &systemInfo);
    void run();
    void processWriteMsg(MessageType type, char *message);
    void processReadMsg(MessageType type, BLECharacteristic *characteristic);
@@ -25,6 +25,7 @@ public:
    void come();
    boolean isIdle();
 
+   JsonDocument systemInfo;
    Hand *hand = NULL;
    Display *display = NULL;
    Sequence *seq = NULL;

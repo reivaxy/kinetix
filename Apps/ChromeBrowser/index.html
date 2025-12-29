@@ -262,9 +262,12 @@
   </style>
 </head>
 <body>
-<h1>KinetiX BLE Web (Chrome)</h1>
+<h1>Control BLE interface for the <a target="_blank" href="https://www.github.com/reivaxy/kinetix">KinetiX hand</a></h1>
 <div class="muted tiny">
   Requires Chrome/Edge with <b>Web Bluetooth</b>, served over <b>https://</b> or <b>http://localhost</b>.
+</div>
+<div class="muted tiny">
+  This does not work on iOS devices because Apple does not implement BLE access in webkit.
 </div>
 
 <div class="card">
@@ -352,13 +355,17 @@
     <div class="two">
       <div class="card" style="margin:0;">
         <div><b>Firmware Version</b></div>
-        <div id="aboutVersion"></div>
+        <div id="aboutVersion">N/A</div>
+      </div>
+      <div class="card" style="margin:0;">
+        <div><b>Firmware options</b></div>
+        <div id="aboutOptions">N/A</div>
       </div>
     </div>
     <div class="one">
       <div class="card" style="margin-top:10px;">
         <div>License<br>
-          Xavier Grosjean 2025<br>
+          Xavier Grosjean 2026<br>
           Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) open-source
           license<br>
           https://creativecommons.org/licenses/by-nc-sa/4.0/<br><br>
@@ -397,7 +404,12 @@
       <div>Password</div>
       <div class="row" style="gap:10px; align-items:center;">
         <input id="otaPw" type="password" placeholder="Wi‑Fi password"/>
-        <label class="row" style="gap:8px;">
+      </div>
+    </div>
+    <div class="kv">
+      <div></div>
+      <div>
+        <label style="gap:8px;">
           <input id="otaShowPw" type="checkbox"/>
           <span class="nowrap">Show</span>
         </label>
@@ -475,7 +487,13 @@
 
     async function ensureChars() {
       if (!service) throw new Error("Service not available.");
-      // Get known characteristics. If some are missing, we'll throw a clear error.
+      
+      // Need to reset flags to handle flashing from non supporting firmware to supporting one
+      noOTA = false;
+      noSettings = false;
+      noSystem = false;
+      
+      // Get known characteristics. If some are missing, we'll log and disable related UI.
       const chars = await service.getCharacteristics();
       const byUuid = new Map(chars.map(c => [c.uuid.toLowerCase(), c]));
       const missing = [];
@@ -763,11 +781,24 @@
         setStatus("Not connected.", "danger");
         return;
       }
+      $("aboutOptions").textContent = "N/A";
+      $("aboutVersion").textContent = "N/A";
       setStatus("Reading about…");
       try {
         const v = await aboutChar.readValue();
         const text = utf8dec.decode(v.buffer).trim();
-        $("aboutVersion").textContent = text;
+        if (text.charAt(0) === "{") {
+          const obj = JSON.parse(text);
+          $("aboutVersion").textContent = obj.git_rev || "N/A";
+          // Browse the options array and show enabled ones
+          if (Array.isArray(obj.options)) {
+            const opts = obj.options.filter(o => !!o).join(", ");
+            $("aboutOptions").textContent = opts || "None";
+          }
+        } else {
+          // legacy: plain text version
+          $("aboutVersion").textContent = text;
+        }
 
         setStatus("About loaded.", "ok");
       } catch (e) {
@@ -874,15 +905,6 @@
         const xhr = new XMLHttpRequest();
         xhr.open("POST", url, true);
         xhr.setRequestHeader("x-ota-token", token);
-
-        xhr.upload.onprogress = (evt) => {
-          if (evt.lengthComputable) {
-            const pct = Math.floor((evt.loaded * 100) / evt.total);
-            setOtaProgress(pct, `Uploading (local) ${pct}%  ${evt.loaded}/${evt.total} bytes`);
-          } else {
-            setOtaProgress(0, `Uploading (local) ${evt.loaded} bytes`);
-          }
-        };
 
         xhr.onload = () => {
           if (xhr.status >= 200 && xhr.status < 300) {

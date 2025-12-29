@@ -1,15 +1,15 @@
 
-#include "SensorProcessor.h"
+#include "OptionalSensorProcessor.h"
 
 
-SensorProcessor::SensorProcessor(Hand *hand, Settings *settings, Display *display) {
+RealSensorProcessor::RealSensorProcessor(Hand *hand, Settings *settings, Display *display) {
    this->hand = hand;
    this->settings = settings;
    analogSetPinAttenuation(SENSOR_PIN, ADC_6db);
    this->display = display;
 }
 
-void SensorProcessor::run() {
+void RealSensorProcessor::run() {
    hand->run();
    uint16_t newReading = 0;
    // We must not read the ADC too fast
@@ -39,7 +39,7 @@ void SensorProcessor::run() {
 
 }
 
-uint16_t SensorProcessor::getAvg() {
+uint16_t RealSensorProcessor::getAvg() {
    uint16_t measure = analogRead(SENSOR_PIN);
 
    if (count == MAX_READINGS) {

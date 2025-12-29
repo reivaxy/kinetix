@@ -2,10 +2,11 @@
 #include "MessageProcessor.h"
 
 
-MessageProcessor::MessageProcessor(Hand *hand, Settings *settings, Display *display) {
+MessageProcessor::MessageProcessor(Hand *hand, Settings *settings, Display *display, JsonDocument &systemInfo) {
    this->hand = hand;
    this->settings = settings;
    this->display = display;
+   this->systemInfo = systemInfo;
    handMovement = NULL;
    hmf = new HandMovementFactory(hand);
 }
@@ -35,13 +36,15 @@ void MessageProcessor::processWriteMsg(MessageType type, char* message) {
 
 void MessageProcessor::processReadMsg(MessageType type, BLECharacteristic *characteristic) {
    log_i("Processing read message type '%d'", type);
-   switch (type) {
+   String config = "";
+   String json;
 
+   switch (type) {
    case systemConfig:
       log_i("Processing read systemConfig message");
-      #ifdef GIT_REV
-      characteristic->setValue(GIT_REV);
-      #endif
+      serializeJson(systemInfo, json);
+      log_i("System info: %s", json.c_str());
+      characteristic->setValue(json.c_str());
       break;
 
    case setting:

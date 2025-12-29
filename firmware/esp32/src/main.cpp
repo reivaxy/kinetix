@@ -5,7 +5,7 @@
 #include "Sequence.h"
 #include "BtServer.h"
 #include "MessageProcessor.h"
-#include "SensorProcessor.h"
+#include "OptionalSensorProcessor.h"
 
 
 #if defined DEMO
@@ -13,12 +13,9 @@
 #endif
 
 // Display instanciation must not happen before setup so we will use a pointer and new...
-#ifdef WITH_OLED_DISPLAY
-RealDisplay *display;
-#else
-MockDisplay *display;
-#endif
+Display *display;
 
+SensorProcessor *sensorProcessor = NULL;
 
 int start = 0;
 int finger = 0;
@@ -29,7 +26,6 @@ HandMovementFactory *hmf = new HandMovementFactory(hand);
 
 BtServer *btServer = NULL;
 MessageProcessor *messageProcessor = NULL;
-SensorProcessor *sensorProcessor = NULL;
 Sequence *seq = NULL;
 Settings *settings;
 
@@ -37,15 +33,22 @@ void setup() {
   Serial.begin(115200);
   delay(3000);
   Serial.println("Setup");
+  JsonDocument systemInfo;
+  // Set an option array
+  JsonArray options = systemInfo.createNestedArray("options");
+
   #ifdef GIT_REV
   log_i("Version %s\n", GIT_REV);
+  systemInfo["git_rev"] = GIT_REV;
   #endif 
 
   #ifdef WITH_OLED_DISPLAY
   display = new RealDisplay();
+  options.add("OLED_DISPLAY");
   #else
   display = new MockDisplay();
   #endif
+
   display->setTitle("KinetiX");
 
   start = millis();
@@ -53,13 +56,19 @@ void setup() {
  
   settings = new Settings();
 
-  #ifdef SENSOR
-  sensorProcessor = new SensorProcessor(hand, settings, display);
-  log_i("With Sensor");
+  #ifdef WITH_SENSOR
+  sensorProcessor = new RealSensorProcessor(hand, settings, display);
+  options.add("SENSOR");
+  #else
+  sensorProcessor = new MockSensorProcessor();
   #endif
 
-  messageProcessor = new MessageProcessor(hand, settings, display);
-  
+  messageProcessor = new MessageProcessor(hand, settings, display, systemInfo);
+
+  String json;
+  serializeJson(systemInfo, json);
+  log_i("System info: %s", json.c_str());
+
   btServer = new BtServer(messageProcessor, display);
   #ifndef NEEDSEQ
   // Initialization sequence, do it just once
@@ -88,12 +97,12 @@ void loop() {
   #ifndef NEEDSEQ
     messageProcessor->run();
   #endif
-  #ifdef SENSOR
-    if ((seq == NULL || !seq->isRunning())
-          && messageProcessor->isIdle()) {
-      sensorProcessor->run();
-    }
-  #endif
+
+  if ((seq == NULL || !seq->isRunning())
+        && messageProcessor->isIdle()) {
+    sensorProcessor->run();
+  }
+
   if (seq != NULL) {
     seq->run();
   }

@@ -126,7 +126,7 @@ private:
 BtServer::BtServer(MessageProcessor* _messageProcessor, Display *display) {
   messageProcessor = _messageProcessor;
   this->display = display;
-
+  display->setLine(CONNECTED_DISPLAY_LINE, "BT Disconnected");
   BLEDevice::init("KinetiX");
   BLEServer* pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallback(display));
