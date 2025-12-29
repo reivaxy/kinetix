@@ -68,11 +68,18 @@ Like the Hackberry and unlike the Kinetic, due to tight mechanical constraints, 
 I have another project (in very early stage) which might help with this, that is using only one big servo for all fingers, of course with
 very different capabilities and features.
 
-Here is the early first prototype, testing speed:
+Adding a small "shield" board, capabilities can easily be extended. This videos shows tests with a pressure sensor:
+
+https://github.com/user-attachments/assets/475526ec-1bb6-489a-a5ff-d1ec1696035d
+
+
+
+
+Here was the early first prototype, testing speed:
 
 https://github.com/reivaxy/kinetix/assets/3592991/b644f965-3c86-4bcd-a1fd-c3cf471b4016
 
-And here is the status on May 12th 2024 (please enable sound on this video or it won't make much sense :) )
+And here is the status on May 12th 2024 with voice control (please enable sound on this video or it won't make much sense :) )
 
 https://github.com/reivaxy/kinetix/assets/3592991/68d8df24-c723-40e2-a849-26ecd64f889a
 
