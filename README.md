@@ -6,7 +6,10 @@
 [English](https://github.com/reivaxy/kinetix)
 
 > [!TIP]
-> Detailed instructions are available in the [wiki section](https://github.com/reivaxy/kinetix/wiki)<br/>
+> Detailed assembly instructions are available in the [wiki section](https://github.com/reivaxy/kinetix/wiki)<br/>
+> 
+> We suggest you read it before starting building this project to make sure you have the required tools. It is not very
+> difficult, but when you don't have a soldering iron, you don't have a soldering iron 😉
 > 
 > **Be sure to read the "parts" chapter about the servo motors** that come in many flavors, only one of which is supported for now.
 
@@ -33,6 +36,8 @@
 > Also, this is still a work in progress and should not be used until it has reached some level of 
 > completion and testing.<br/>  
 > You build it and use it at your own risks.  
+> 
+> Contributions are welcome, please try as much as possible to respect the [contribution guidelines](./CONTRIBUTING.md), thanks!
 
 Main features (WIP): 5 independantly controlled fingers, bluetooth connexion to control movements from a mobile phone, edit settings, wirelessly update the firmware (using also Wifi), extensibility to add sensors and more.
 
