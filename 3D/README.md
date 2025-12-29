@@ -10,6 +10,8 @@ Please read this license to understand what you may and may not do with these fi
 
 https://creativecommons.org/licenses/by-nc-sa/4.0/
 
+Here are some printing instructions that can be helpful: https://github.com/reivaxy/kinetix/wiki/01.-Printing
+
 The "common" folder contains parts that fit both right side hands and left side hands.
 
 The "left" folder contains parts for a left side hand, and the "right" folder... well you know.
