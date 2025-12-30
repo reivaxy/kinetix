@@ -42,6 +42,16 @@ void setup() {
   systemInfo["git_rev"] = GIT_REV;
   #endif 
 
+  #ifdef CORE_DEBUG_LEVEL
+  options.add("CORE_DEBUG_LEVEL=" + String(CORE_DEBUG_LEVEL));
+  #endif
+
+  #ifdef LEFT_HAND
+  options.add("LEFT_HAND");
+  #else
+  options.add("RIGHT_HAND");
+  #endif
+
   #ifdef WITH_OLED_DISPLAY
   display = new RealDisplay();
   options.add("OLED_DISPLAY");

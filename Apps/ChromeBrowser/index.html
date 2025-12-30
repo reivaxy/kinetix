@@ -433,11 +433,11 @@
 <script>
   (() => {
     // ====== Constants (mirrors main.py) ======
-    const SERVICE_UUID = "89d60870-9908-4472-8f8c-e5b3e6573cd1"; // provided by you
-    const CMD_CHAR_UUID = "39dea685-a63e-44b2-8819-9a202581f8fe"; // RootWidget.DEFAULT_CHAR_UUID
-    const SETTINGS_UUID = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e"; // SettingsPopup.SETTINGS_UUID
-    const SYSTEM_UUID = "68b788da-819b-4feb-b478-8d237ef29f5f";   // AboutPopup.ABOUT_UUID
-    const OTA_CHAR_UUID = "3168e56f-6ea1-420d-98f8-08a3b34afc9b"; // RootWidget.OTA_CHAR_UUID
+    const SERVICE_UUID = "89d60870-9908-4472-8f8c-e5b3e6573cd1"; 
+    const CMD_CHAR_UUID = "39dea685-a63e-44b2-8819-9a202581f8fe"; 
+    const SYSTEM_UUID = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e";   // about
+    const SETTINGS_UUID = "68b788da-819b-4feb-b478-8d237ef29f5f"; // settings
+    const OTA_CHAR_UUID = "3168e56f-6ea1-420d-98f8-08a3b34afc9b"; // OTA
 
     const QUICK_MESSAGES = [
       "five", "four", "three", "two", "one",
@@ -529,18 +529,7 @@
           }).join("\n") +
           "\n\nFound:\n" + [...byUuid.keys()].map(u => "  - " + u).join("\n")
         );
-        
-        // If no system characteristic found but settings characteristic found, let's use the latter for "about"
-        // I stupidly reused the uuid from the old "config" when I implemented settings
-        // and created a new one with new uuid for the "system" one that returns version info
-        if (!noSettings && noSystem) {
-          console.log("Backward compatibility mode: about uses settings uuid.")
-          noSystem = false;
-          noSettings = true;
-          aboutChar = settingsChar;
-          settingsChar = null;
-        }
-        
+       
         updateUi();
       }
       
