@@ -69,21 +69,21 @@ public class KinetixSettingsActivity extends AppCompatActivity {
     private final Map<Integer, Runnable> pendingTextUpdates = new HashMap<>();
 
 
-    private final BroadcastReceiver configReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver settingsReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent == null) return;
             String action = intent.getAction();
             if (BluetoothHandler.ACTION_GATT_CONNECTED.equals(action)) {
                 // If the user opens this screen before the device connects, we still want an init read.
-                BluetoothHandler.getInstance().readConfigCharacteristic();
+                BluetoothHandler.getInstance().readSettingsCharacteristic();
                 return;
             }
-            if (BluetoothHandler.ACTION_CONFIG_MESSAGE.equals(action)) {
-                String payload = intent.getStringExtra(BluetoothHandler.EXTRA_CONFIG_MESSAGE);
+            if (BluetoothHandler.ACTION_SETTINGS_MESSAGE.equals(action)) {
+                String payload = intent.getStringExtra(BluetoothHandler.EXTRA_SETTINGS_MESSAGE);
                 if (payload == null) return;
                 try {
-                    applyConfigPayload(payload);
+                    applySettingsPayload(payload);
                 } catch(Exception e) {
                     Log.i(TAG, "Failed parsing config payload", e);
                 }
@@ -124,26 +124,18 @@ public class KinetixSettingsActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothHandler.ACTION_CONFIG_MESSAGE);
+        filter.addAction(BluetoothHandler.ACTION_SETTINGS_MESSAGE);
         filter.addAction(BluetoothHandler.ACTION_GATT_CONNECTED);
-        LocalBroadcastManager.getInstance(this).registerReceiver(configReceiver, filter);
-
-        // If we already read the config earlier (e.g. during connect), apply it immediately.
-        // should we do that ? TODO
-//        String cached = BluetoothHandler.getInstance().getLastConfigPayload();
-//        if (cached != null) {
-//            applyConfigPayload(cached);
-//        }
+        LocalBroadcastManager.getInstance(this).registerReceiver(settingsReceiver, filter);
 
         // Trigger a read so the screen initializes (or refreshes) with the device's current config.
-        BluetoothHandler.getInstance().readConfigCharacteristic();
-        // Read firmware version
-        BluetoothHandler.getInstance().readSystemCharacteristic();
+        BluetoothHandler.getInstance().readSettingsCharacteristic();
+
     }
 
     @Override
     protected void onStop() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(configReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(settingsReceiver);
 
         // Prevent delayed updates from firing after the activity is no longer visible.
         debounceHandler.removeCallbacksAndMessages(null);
@@ -236,7 +228,7 @@ public class KinetixSettingsActivity extends AppCompatActivity {
      * Parses a CONFIG characteristic payload and populates UI fields.
      * Expected format Json. Each field must be the id of a ui element, from which we find the type
      */
-    private void applyConfigPayload(String payload) throws JSONException {
+    private void applySettingsPayload(String payload) throws JSONException {
         suppressWrites = true;
         try {
             // the payload is a json string we need to deserialize

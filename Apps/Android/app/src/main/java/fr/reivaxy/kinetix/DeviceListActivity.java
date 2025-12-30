@@ -84,7 +84,8 @@ public class DeviceListActivity extends AppCompatActivity {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (device != null && device.getName() != null) {
-                    if (device.getName().startsWith("Kinetix") && !deviceList.contains(device)) {
+                    // Firmware older version are "Kinetix", newer versions are "KinetiX"
+                    if (device.getName().startsWith("Kineti") && !deviceList.contains(device)) {
                         deviceList.add(device);
                         arrayAdapter.notifyDataSetChanged();
                     }
@@ -102,15 +103,16 @@ public class DeviceListActivity extends AppCompatActivity {
         }
     }
 
-    private void discoverDevices() {
+    private void  discoverDevices() {
         if (ActivityCompat.checkSelfPermission(binding.getRoot().getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.BLUETOOTH_SCAN},
                     42);
+        } else {
+            IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+            registerReceiver(receiver, filter);
+            bluetoothAdapter.startDiscovery();
         }
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(receiver, filter);
-        bluetoothAdapter.startDiscovery();
     }
 
     @Override
@@ -141,6 +143,14 @@ public class DeviceListActivity extends AppCompatActivity {
                 finish();
             }
         }
+        if (requestCode == 42) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                discoverDevices();
+            } else {
+                Toast.makeText(this, "Bluetooth scan permission is required to discover Bluetooth devices", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }
     }
 
     // Method to handle device click
@@ -148,6 +158,9 @@ public class DeviceListActivity extends AppCompatActivity {
         Toast.makeText(this, "Device clicked: " + device.getName(), Toast.LENGTH_SHORT).show();
         // Add additional logic to handle the device click
         HandHandler.getInstance().connect(device.getAddress());
+        // close this activity
+        finish();
+
     }
 
 }

@@ -1,9 +1,11 @@
 package fr.reivaxy.kinetix;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -19,10 +21,15 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class AboutActivity extends AppCompatActivity {
     private final static String TAG = AboutActivity.class.getSimpleName();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +80,62 @@ public class AboutActivity extends AppCompatActivity {
             copyFab.setOnClickListener(v -> copyAllAboutInfoToClipboard());
         }
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothHandler.ACTION_ABOUT_MESSAGE);
+        filter.addAction(BluetoothHandler.ACTION_GATT_CONNECTED);
+        LocalBroadcastManager.getInstance(this).registerReceiver(aboutReceiver, filter);
+
+        // Trigger a read so the screen initializes (or refreshes) with the device's current config.
+        BluetoothHandler.getInstance().readAboutCharacteristic();
+
+    }
+
+    private final BroadcastReceiver aboutReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent == null) return;
+            String action = intent.getAction();
+            if (BluetoothHandler.ACTION_GATT_CONNECTED.equals(action)) {
+                // If the user opens this screen before the device connects, we still want an init read.
+                BluetoothHandler.getInstance().readSettingsCharacteristic();
+                return;
+            }
+            if (BluetoothHandler.ACTION_ABOUT_MESSAGE.equals(action)) {
+                String payload = intent.getStringExtra(BluetoothHandler.EXTRA_ABOUT_MESSAGE);
+                if (payload == null) return;
+                try {
+                    TextView versionTextView = findViewById(R.id.aboutFirmwareVersion);
+                    if (payload.startsWith("{")) {
+                        JSONObject json = new JSONObject(payload);
+                        String version = json.optString("git_rev");
+                        if (version != null) {
+                            versionTextView.setText(version);
+                        }
+                        JSONArray options = json.getJSONArray("options");
+                        String optionsStr = "";
+                        if (options != null) {
+                            for (int i = 0 ; i < options.length(); i++) {
+                                if (i != 0) {
+                                    optionsStr += ", ";
+                                }
+                                optionsStr += options.getString(i);
+                            }
+                            TextView optionsTextView = findViewById(R.id.aboutFirmwareOptions);
+                            optionsTextView.setText(optionsStr);
+                        }
+                    } else {
+                        versionTextView.setText(payload);
+                    }
+                } catch(Exception e) {
+                    Log.i(TAG, "Failed parsing config payload", e);
+                }
+            }
+        }
+    };
 
     private void copyAllAboutInfoToClipboard() {
         View root = findViewById(R.id.aboutContentRoot);
@@ -172,7 +235,4 @@ public class AboutActivity extends AppCompatActivity {
         startActivity(browserIntent);
     }
 
-    public static class AboutFragment extends Fragment {
-        // (unused here; can be removed if you no longer need it)
-    }
 }
