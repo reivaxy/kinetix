@@ -302,9 +302,59 @@ class BleWorker:
 
 
 # ----------------- Settings popup -----------------
+class AboutPopup(Popup):
+    ABOUT_UUID = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e"
 
+    def __init__(self, worker: BleWorker, set_status: Callable[[str], None], **kwargs):
+        super().__init__(**kwargs)
+        self.title = "Settings"
+        self.size_hint = (0.9, 0.9)
+
+        self.worker = worker
+        self._set_status = set_status
+        self.content = self._build_content()
+
+        # Load current settings immediately
+        self._read_from_device()
+
+        def _build_content(self):
+            root = BoxLayout(orientation="vertical", spacing=dp(10), padding=dp(10))
+
+    def _read_from_device(self):
+        if not self.worker.connected:
+            self._set_status("Not connected.")
+            return
+
+        try:
+            fut = self.worker.read_char(self.SETTINGS_UUID)
+        except Exception as e:
+            traceback.print_exc(file=sys.stdout)
+            self._set_status(f"Error: {e}")
+            return
+
+        def done():
+            try:
+                data = fut.result()
+                text = data.decode("utf-8", errors="ignore").strip()
+                obj: Dict[str, Any] = json.loads(text) if text else {}
+            except Exception as e:
+                traceback.print_exc(file=sys.stdout)
+                msg = f"Error reading settings: {e}"
+                Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
+                return
+
+            def apply(_dt):
+                # Block change handlers while we populate (fixes the original issue)
+                self._loading = True
+                try:
+                    for i in range(1, 5):
+                        k = f"b_{i}"
+                finally:
+                    msg=1
+
+                            
 class SettingsPopup(Popup):
-    SETTINGS_UUID = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e"
+    SETTINGS_UUID = "68b788da-819b-4feb-b478-8d237ef29f5f"
 
     def __init__(self, worker: BleWorker, set_status: Callable[[str], None], **kwargs):
         super().__init__(**kwargs)

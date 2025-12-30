@@ -19,7 +19,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingBottom="10dp"
-                android:text="Kinetix Android Application"
+                android:text="KinetiX Android Application"
                 android:textSize="20sp" />
 
             <LinearLayout
@@ -36,7 +36,7 @@
                     android:id="@+id/versionNameTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="5dp" />
+                    android:paddingLeft="10dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -53,7 +53,7 @@
                     android:id="@+id/versionCodeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="5dp" />
+                    android:paddingLeft="10dp" />
 
             </LinearLayout>
 
@@ -62,13 +62,13 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="30dp"
                 android:paddingBottom="10dp"
-                android:text="Kinetix Device"
+                android:text="KinetiX Device"
                 android:textSize="20sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -79,14 +79,14 @@
                     android:id="@+id/aboutMacAddress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="5dp"
+                    android:paddingLeft="10dp"
                     android:textIsSelectable="true" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -97,7 +97,25 @@
                     android:id="@+id/aboutFirmwareVersion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="5dp"
+                    android:paddingLeft="10dp"
+                    android:textIsSelectable="true" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Firmware options:" />
+
+                <TextView
+                    android:id="@+id/aboutFirmwareOptions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
                     android:textIsSelectable="true" />
             </LinearLayout>
 
