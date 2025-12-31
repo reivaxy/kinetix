@@ -301,10 +301,94 @@ class BleWorker:
         await client.write_gatt_char(uuid, payload.encode("utf-8"), response=response)
 
 
+# ----------------- About popup -----------------
+
+class AboutPopup(Popup):
+    ABOUT_UUID = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e"
+    def __init__(self, worker: BleWorker, set_status: Callable[[str], None], **kwargs):
+        super().__init__(**kwargs)
+        self.title = "About"
+        self.size_hint = (0.9, 0.9)
+
+        self.worker = worker
+        self._set_status = set_status
+
+        self.content = self._build_content()
+
+        # Load 'about' information
+        self._read_from_device()
+
+    def _build_content(self):
+        root = BoxLayout(orientation="vertical", spacing=dp(10), padding=dp(10))
+
+        scroll = ScrollView()
+        inner = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(10))
+        inner.bind(minimum_height=inner.setter("height"))
+
+        rowVersion = BoxLayout(orientation="horizontal", size_hint_y=None, 
+            height=dp(40), spacing=dp(10), size_hint_x=0.9)
+        rowVersion.add_widget(Label(text="Firmware version:", size_hint_x=None, width=dp(150)))
+        self.versionText = Label(text="", size_hint_x=None, width=dp(200))
+        rowVersion.add_widget(self.versionText)
+        inner.add_widget(rowVersion)
+        rowOptions = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(40), spacing=dp(10))
+        rowOptions.add_widget(Label(text="Firmware options:", size_hint_x=None, width=dp(150)))
+        self.optionsText = Label(text="", size_hint_x=None, width=dp(200))
+        rowOptions.add_widget(self.optionsText)
+        inner.add_widget(rowOptions)
+
+        scroll.add_widget(inner)
+        root.add_widget(scroll)
+        btn_close = Button(text="Close")
+        btn_close.bind(on_release=lambda *_: self.dismiss())
+        btn_row = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(44), spacing=dp(10))
+        btn_row.add_widget(btn_close)
+        root.add_widget(btn_row)
+        return root
+
+    # ----- read/populate -----
+    def _read_from_device(self):
+        if not self.worker.connected:
+            self._set_status("Not connected.")
+            return
+
+        try:
+            fut = self.worker.read_char(self.ABOUT_UUID)
+        except Exception as e:
+            traceback.print_exc(file=sys.stdout)
+            self._set_status(f"Error: {e}")
+            return
+
+        def done():
+            try:
+                data = fut.result()
+                text = data.decode("utf-8", errors="ignore").strip()
+                if text.startswith('{'):
+                    obj: Dict[str, Any] = json.loads(text) if text else {}
+                else:
+                    obj = dict("git_rev", text, "options", "N/A")
+            except Exception as e:
+                traceback.print_exc(file=sys.stdout)
+                msg = f"Error reading About: {e}"
+                Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
+                return
+
+            def apply(_dt):
+                self._set_status("About loaded.")
+                self.versionText.text = obj["git_rev"]
+                # concatenate all strings in "options" array
+                self.optionsText.text = ", ".join(obj["options"])
+            
+
+
+            Clock.schedule_once(apply, 0)
+
+        threading.Thread(target=done, daemon=True).start()
+
+
 # ----------------- Settings popup -----------------
 
 class SettingsPopup(Popup):
-    ABOUT_UUID = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e"
     SETTINGS_UUID = "68b788da-819b-4feb-b478-8d237ef29f5f"
 
     def __init__(self, worker: BleWorker, set_status: Callable[[str], None], **kwargs):
@@ -335,12 +419,12 @@ class SettingsPopup(Popup):
         root = BoxLayout(orientation="vertical", spacing=dp(10), padding=dp(10))
 
         scroll = ScrollView()
-        inner = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(10))
+        inner = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(10), size_hint_x=0.95)
         inner.bind(minimum_height=inner.setter("height"))
 
         # Booleans
         inner.add_widget(Label(text="Booleans", size_hint_y=None, height=dp(24), bold=True))
-        bool_grid = GridLayout(cols=4, size_hint_y=None, height=dp(40), spacing=dp(10))
+        bool_grid = GridLayout(cols=4, size_hint_y=None, height=dp(40), spacing=dp(10), size_hint_x=0.9)
         for i in range(1, 5):
             key = f"b_{i}"
             box = BoxLayout(orientation="horizontal", spacing=dp(6))
@@ -358,7 +442,9 @@ class SettingsPopup(Popup):
         inner.add_widget(Label(text="Integers", size_hint_y=None, height=dp(24), bold=True))
         for i in range(1, 5):
             key = f"i_{i}"
-            row = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(40), spacing=dp(10))
+            row = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(40), 
+                size_hint_x=0.9,
+                spacing=dp(10))
             row.add_widget(Label(text=f"{key}:", size_hint_x=None, width=dp(50)))
             ti = TextInput(multiline=False, input_filter="int")
             ti.bind(text=lambda inst, val, k=key: self._on_text_changed(k, val, kind="int"))
@@ -370,9 +456,9 @@ class SettingsPopup(Popup):
         inner.add_widget(Label(text="Strings", size_hint_y=None, height=dp(24), bold=True))
         for i in range(1, 5):
             key = f"s_{i}"
-            row = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(40), spacing=dp(10))
+            row = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(40), spacing=dp(10), size_hint_x=0.9)
             row.add_widget(Label(text=f"{key}:", size_hint_x=None, width=dp(50)))
-            ti = TextInput(multiline=False)
+            ti = TextInput(multiline=False, size_hint_x=0.1)
             ti.bind(text=lambda inst, val, k=key: self._on_text_changed(k, val, kind="str"))
             self._str_widgets[key] = ti
             row.add_widget(ti)
@@ -753,6 +839,11 @@ KV = r"""
             disabled: not root.connected
             on_release: root.on_ota()
 
+        Button:
+            text: "About"
+            disabled: not root.connected
+            on_release: root.on_about()
+
     BoxLayout:
         orientation: "vertical"
         spacing: dp(6)
@@ -927,6 +1018,7 @@ class RootWidget(BoxLayout):
         super().__init__(**kwargs)
         self._worker = BleWorker(on_status=lambda m: Clock.schedule_once(lambda _dt: self._set_status(m), 0))
         self._settings_popup: Optional[SettingsPopup] = None
+        self._about_popup: Optional[AboutPopup] = None
 
         # OTA state
         self._ota_ssid: str = ""
@@ -1034,6 +1126,23 @@ class RootWidget(BoxLayout):
                 Clock.schedule_once(lambda _dt: self._set_status(msg), 0)
 
         threading.Thread(target=done, daemon=True).start()
+
+    def on_about(self):
+        if not self.connected:
+            self._set_status("Not connected.")
+            return
+        if self._about_popup and self._about_popup.parent:
+            self._about_popup.dismiss()
+
+        self._about_popup = AboutPopup(worker=self._worker, set_status=self._set_status)
+        self._about_popup.bind(on_dismiss=lambda *_: self._set_status(self.status))
+        self._about_popup.open()
+
+    def _close_about(self):
+        if self._about_popup and self._about_popup.parent:
+            self._about_popup.dismiss()
+        self._about_popup = None
+
 
     def on_settings(self):
         if not self.connected:
