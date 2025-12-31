@@ -304,7 +304,8 @@ class BleWorker:
 # ----------------- Settings popup -----------------
 
 class SettingsPopup(Popup):
-    SETTINGS_UUID = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e"
+    ABOUT_UUID = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e"
+    SETTINGS_UUID = "68b788da-819b-4feb-b478-8d237ef29f5f"
 
     def __init__(self, worker: BleWorker, set_status: Callable[[str], None], **kwargs):
         super().__init__(**kwargs)
@@ -984,6 +985,7 @@ class RootWidget(BoxLayout):
             self._set_status(f"Input error: {e}")
             return
 
+        self._save_prefs()
         self._set_status("Starting connect...")
         try:
             fut = self._worker.connect(target, timeout=timeout, preferred_uuid=uuid)
@@ -1280,6 +1282,7 @@ class KinetixKivyApp(KivyApp):
         # Load persisted preferences
         try:
             ini_path = os.path.join(self.user_data_dir, "kinetix.ini")
+            print(f"ini_path {ini_path}")
             root.load_prefs(ini_path)
         except Exception:
             traceback.print_exc(file=sys.stdout)
