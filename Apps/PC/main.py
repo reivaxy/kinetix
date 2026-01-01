@@ -318,33 +318,121 @@ class AboutPopup(Popup):
         # Load 'about' information
         self._read_from_device()
 
+
     def _build_content(self):
         root = BoxLayout(orientation="vertical", spacing=dp(10), padding=dp(10))
 
-        scroll = ScrollView()
-        inner = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(10))
+        # --- Scrollable content ---
+        scroll = ScrollView(size_hint=(1, 1), do_scroll_x=False)
+        inner = BoxLayout(
+            orientation="vertical",
+            size_hint_y=None,
+            spacing=dp(10),
+            padding=[0, 0, 0, dp(10)],
+        )
         inner.bind(minimum_height=inner.setter("height"))
 
-        rowVersion = BoxLayout(orientation="horizontal", size_hint_y=None, 
-            height=dp(40), spacing=dp(10), size_hint_x=0.9)
-        rowVersion.add_widget(Label(text="Firmware version:", size_hint_x=None, width=dp(150)))
-        self.versionText = Label(text="", size_hint_x=None, width=dp(200))
+        # Make inner take the same width as the ScrollView viewport -> responsive wrapping
+        inner.bind(minimum_width=inner.setter("width"))
+        scroll.bind(width=lambda *_: setattr(inner, "width", scroll.width))
+
+        label_w = dp(150)
+
+        # --- Row: version ---
+        rowVersion = BoxLayout(
+            orientation="horizontal",
+            size_hint_y=None,
+            height=dp(40),
+            spacing=dp(10),
+            size_hint_x=1,
+        )
+        rowVersion.add_widget(Label(text="Firmware version:", size_hint_x=None, width=label_w))
+        self.versionText = Label(
+            text="(waiting for connection)",
+            size_hint_x=1,          # <-- expand with window
+            halign="left",
+            valign="middle",
+            text_size=(0, None),    # will be set by bind below
+        )
+        # Reflow / align when width changes
+        self.versionText.bind(
+            size=lambda w, *_: setattr(w, "text_size", (w.width, None))
+        )
         rowVersion.add_widget(self.versionText)
         inner.add_widget(rowVersion)
-        rowOptions = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(40), spacing=dp(10))
-        rowOptions.add_widget(Label(text="Firmware options:", size_hint_x=None, width=dp(150)))
-        self.optionsText = Label(text="", size_hint_x=None, width=dp(200))
+
+        # --- Row: options ---
+        rowOptions = BoxLayout(
+            orientation="horizontal",
+            size_hint_y=None,
+            height=dp(40),
+            spacing=dp(10),
+            size_hint_x=1,
+        )
+        rowOptions.add_widget(Label(text="Firmware options:", size_hint_x=None, width=label_w))
+        self.optionsText = Label(
+            text="(waiting for connection)",
+            size_hint_x=1,          # <-- expand with window (prevents overlap/scramble)
+            halign="left",
+            valign="middle",
+            text_size=(0, None),
+        )
+        self.optionsText.bind(
+            size=lambda w, *_: setattr(w, "text_size", (w.width, None))
+        )
         rowOptions.add_widget(self.optionsText)
         inner.add_widget(rowOptions)
 
+        # --- License block (centered + wraps nicely) ---
+        licence_row = BoxLayout(
+            orientation="horizontal",
+            size_hint_y=None,
+            spacing=dp(10),
+            padding=[0, dp(220), 0, 0],
+        )
+
+        licenceText = Label(
+            text=(
+                "License\n"
+                "Xavier Grosjean\n"
+                "Creative Commons\n"
+                "Attribution-NonCommercial-ShareAlike 4.0 International\n"
+                "(CC BY-NC-SA 4.0) open-source license"
+            ),
+            size_hint_x=1,
+            halign="center",   # <-- centered (fixes “shifted left”)
+            valign="top",
+            markup=False,
+        )
+
+        # Wrap at label width, and auto-grow height based on texture
+        def _reflow(lbl, *_):
+            lbl.text_size = (lbl.width, None)
+            lbl.texture_update()
+            lbl.height = lbl.texture_size[1]
+
+        licenceText.bind(width=_reflow, text=_reflow)
+
+        # Make the row height follow the label height
+        licence_row.add_widget(licenceText)
+        licence_row.bind(
+            minimum_height=licence_row.setter("height"),
+        )
+
+        inner.add_widget(licence_row)
+
         scroll.add_widget(inner)
         root.add_widget(scroll)
-        btn_close = Button(text="Close")
-        btn_close.bind(on_release=lambda *_: self.dismiss())
+
+        # --- Buttons ---
         btn_row = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(44), spacing=dp(10))
+        btn_close = Button(text="Close", size_hint_x=1)
+        btn_close.bind(on_release=lambda *_: self.dismiss())
         btn_row.add_widget(btn_close)
         root.add_widget(btn_row)
+
         return root
+
 
     # ----- read/populate -----
     def _read_from_device(self):
@@ -366,7 +454,9 @@ class AboutPopup(Popup):
                 if text.startswith('{'):
                     obj: Dict[str, Any] = json.loads(text) if text else {}
                 else:
-                    obj = dict("git_rev", text, "options", "N/A")
+                    obj = {}
+                    obj["git_rev"] =text
+                    obj["options"] = ["N/A"]
             except Exception as e:
                 traceback.print_exc(file=sys.stdout)
                 msg = f"Error reading About: {e}"
@@ -841,7 +931,6 @@ KV = r"""
 
         Button:
             text: "About"
-            disabled: not root.connected
             on_release: root.on_about()
 
     BoxLayout:
@@ -1128,9 +1217,6 @@ class RootWidget(BoxLayout):
         threading.Thread(target=done, daemon=True).start()
 
     def on_about(self):
-        if not self.connected:
-            self._set_status("Not connected.")
-            return
         if self._about_popup and self._about_popup.parent:
             self._about_popup.dismiss()
 
