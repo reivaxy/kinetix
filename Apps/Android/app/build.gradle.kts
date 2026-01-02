@@ -12,8 +12,8 @@ android {
         applicationId = "fr.reivaxy.kinetix"
         minSdk = 23
         targetSdk = 34
-        versionCode = 2
-        versionName = "0.2-OTA"
+        versionCode = 3
+        versionName = "0.3-OTA"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
