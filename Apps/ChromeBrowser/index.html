@@ -277,6 +277,7 @@
     <button id="btnSettings" disabled>Settings</button>
     <button id="btnOta" disabled>OTA</button>
     <button id="btnAbout" disabled>About</button>
+    <button id="btnCalibration" disabled>Calibration</button>
   </div>
 
   <div class="row" style="margin-top:10px;">
@@ -476,6 +477,7 @@
       $("btnSettings").disabled = !connected || noSettings;
       $("btnOta").disabled = !connected || noOTA;
       $("btnAbout").disabled = !connected;
+      $("btnCalibration").disabled = !connected;
       $("btnSendCustom").disabled = !connected;
       // quick command buttons
       document.querySelectorAll("[data-quick]").forEach(btn => btn.disabled = !connected);
@@ -1011,6 +1013,22 @@
       try {
         await loadAboutFromDevice();
         $("dlgAbout").showModal();
+      } catch (e) {
+        console.error(e);
+        setStatus(`Error: ${e.message || e}`, "danger");
+      }
+    });
+    
+    $("btnCalibration").addEventListener("click", async () => {
+      try {
+        let keepGoing = confirm("Confirm you want to run calibration, or cancel\nAvoid doing it if wires are already in place and tight");
+        if (!keepGoing) {
+          return;
+        }
+        let txt = "calibration";
+        setStatus(`TX: ${txt}`);
+        await writeText(cmdChar, txt);
+        setStatus(`Sent: ${txt}`, "ok");
       } catch (e) {
         console.error(e);
         setStatus(`Error: ${e.message || e}`, "danger");
