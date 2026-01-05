@@ -57,6 +57,7 @@ electronic microcontroller to drive the servomotors. I've investigated several s
 
 The cost is estimated less than $40, depending on where your order parts from, and the weight is less than 300g.
 
+BOM: https://github.com/reivaxy/kinetix/blob/main/hardware/Schematics/BOM.md
 
 This is still very much a Work In Progress:
 - The bluetooth connectivity is not secured, and voice control will work with anyone's voice.
