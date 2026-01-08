@@ -38,7 +38,7 @@ void Sequence::start(uint8_t start) {
    if (movements[current] != NULL) {
       running = true;
       movements[current]->start();
-      previousMovementStarteddAt = millis();
+      previousMovementStartedAt = millis();
    } else {
       log_e("Error: empty sequence started.");
    }
@@ -52,7 +52,7 @@ void Sequence::run() {
    if (currentMovement == NULL) {
       return;
    }
-   uint32_t sinceStarted = millis() - previousMovementStarteddAt;
+   uint32_t sinceStarted = millis() - previousMovementStartedAt;
    if (sinceStarted > durations[current]) {
       currentMovement->stop();
       current ++;
@@ -65,10 +65,10 @@ void Sequence::run() {
          stop();
          return;
       }
-      previousMovementStarteddAt = millis();
+      previousMovementStartedAt = millis();
       movements[current]->start();
    } 
-   currentMovement->run();
+   // currentMovement->run();
    
 }
 

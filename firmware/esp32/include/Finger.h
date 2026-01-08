@@ -21,6 +21,7 @@ public:
    void stop();
    bool isStill();
    void setMovement(FingerMovement *fingerMovement);
+   void resetMovement();
    
    Servo myServo;
 
@@ -28,7 +29,8 @@ public:
    int controlPin = D6;
    int maxOpen = 0; 
    int maxClosed = 180;
-
+   time_t movementStartedAt = 0;
+   uint32_t delay = 0;
    float currentPosition = maxOpen;
    int target = maxOpen;
    int frequency = 100;

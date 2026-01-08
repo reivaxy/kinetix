@@ -12,7 +12,6 @@ public:
    ~HandMovement();
 
    void start();
-   void run();
    void stop();
    boolean isFinished();
    void printMovement();

@@ -60,12 +60,10 @@ void MessageProcessor::processReadMsg(MessageType type, BLECharacteristic *chara
 }
 
 void MessageProcessor::run() {
-   if (handMovement != NULL) {
-      handMovement->run();
-   }
    if (seq != NULL) {
       seq->run();
    }
+   hand->run();
 }
 
 void MessageProcessor::startMovement(char *movementName) {
@@ -98,6 +96,14 @@ void MessageProcessor::startMovement(char *movementName) {
       come();
       return;
    }
+
+   if (0 == strcmp(movementName, "demo")) {
+      hand->stop();
+      demo();
+      return;
+   }
+
+
    HandMovement *newHandMovement = hmf->getByName(movementName);
    if (newHandMovement != NULL) {
       hand->stop();
@@ -139,5 +145,21 @@ void MessageProcessor::come() {
   seq = new Sequence(5);
   seq->addMovement(hmf->comeOpen(), 500);
   seq->addMovement(hmf->comeClose(), 500);
+  seq->start();
+}
+
+void MessageProcessor::demo() {
+  log_i("Starting demo sequence");
+  HandMovementFactory *hmf = new HandMovementFactory(hand);
+  seq = new Sequence(0);
+  int delai = 1200;
+  seq->addMovement(hmf->one(), delai);
+  seq->addMovement(hmf->two(), delai);
+  seq->addMovement(hmf->three(), delai);
+  seq->addMovement(hmf->four(), delai);
+  seq->addMovement(hmf->five(), delai);
+  seq->addMovement(hmf->fist(), delai);
+  seq->addMovement(hmf->rock(), delai);
+  seq->addMovement(hmf->love(), delai);
   seq->start();
 }

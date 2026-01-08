@@ -23,6 +23,7 @@ public:
    void calibration();
    void scratch();
    void come();
+   void demo();
    boolean isIdle();
 
    JsonDocument systemInfo;
