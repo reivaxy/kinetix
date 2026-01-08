@@ -10,7 +10,6 @@ RealSensorProcessor::RealSensorProcessor(Hand *hand, Settings *settings, Display
 }
 
 void RealSensorProcessor::run() {
-   hand->run();
    uint16_t newReading = 0;
    // We must not read the ADC too fast
    if (millis() - lastMeasureAt > measureIntervalMs) {

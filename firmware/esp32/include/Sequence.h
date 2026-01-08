@@ -18,7 +18,7 @@ public:
    HandMovement *movements[MAX_MOVEMENTS];
    uint8_t movementCount = 0;
    uint32_t durations[MAX_MOVEMENTS];
-   uint32_t previousMovementStarteddAt = 0;
+   uint32_t previousMovementStartedAt = 0;
 
    uint8_t repeatCount = 1; // 0 means repeat forever
    boolean running = false;
