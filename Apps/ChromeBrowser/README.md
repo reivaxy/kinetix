@@ -22,3 +22,4 @@ The content of this folder is deployed by a github workflow to the page above ea
 > [!IMPORTANT]
 > Voice Recognition is coming soon! It is not as convenient as the Android App, but... it works.
 
+More information in the wiki: https://github.com/reivaxy/kinetix/wiki/09.-Chrome-Browser-Application
