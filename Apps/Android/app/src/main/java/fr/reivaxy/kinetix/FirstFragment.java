@@ -93,8 +93,8 @@ public class FirstFragment extends Fragment {
         // Special case for connect button which doesn't use a position command
         binding.buttonConnect.setOnClickListener(v -> handHandler.connect());
 
-        // Initialize UI based on connection state
-        showConnected(BluetoothHandler.getInstance().isConnected());
+        // Initialize UI based on connection state, but don't show snackbar at launch
+        showConnected(BluetoothHandler.getInstance().isConnected(), false);
     }
 
     /**
@@ -248,15 +248,21 @@ public class FirstFragment extends Fragment {
     }
 
     public void showConnected(boolean connected) {
+        showConnected(connected, true);
+    }
+
+    public void showConnected(boolean connected, boolean showSnackbar) {
         if (binding == null || getActivity() == null) return;
         Button button = binding.buttonConnect;
         if (connected) {
             button.setBackgroundTintList(AppCompatResources.getColorStateList(getContext(), R.color.green));
             button.setText(R.string.connected);
         } else {
-            Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.connectionFailed, Snackbar.LENGTH_LONG)
-                    .setAnchorView(button)
-                    .show();
+            if (showSnackbar) {
+                Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.connectionFailed, Snackbar.LENGTH_LONG)
+                        .setAnchorView(button)
+                        .show();
+            }
             button.setBackgroundTintList(AppCompatResources.getColorStateList(getContext(), R.color.red));
             button.setText(R.string.connect);
         }
