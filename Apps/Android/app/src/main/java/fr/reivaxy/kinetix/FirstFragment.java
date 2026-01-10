@@ -98,8 +98,8 @@ public class FirstFragment extends Fragment {
     }
 
     /**
-     * Recursively find all Buttons in the layout and set their click listener
-     * if they have a tag defined in XML.
+     * find all Buttons in the layout and set their click listener
+     * if they have a tag attribute defined in XML, with tag value as command
      */
     private void setupButtons(ViewGroup layout) {
         for (int i = 0; i < layout.getChildCount(); i++) {
@@ -116,6 +116,7 @@ public class FirstFragment extends Fragment {
         }
     }
 
+    // Show relevant message depending on voice control setting
     private void updateVoiceControl(SharedPreferences preferences) {
         if (binding == null) return;
         boolean voiceControl = preferences.getBoolean(getString(R.string.voiceControlKey), false);
@@ -167,6 +168,8 @@ public class FirstFragment extends Fragment {
     }
 
 
+    // Send the position command to the hand over BT
+    // And flash the button (to show identified voice command)
     private void sendPosition(String position, Button button) {
         handHandler.setPosition(position);
         flashButton(button);

@@ -24,6 +24,8 @@ public class HandHandler {
     // Some positions are two words
     private final Pattern pattern2 = Pattern.compile(".*\\bposition (\\w*\\b \\w*)\\b.*");
 
+    private String lastPosition = "";
+
     private HandHandler(@NonNull FirstFragment fragment, @NonNull VoiceStatusUI voiceStatusUI) {
         this.fragment = fragment;
         this.voiceStatusUI = voiceStatusUI;
@@ -110,8 +112,16 @@ public class HandHandler {
     }
 
     public void setPosition(String position) {
+        // Sometimes one voice command can lead to several strings and will then send duplcated commands.
+        // For instance: "position four" will trigger at least twice recognition events:
+        // "position 4" and "position four" and both will result in sending twice "four"
+        if (!position.equals("come") && position.equals(lastPosition)) {
+            Log.d(TAG, "setPosition: skipping same position " + position);
+            return;
+        }
         Log.e(TAG, String.format("setPosition: %s", position));
         if (BluetoothHandler.getInstance().isConnected()) {
+            lastPosition = position;
             BluetoothHandler.getInstance().writeCustomCharacteristic(position.getBytes(StandardCharsets.UTF_8));
         } else {
             Log.e(TAG, "setPosition: not connected");
