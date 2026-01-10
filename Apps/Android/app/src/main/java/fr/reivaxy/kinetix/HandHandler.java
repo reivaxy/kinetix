@@ -237,6 +237,13 @@ public class HandHandler {
                 position = position;  // yeah, I know.
                 break;
 
+            case "demo":
+            case "démo":
+            case "demonstration":
+            case "démonstration":
+                position = "demo";
+                break;
+
             default:
                 position = null;  // Avoid stopping on non recognized commands
         }
