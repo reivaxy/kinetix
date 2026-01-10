@@ -10,6 +10,7 @@
     tools:context=".FirstFragment">
 
     <LinearLayout
+        android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -26,6 +27,7 @@
 
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/center_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -70,7 +72,7 @@
                 tools:layout_editor_absoluteX="135dp" />
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/instructions"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
@@ -79,6 +81,18 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="@string/prefixPositionLabel"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/voiceControlDisabled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:width="200sp"
+                android:gravity="center"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:text="@string/voiceControlDisabled"
                 android:textSize="16sp" />
 
             <LinearLayout
@@ -96,6 +110,7 @@
                     android:layout_weight="1"
                     android:gravity="end"
                     android:text="@string/open"
+                    android:tag="five"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -109,6 +124,7 @@
                     android:layout_weight="1"
                     android:gravity="start"
                     android:text="@string/close"
+                    android:tag="fist"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -130,6 +146,7 @@
                     android:layout_weight="1"
                     android:gravity="end"
                     android:text="@string/openPinch"
+                    android:tag="openPinch"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -143,6 +160,7 @@
                     android:layout_weight="1"
                     android:gravity="start"
                     android:text="@string/closedPinch"
+                    android:tag="closePinch"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -164,6 +182,7 @@
                     android:layout_weight="1"
                     android:gravity="end"
                     android:text="@string/one"
+                    android:tag="one"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -177,6 +196,7 @@
                     android:layout_weight="1"
                     android:gravity="start"
                     android:text="@string/two"
+                    android:tag="two"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -198,6 +218,7 @@
                     android:layout_weight="1"
                     android:gravity="end"
                     android:text="@string/three"
+                    android:tag="three"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -211,6 +232,7 @@
                     android:layout_weight="1"
                     android:gravity="start"
                     android:text="@string/four"
+                    android:tag="four"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -232,6 +254,7 @@
                     android:layout_weight="1"
                     android:gravity="end"
                     android:text="@string/rock"
+                    android:tag="rock"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -245,6 +268,7 @@
                     android:layout_weight="1"
                     android:gravity="start"
                     android:text="@string/love"
+                    android:tag="love"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -266,6 +290,7 @@
                     android:layout_weight="1"
                     android:gravity="end"
                     android:text="@string/scratch"
+                    android:tag="scratch"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -279,6 +304,7 @@
                     android:layout_weight="1"
                     android:gravity="start"
                     android:text="@string/come"
+                    android:tag="come"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -297,9 +323,24 @@
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="end"
                     android:text="@string/ok"
+                    android:tag="ok"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/button_demo"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:text="@string/demo"
+                    android:tag="demo"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

@@ -17,6 +17,7 @@
     <string name="four">Four</string>
     <string name="five">Five</string>
     <string name="ok">Ok</string>
+    <string name="demo">Demo</string>
     <string name="scratch">Scratch</string>
     <string name="come">Come here</string>
     <string name="love">Love</string>
@@ -48,6 +49,7 @@
     <string name="tools">Tools</string>
     <string name="closeView">Close</string>
     <string name="prefixPositionLabel">Prefix position commands with \"position\"</string>
+    <string name="voiceControlDisabled">Voice control is disabled in App settings</string>
 
     <string name="notConnected">Not connected to Kinetix device</string>
     <string name="connectionFailed">Connection failed</string>

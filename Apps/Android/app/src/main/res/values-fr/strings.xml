@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_settings">Réglages App</string>
     <string name="action_settings_kinetix">Réglages KinetiX</string>
 
@@ -13,6 +13,7 @@
     <string name="four">Quatre</string>
     <string name="five">Cinq</string>
     <string name="ok">Ok</string>
+    <string name="demo">Demo</string>
     <string name="calibration">Calibration</string>
 
     <!-- OTA -->
@@ -49,6 +50,7 @@
     <string name="right">Droite</string>
     <string name="scratch">Gratte</string>
     <string name="prefixPositionLabel">Préfixez les commandes de position avec \"Position\"</string>
+    <string name="voiceControlDisabled">Commandes vocales désactivées dans les réglages App</string>
     <string name="come">Viens ici</string>
     <string name="love">Love</string>
     <string name="rock">Rock</string>
@@ -64,7 +66,7 @@
     <string name="ota_wifi_password_hint">Mot de passe Wi‑Fi</string>
     <string name="error_ssid_required">SSID is requis</string>
     <string name="error_password_required">Password est requis</string>
-    <string name="copy">Copier</string>
+    <string name="copy" tools:ignore="PrivateResource">Copier</string>
 
     <!-- KinetiX settings -->
     <string name="title_activity_kinetix_settings">Réglages KinetiX</string>

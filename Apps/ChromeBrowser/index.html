@@ -290,6 +290,7 @@
   <div class="row" style="justify-content:space-between;">
     <div><b>Positions / Movements</b></div>
   </div>
+  <div class="muted tiny">If a button does nothing, your firmware version is likely too old to support it.</div>
   <div id="quickGrid" class="grid" style="margin-top:10px;"></div>
 
   <div class="row" style="margin-top:12px;">
@@ -1056,6 +1057,10 @@
 
     $("otaShowPw").addEventListener("change", () => {
       $("otaPw").type = $("otaShowPw").checked ? "text" : "password";
+    });
+
+    window.addEventListener("beforeunload", () => {
+      disconnect();
     });
 
   })();

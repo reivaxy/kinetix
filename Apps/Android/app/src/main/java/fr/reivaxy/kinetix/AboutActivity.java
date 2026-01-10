@@ -44,7 +44,7 @@ public class AboutActivity extends AppCompatActivity {
         PackageManager packageManager = getPackageManager();
 
         try {
-            // Get the package information
+            // Get App information
             PackageInfo packageInfo = packageManager.getPackageInfo(getPackageName(), 0);
 
             // Retrieve the version information
@@ -58,8 +58,8 @@ public class AboutActivity extends AppCompatActivity {
             TextView versionCodeTextView = findViewById(R.id.versionCodeTextView);
             versionCodeTextView.setText(String.valueOf(versionCode));
 
+            // Get firmware info saved last time
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-
             String address = preferences.getString(getString(R.string.macAddressKey), "Not set yet");
             TextView macAddress = findViewById(R.id.aboutMacAddress);
             macAddress.setText(address);
@@ -67,9 +67,8 @@ public class AboutActivity extends AppCompatActivity {
             SharedPreferences sharedPref = getBaseContext().getSharedPreferences(
                     getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
-            String firmwareVersion = sharedPref.getString(getString(R.string.saved_version_key), "Not read yet");
-            TextView textView = findViewById(R.id.aboutFirmwareVersion);
-            textView.setText(firmwareVersion);
+            String firmwareAboutInfo = sharedPref.getString(getString(R.string.saved_version_key), null);
+            setAboutVersion(firmwareAboutInfo);
         } catch (Exception e) {
             Log.e(TAG, "Failed: ", e);
         }
@@ -79,6 +78,40 @@ public class AboutActivity extends AppCompatActivity {
         if (copyFab != null) {
             copyFab.setOnClickListener(v -> copyAllAboutInfoToClipboard());
         }
+    }
+
+    private void setAboutVersion(String payload) {
+        String version = "N/A";
+        String options = "N/A";
+        TextView versionTextView = findViewById(R.id.aboutFirmwareVersion);
+        TextView optionsTextView = findViewById(R.id.aboutFirmwareOptions);
+
+        try {
+            if (payload.startsWith("{")) {
+                JSONObject json = new JSONObject(payload);
+                String versionStr = json.optString("git_rev");
+                if (versionStr != null) {
+                    version = versionStr;
+                }
+                JSONArray optionsArray = json.getJSONArray("options");
+                String optionsStr = "";
+                if (optionsArray != null) {
+                    for (int i = 0 ; i < options.length(); i++) {
+                        if (i != 0) {
+                            optionsStr += ", ";
+                        }
+                        optionsStr += optionsArray.getString(i);
+                    }
+                    options = optionsStr;
+                }
+            } else {
+                version = payload;
+            }
+        } catch(Exception e) {
+            Log.i(TAG, "Failed parsing config payload", e);
+        }
+        optionsTextView.setText(options);
+        versionTextView.setText(version);
     }
 
     @Override
@@ -106,33 +139,7 @@ public class AboutActivity extends AppCompatActivity {
             }
             if (BluetoothHandler.ACTION_ABOUT_MESSAGE.equals(action)) {
                 String payload = intent.getStringExtra(BluetoothHandler.EXTRA_ABOUT_MESSAGE);
-                if (payload == null) return;
-                try {
-                    TextView versionTextView = findViewById(R.id.aboutFirmwareVersion);
-                    if (payload.startsWith("{")) {
-                        JSONObject json = new JSONObject(payload);
-                        String version = json.optString("git_rev");
-                        if (version != null) {
-                            versionTextView.setText(version);
-                        }
-                        JSONArray options = json.getJSONArray("options");
-                        String optionsStr = "";
-                        if (options != null) {
-                            for (int i = 0 ; i < options.length(); i++) {
-                                if (i != 0) {
-                                    optionsStr += ", ";
-                                }
-                                optionsStr += options.getString(i);
-                            }
-                            TextView optionsTextView = findViewById(R.id.aboutFirmwareOptions);
-                            optionsTextView.setText(optionsStr);
-                        }
-                    } else {
-                        versionTextView.setText(payload);
-                    }
-                } catch(Exception e) {
-                    Log.i(TAG, "Failed parsing config payload", e);
-                }
+                setAboutVersion(payload);
             }
         }
     };

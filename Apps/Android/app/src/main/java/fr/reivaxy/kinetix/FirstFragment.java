@@ -1,9 +1,5 @@
 package fr.reivaxy.kinetix;
 
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.LEFT;
-import static android.view.Gravity.RIGHT;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -91,83 +87,51 @@ public class FirstFragment extends Fragment {
         updateButtonPosition(preferences);
         updateVoiceControl(preferences);
 
-        binding.buttonFist.setOnClickListener(v -> {
-                    sendPosition("fist", binding.buttonFist);
-                }
-        );
-        binding.buttonOpen.setOnClickListener(v -> {
-                    sendPosition("five", binding.buttonOpen);
-                }
-        );
-        binding.buttonOpenPinch.setOnClickListener(v -> {
-                    sendPosition("openPinch", binding.buttonOpenPinch);
-                }
-        );
-        binding.buttonClosePinch.setOnClickListener(v -> {
-                    sendPosition("closePinch", binding.buttonClosePinch);
-                }
-        );
+        // Set up listeners for all buttons with a tag
+        setupButtons(binding.centerLayout);
 
-        binding.buttonOne.setOnClickListener(v -> {
-                    sendPosition("one", binding.buttonOne);
-                }
-        );
+        // Special case for connect button which doesn't use a position command
+        binding.buttonConnect.setOnClickListener(v -> handHandler.connect());
 
-        binding.buttonTwo.setOnClickListener(v -> {
-                    sendPosition("two", binding.buttonTwo);
-                }
-        );
-
-        binding.buttonThree.setOnClickListener(v -> {
-                    sendPosition("three", binding.buttonThree);
-                }
-        );
-
-        binding.buttonFour.setOnClickListener(v -> {
-                    sendPosition("four", binding.buttonFour);
-                }
-        );
-
-        binding.buttonOk.setOnClickListener(v -> {
-                    sendPosition("ok", binding.buttonOk);
-                }
-        );
-
-        binding.buttonScratch.setOnClickListener(v -> {
-                    sendPosition("scratch", binding.buttonScratch);
-                }
-        );
-
-        binding.buttonCome.setOnClickListener(v -> {
-                    sendPosition("come", binding.buttonCome);
-                }
-        );
-
-        binding.buttonRock.setOnClickListener(v -> {
-                    sendPosition("rock", binding.buttonRock);
-                }
-        );
-
-        binding.buttonLove.setOnClickListener(v -> {
-                    sendPosition("love", binding.buttonLove);
-                }
-        );
-
-        binding.buttonConnect.setOnClickListener(v -> {
-                    handHandler.connect();
-                }
-        );
+        // Initialize UI based on connection state, but don't show snackbar at launch
+        showConnected(BluetoothHandler.getInstance().isConnected(), false);
     }
 
+    /**
+     * find all Buttons in the layout and set their click listener
+     * if they have a tag attribute defined in XML, with tag value as command
+     */
+    private void setupButtons(ViewGroup layout) {
+        for (int i = 0; i < layout.getChildCount(); i++) {
+            View child = layout.getChildAt(i);
+            if (child instanceof Button) {
+                Button button = (Button) child;
+                Object tag = button.getTag();
+                if (tag != null) {
+                    button.setOnClickListener(v -> sendPosition(tag.toString(), button));
+                }
+            } else if (child instanceof ViewGroup) {
+                setupButtons((ViewGroup) child);
+            }
+        }
+    }
+
+    // Show relevant message depending on voice control setting
     private void updateVoiceControl(SharedPreferences preferences) {
+        if (binding == null) return;
         boolean voiceControl = preferences.getBoolean(getString(R.string.voiceControlKey), false);
         if (voiceControl) {
             handHandler.start();
+            binding.instructions.setVisibility(View.VISIBLE);
+            binding.voiceControlDisabled.setVisibility(View.GONE);
         } else {
             handHandler.stop();
+            binding.instructions.setVisibility(View.GONE);
+            binding.voiceControlDisabled.setVisibility(View.VISIBLE);
         }
     }
     private void updateButtonPosition(SharedPreferences preferences) {
+        if (binding == null) return;
         String buttonsPosition = preferences.getString(getString(R.string.buttonsPositionKey), "center");
         LinearLayout.LayoutParams paramsRight = (LinearLayout.LayoutParams) binding.buttonListRight.getLayoutParams();
         LinearLayout.LayoutParams paramsLeft = (LinearLayout.LayoutParams) binding.buttonListLeft.getLayoutParams();
@@ -190,8 +154,9 @@ public class FirstFragment extends Fragment {
     }
 
     public void emptyAddress() {
-        final Snackbar snackBar = Snackbar.make(getView(), R.string.noMacAddress, Snackbar.LENGTH_LONG)
-                .setAnchorView(binding.buttonConnect.getId());
+        if (binding == null || getActivity() == null) return;
+        final Snackbar snackBar = Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.noMacAddress, Snackbar.LENGTH_LONG)
+                .setAnchorView(binding.buttonConnect);
         snackBar.setAction(R.string.closeView, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -203,12 +168,15 @@ public class FirstFragment extends Fragment {
     }
 
 
+    // Send the position command to the hand over BT
+    // And flash the button (to show identified voice command)
     private void sendPosition(String position, Button button) {
         handHandler.setPosition(position);
         flashButton(button);
     }
 
     public void flashButton(String command) {
+        if (binding == null) return;
         Button button = null;
         switch (command) {
             case "five":
@@ -250,6 +218,9 @@ public class FirstFragment extends Fragment {
             case "scratch":
                 button = binding.buttonScratch;
                 break;
+            case "demo":
+                button = binding.buttonDemo;
+                break;
         }
         if (button != null) {
             flashButton(button);
@@ -264,29 +235,39 @@ public class FirstFragment extends Fragment {
                 } catch ( InterruptedException e ) {
                     // not bad if interrupted: sleeps a bit faster (can happen?)
                 }
-                button.setBackgroundTintList(defaultTintList);
+                if (binding != null) {
+                    button.setBackgroundTintList(defaultTintList);
+                }
             }
         }).start();
     }
 
 
     public void showConnecting() {
+        if (binding == null) return;
         Button button = binding.buttonConnect;
         button.setBackgroundTintList(AppCompatResources.getColorStateList(getContext(), R.color.yellow));
-        button.setText(binding.getRoot().getResources().getString(R.string.connecting));
+        button.setText(R.string.connecting);
     }
 
     public void showConnected(boolean connected) {
+        showConnected(connected, true);
+    }
+
+    public void showConnected(boolean connected, boolean showSnackbar) {
+        if (binding == null || getActivity() == null) return;
         Button button = binding.buttonConnect;
         if (connected) {
             button.setBackgroundTintList(AppCompatResources.getColorStateList(getContext(), R.color.green));
-            button.setText(binding.getRoot().getResources().getString(R.string.connected));
+            button.setText(R.string.connected);
         } else {
-            Snackbar.make(binding.getRoot().getRootView(), binding.getRoot().getResources().getString(R.string.connectionFailed), Snackbar.LENGTH_LONG)
-                    .setAnchorView(R.id.button_connect)
-                    .setAction("Action", null).show();
+            if (showSnackbar) {
+                Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.connectionFailed, Snackbar.LENGTH_LONG)
+                        .setAnchorView(button)
+                        .show();
+            }
             button.setBackgroundTintList(AppCompatResources.getColorStateList(getContext(), R.color.red));
-            button.setText(binding.getRoot().getResources().getString(R.string.connect));
+            button.setText(R.string.connect);
         }
 
     }
