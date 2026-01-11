@@ -5,6 +5,11 @@
 [German](https://github-com.translate.goog/reivaxy/kinetix?_x_tr_sl=en&_x_tr_tl=de&_x_tr_hl=fr)
 [English](https://github.com/reivaxy/kinetix)
 
+The cost is estimated less than $40, depending on where your order parts from, and the weight is less than 300g.
+
+BOM: https://github.com/reivaxy/kinetix/blob/main/hardware/Schematics/BOM.md
+
+
 > [!TIP]
 > Detailed assembly instructions are available in the [wiki section](https://github.com/reivaxy/kinetix/wiki)<br/>
 > 
@@ -54,10 +59,6 @@ more recent electronic components would allow going further.
 
 Which is why in 2023 I started to work on this project to combine both new hand design, and recent 
 electronic microcontroller to drive the servomotors. I've investigated several solutions and here is the most promising one.
-
-The cost is estimated less than $40, depending on where your order parts from, and the weight is less than 300g.
-
-BOM: https://github.com/reivaxy/kinetix/blob/main/hardware/Schematics/BOM.md
 
 This is still very much a Work In Progress:
 - The bluetooth connectivity is not secured, and voice control will work with anyone's voice.
