@@ -24,9 +24,11 @@ Or, you can access its published version here, which does not send any informati
 
 https://reivaxy.github.io/kinetix/
 
+
+<img width="494" height="789" alt="image" src="https://github.com/user-attachments/assets/9585c898-c002-4bfa-b0b3-7a15c2eb02db" />
+
 The content of this folder is deployed by a github workflow to the page above each time something is pushed to it.
 
-<img width="640" alt="image" src="https://github.com/user-attachments/assets/85504220-1158-4c98-baad-01b530fdf6be" />
 
 > [!IMPORTANT]
 > Voice Recognition is coming soon! It is not as convenient as the Android App, but... it works.
