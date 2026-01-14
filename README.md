@@ -9,6 +9,7 @@ The cost is estimated less than $40, depending on where your order parts from, a
 
 BOM: https://github.com/reivaxy/kinetix/blob/main/hardware/Schematics/BOM.md
 
+Connect to your nearby KinetiX through Bluetooth here: https://reivaxy.github.io/kinetix/
 
 > [!TIP]
 > Detailed assembly instructions are available in the [wiki section](https://github.com/reivaxy/kinetix/wiki)<br/>
