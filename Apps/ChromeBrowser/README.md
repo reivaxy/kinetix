@@ -2,7 +2,7 @@
 
 This is a single webpage application that takes advantage of Chrome's BLE access features to connect to a KinetiX and control it.
 
-It also works with Edge on Windows and MacOs.
+It also works with Edge on Windows and MacOs, and with Opera and Brave on Windows.
 
 > [!WARNING]
 > Of course it won't work on iOS. Browsers on iOS are limited to Apple's WebKit, which does not implement BLE access.
