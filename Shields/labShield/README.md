@@ -11,11 +11,9 @@ It is equipped with many pads to solder extra components, but does nothing in it
 
 Once an idea is tested and tweaked using this shield, a new specific PCB can easily be made from the same source files.
 
-> [!CAUTION]
-> This is a work in progress, the PCB has not been tested yet.
->
+Here is the first version.
 
-Here is the first version, which is now in production and will be tested soon.
 <img width="640" height="815" alt="image" src="https://github.com/user-attachments/assets/67f97822-6a5e-4271-80fd-53d6f3c6dea6" />
 
+It was used to connect a [pressure sensor](https://github.com/reivaxy/kinetix/wiki/10a.-Pressure-sensor-activation), and an [OLED screen](https://github.com/reivaxy/kinetix/wiki/10b.-Oled-debugging-screen)
 
