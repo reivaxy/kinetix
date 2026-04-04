@@ -8,8 +8,8 @@ class Settings {
 public:
   Settings();
   ~Settings();
-  void loadSettings();
-  void saveSettings();
+  void loadPreferences(const char* preferenceName, JsonDocument& jsonDoc);
+  void savePreferences(const char* preferenceName, JsonDocument& jsonDoc);
   int getInt(const char* key, int defaultValue);
   void setInt(const char* key, int value);
   void setString(const char* key, const char* value);
@@ -17,11 +17,13 @@ public:
   void setBool(const char* key, boolean value);
   boolean getBool(const char* key, boolean defaultValue);
   String getSettingJson();
+  String getPositionsJson();
 
   void updateSetting(char* message);
 
 private:
   Preferences preferences; 
-  JsonDocument doc;
+  JsonDocument settingsJsonDoc;
+  JsonDocument positionsJsonDoc;
 
 };

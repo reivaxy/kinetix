@@ -3,23 +3,30 @@
 
 Settings::Settings() {
   preferences.begin("settings", false);
-  loadSettings();
+  loadPreferences("settingsJson", settingsJsonDoc);
+  loadPreferences("positionsJson", positionsJsonDoc);
 } 
 
-void Settings::loadSettings() {
-  String json = preferences.getString("settingsJson", "{}");
-  DeserializationError error = deserializeJson(doc, json);
+void Settings::loadPreferences(const char* preferenceName, JsonDocument& jsonDoc) {
+  String json = preferences.getString(preferenceName, "{}");
+  DeserializationError error = deserializeJson(jsonDoc, json);
   if (error) {
-    log_i("Failed to parse settings JSON, using defaults");
-    doc.clear();
+    log_i("Failed to parse %s, using defaults", preferenceName);
+    jsonDoc.clear();
   } else {
-    log_i("Settings loaded from JSON %s", json.c_str());
+    log_i("%s loaded from JSON %s", preferenceName, json.c_str());
   }
 }
 
 String Settings::getSettingJson() {
   String json;
-  serializeJson(doc, json);
+  serializeJson(settingsJsonDoc, json);
+  return json;
+}
+
+String Settings::getPositionsJson() {
+  String json;
+  serializeJson(positionsJsonDoc, json);
   return json;
 }
 
@@ -47,7 +54,7 @@ void Settings::updateSetting(char* message) {
         case 'b': // boolean
            {
               bool boolValue = (strcmp(value, "true") == 0 || strcmp(value, "1") == 0);
-              doc[key] = boolValue;
+              settingsJsonDoc[key] = boolValue;
               log_i("Stored boolean setting");
            }
            break;
@@ -55,51 +62,51 @@ void Settings::updateSetting(char* message) {
            log_i("Unknown setting type for key '%s'", key);
            return;
      }
-     saveSettings();
+     savePreferences("settingsJson", settingsJsonDoc);
      
   } else {
      log_i("Invalid setting format, expected key=value");
   }
 }
 
-void Settings::saveSettings() {
+void Settings::savePreferences(const char* preferenceName, JsonDocument& jsonDoc) {
    String json;
-   serializeJson(doc, json);
-   preferences.putString("settingsJson", json);
-   log_i("Settings saved to JSON");
+   serializeJson(jsonDoc, json);
+   preferences.putString(preferenceName, json);
+   log_i("%s saved", preferenceName);
 }
 
 int Settings::getInt(const char* key, int defaultValue) {
-   if (doc[key].is<int>()) {
-      return doc[key];
+   if (settingsJsonDoc[key].is<int>()) {
+      return settingsJsonDoc[key];
    }
    return defaultValue;
 }
 void Settings::setInt(const char* key, int value) {
-   doc[key] = value;
+   settingsJsonDoc[key] = value;
 }
 void Settings::setString(const char* key, const char* value) {
-   doc[key] = value;
+   settingsJsonDoc[key] = value;
 }
 const char* Settings::getString(const char* key, const char* defaultValue) {
-   if (doc[key].is<const char*>()) {
-      return doc[key];
+   if (settingsJsonDoc[key].is<const char*>()) {
+      return settingsJsonDoc[key];
    }
    return defaultValue;
 }
 
 void Settings::setBool(const char* key, boolean value) {
-   doc[key] = value;
+   settingsJsonDoc[key] = value;
 }
 boolean Settings::getBool(const char* key, boolean defaultValue) {
-   if (doc[key].is<bool>()) {
-      return doc[key];
+   if (settingsJsonDoc[key].is<bool>()) {
+      return settingsJsonDoc[key];
    }
    return defaultValue;
 }
 
 // close the preferences when done
 Settings::~Settings() {
-  saveSettings();
+  savePreferences("settingsJson", settingsJsonDoc);
   preferences.end();
 }

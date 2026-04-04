@@ -1,13 +1,12 @@
 #include "Hand.h"
 
-
-Hand::Hand() {
+Hand::Hand(Settings *settings) {
+      this->settings = settings;
       fingers[0] = new Finger(0, THUMB_CTRL_PIN, THUMB_MAX_OPEN, THUMB_MAX_CLOSED, 1);
       fingers[1] = new Finger(1, FINGER1_CTRL_PIN, FINGER1_MAX_OPEN, FINGER1_MAX_CLOSED, 1);
       fingers[2] = new Finger(2, FINGER2_CTRL_PIN, FINGER2_MAX_OPEN, FINGER2_MAX_CLOSED, -1);
       fingers[3] = new Finger(3, FINGER3_CTRL_PIN, FINGER3_MAX_OPEN, FINGER3_MAX_CLOSED, 1);
       fingers[4] = new Finger(4, FINGER4_CTRL_PIN, FINGER4_MAX_OPEN, FINGER4_MAX_CLOSED, -1);
-
 }
 
 void Hand::setCalibration(bool servoCalibration) {

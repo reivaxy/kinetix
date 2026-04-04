@@ -69,7 +69,7 @@
 
 class Hand {
 public:
-   Hand();
+   Hand(Settings *settings);
 
    Finger *fingers[5]; // 0 is thumb
 
@@ -92,4 +92,5 @@ public:
    void stop();
    void stop(uint finger);
    void moveRelative(int to);
+   Settings *settings
 };
