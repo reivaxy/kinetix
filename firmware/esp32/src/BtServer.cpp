@@ -151,6 +151,12 @@ BtServer::BtServer(MessageProcessor* _messageProcessor, Display *display) {
       BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_READ
     );
 
+  BLECharacteristic* pPositionsCharacteristic =
+    pService->createCharacteristic(
+      POSITIONS_CHARACTERISTIC_UUID,
+      BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_READ
+    );
+
   // OTA characteristic (WRITE/READ/NOTIFY)
   BLECharacteristic* pOtaCharacteristic =
     pService->createCharacteristic(
@@ -182,6 +188,9 @@ BtServer::BtServer(MessageProcessor* _messageProcessor, Display *display) {
   );
   pConfigCharacteristic->setCallbacks(
     new CharacteristicCallBack(setting, messageProcessor)
+  );
+  pPositionsCharacteristic->setCallbacks(
+    new CharacteristicCallBack(positions, messageProcessor)
   );
   pOtaCharacteristic->setCallbacks(
     new CharacteristicCallBack(ota, messageProcessor)

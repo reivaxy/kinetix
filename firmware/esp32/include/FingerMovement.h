@@ -12,7 +12,7 @@ public:
    FingerMovement(int relativeTargetPosition);
    ~FingerMovement();
 
-   int relativeTargetPosition = 0; // Relative target position: 0 fully open, 10 = 100% fully closed
+   int normalizedTargetPosition = 0; // Relative target position: 0 fully open, 10 = 100% fully closed
    uint32_t startDelay = 0;
    float step = DEFAULT_STEP;
 

@@ -4,6 +4,15 @@
 #include <ArduinoJson.h>
 #include <Preferences.h>
 
+// Preferences keys mut be less than 15 characters
+#define SETTINGS_NAMESPACE "settingsJson"
+#ifdef LEFT_HAND
+   #define POSITIONS_SETTING_NAMESPACE "leftPositions"
+#else
+   #define POSITIONS_SETTING_NAMESPACE "rightPositions"
+#endif
+
+
 class Settings {
 public:
   Settings();
@@ -16,10 +25,12 @@ public:
   const char* getString(const char* key, const char* defaultValue);
   void setBool(const char* key, boolean value);
   boolean getBool(const char* key, boolean defaultValue);
+  int getPosition(const char* key, int defaultValue);
   String getSettingJson();
   String getPositionsJson();
 
   void updateSetting(char* message);
+  void updatePosition(char* message);
 
 private:
   Preferences preferences; 

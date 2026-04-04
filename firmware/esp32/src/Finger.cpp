@@ -18,8 +18,10 @@ Finger::Finger(int _number, int _controlPin, int _maxOpen, int _maxClosed, int _
    maxClosed = _maxClosed;
    if (direction == 1) {
       currentPosition = maxOpen; // At init
+      currentNormalizedPosition = 0; // Fully open
    } else {
       currentPosition = maxClosed;
+      currentNormalizedPosition = 0; // Fully open
    }
    myServo.attach(controlPin, Servo::CHANNEL_NOT_ATTACHED, 0,
                180, Servo::DEFAULT_MIN_PULSE_WIDTH_US,
@@ -90,13 +92,7 @@ bool Finger::isStill() {
  */
 void Finger::setMovement(FingerMovement *fingerMovement) {
    if (fingerMovement == NULL) return;
-   if (direction == 1) {
-      target = map(fingerMovement->relativeTargetPosition, 0, 100, maxOpen, maxClosed);
-   } else {
-      target = map(fingerMovement->relativeTargetPosition, 0, 100, maxClosed, maxOpen);
-      target = maxOpen - target + maxClosed;
-   }
-   log_d("Target f%d: %d", number, target);
+   computeTarget(fingerMovement->normalizedTargetPosition);
    step = fingerMovement->step;
    movementStartedAt = millis();
    delay = fingerMovement->startDelay;
@@ -109,16 +105,22 @@ void Finger::resetMovement() {
    movementStartedAt = 0;
 }
 
-void Finger::moveRelative(int relativeTo) {
+void Finger::computeTarget(int normalizedPosition) {
    resetMovement();
+   currentNormalizedPosition = normalizedPosition;
    if (direction == 1) {
-      target = map(relativeTo, 0, 100, maxOpen, maxClosed);
+      target = map(normalizedPosition, 0, 100, maxOpen, maxClosed);
    } else {
-      target = map(relativeTo, 0, 100, maxClosed, maxOpen);
+      target = map(normalizedPosition, 0, 100, maxClosed, maxOpen);
       target = maxOpen - target + maxClosed;
    }
+   log_d("Normalized move to %d, target f%d: %d, maxOpen: %d, maxClosed: %d", normalizedPosition, number, target, maxOpen, maxClosed);
 }
 
 void Finger::stop() {
    target = currentPosition;
+}
+
+void Finger::refresh() {
+   computeTarget(currentNormalizedPosition);
 }

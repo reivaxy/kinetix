@@ -18,4 +18,4 @@ for arg in sys.argv:
 # datetime object containing current date and time
 now = datetime.now()
 formatted_datetime = now.strftime("%Y-%m-%d %H:%M:%S")
-print("-DGIT_REV='\"%s %s\"'" % (revision, formatted_datetime) )
+print("-DGIT_REV='\"%s - Git commit %s\"'" % (formatted_datetime, revision) )

@@ -3,8 +3,8 @@
 
 Settings::Settings() {
   preferences.begin("settings", false);
-  loadPreferences("settingsJson", settingsJsonDoc);
-  loadPreferences("positionsJson", positionsJsonDoc);
+  loadPreferences(SETTINGS_NAMESPACE, settingsJsonDoc);
+  loadPreferences(POSITIONS_SETTING_NAMESPACE, positionsJsonDoc);
 } 
 
 void Settings::loadPreferences(const char* preferenceName, JsonDocument& jsonDoc) {
@@ -62,10 +62,28 @@ void Settings::updateSetting(char* message) {
            log_i("Unknown setting type for key '%s'", key);
            return;
      }
-     savePreferences("settingsJson", settingsJsonDoc);
+     savePreferences(SETTINGS_NAMESPACE, settingsJsonDoc);
      
   } else {
      log_i("Invalid setting format, expected key=value");
+  }
+}
+
+void Settings::updatePosition(char* message) {
+  log_i("Updating position %s", message);
+  // Split on '='
+  char* equalSign = strchr(message, '=');
+  if (equalSign != NULL) {
+     *equalSign = 0; // terminate key string
+     const char* key = message;
+     const char* value = equalSign + 1;
+     log_i("Position key: '%s', value: '%s'", key, value);
+     int intValue = atoi(value);
+     positionsJsonDoc[key] = intValue;
+     log_i("Stored position");
+     savePreferences(POSITIONS_SETTING_NAMESPACE, positionsJsonDoc);
+  } else {
+     log_i("Invalid position format, expected key=value");
   }
 }
 
@@ -82,6 +100,7 @@ int Settings::getInt(const char* key, int defaultValue) {
    }
    return defaultValue;
 }
+
 void Settings::setInt(const char* key, int value) {
    settingsJsonDoc[key] = value;
 }
@@ -105,8 +124,18 @@ boolean Settings::getBool(const char* key, boolean defaultValue) {
    return defaultValue;
 }
 
+int Settings::getPosition(const char* key, int defaultValue) {
+   if (positionsJsonDoc[key].is<int>()) {
+      return positionsJsonDoc[key];
+   }
+   // Set the default value in the document
+   positionsJsonDoc[key] = defaultValue;
+    return defaultValue;
+}
+
 // close the preferences when done
 Settings::~Settings() {
-  savePreferences("settingsJson", settingsJsonDoc);
+  savePreferences(SETTINGS_NAMESPACE, settingsJsonDoc);
+  savePreferences(POSITIONS_SETTING_NAMESPACE, positionsJsonDoc);
   preferences.end();
 }

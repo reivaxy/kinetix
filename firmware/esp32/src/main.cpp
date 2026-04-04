@@ -22,7 +22,7 @@ int finger = 0;
 bool isClosed = true;
 
 Hand *hand = NULL;
-HandMovementFactory *hmf = NULL
+HandMovementFactory *hmf = NULL;
 
 BtServer *btServer = NULL;
 MessageProcessor *messageProcessor = NULL;
