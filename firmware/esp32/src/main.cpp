@@ -21,8 +21,8 @@ int start = 0;
 int finger = 0;
 bool isClosed = true;
 
-Hand *hand = new Hand();
-HandMovementFactory *hmf = new HandMovementFactory(hand);
+Hand *hand = NULL;
+HandMovementFactory *hmf = NULL;
 
 BtServer *btServer = NULL;
 MessageProcessor *messageProcessor = NULL;
@@ -33,6 +33,11 @@ void setup() {
   Serial.begin(115200);
   delay(3000);
   Serial.println("Setup");
+
+  settings = new Settings();
+  hand = new Hand(settings);
+  hmf = new HandMovementFactory(hand);
+
   JsonDocument systemInfo;
   // Set an option array
   JsonArray options = systemInfo.createNestedArray("options");
@@ -64,8 +69,6 @@ void setup() {
   start = millis();
   isClosed = true;
  
-  settings = new Settings();
-
   #ifdef WITH_SENSOR
   sensorProcessor = new RealSensorProcessor(hand, settings, display);
   options.add("SENSOR");

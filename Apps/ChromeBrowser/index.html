@@ -69,6 +69,7 @@
           padding: 10px 12px;
           border-radius: 12px;
           border: 1px solid rgba(100, 100, 100, .9);
+          font-weight: bold;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -140,11 +141,13 @@
         }
 
         .danger {
-          color: #ff6b6b;
+          background-color: #ffcccc;
+          color: #000;
         }
 
         .ok {
-          color: #22ff22;
+          background-color: #e6ffe6;
+          color: #000;
         }
 
 
@@ -289,9 +292,13 @@
         <button id="btnConnect">Connect</button>
         <button id="btnDisconnect" disabled>Disconnect</button>
         <button id="btnSettings" disabled>Settings</button>
-        <button id="btnOta" disabled>OTA</button>
+        <button id="btnOta" disabled>FW Upgrade</button>
         <button id="btnAbout" disabled>About</button>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
         <button id="btnCalibration" disabled>Calibration</button>
+        <button id="btnPositions" disabled>Finger tuning</button>
     </div>
 
     <div class="row" style="margin-top:10px;">
@@ -374,8 +381,7 @@
             <div class="card" style="margin:0;">
                 <div><b>Firmware Version</b></div>
                 <div class="muted tiny">
-                    Git commit ID and build date. "-dirty" means some changes were not committed at
-                    build time.
+                    Build date and Git commit ID. If suffixed with "-dirty", it means some changes were not committed yet at build time.
                 </div>
                 <div id="aboutVersion">N/A</div>
             </div>
@@ -447,18 +453,38 @@
                 </label>
             </div>
         </div>
-
         <div id="otaErr" class="tiny danger" style="min-height:18px;"></div>
-
-
-        <div class="muted tiny">
-            sends <code>OTA_START ssid;password</code> over BLE, waits for <code>OTA_READY &lt;url&gt;</code>,
-            then uploads the selected file to that URL with header <code>x-ota-token</code>.
-        </div>
     </div>
     <footer>
         <button id="btnStartOta">Start</button>
         <button id="btnCloseOta2">Cancel</button>
+    </footer>
+</dialog>
+
+<!-- Positions dialog -->
+<dialog id="dlgPositions">
+    <header>
+        <div><b>Finger tuning</b></div>
+        <button id="btnClosePositions">Close</button>
+    </header>
+    <div class="content">
+        <div class="tiny" style="margin-bottom:12px; padding: 10px; border: 1px solid rgba(100, 100, 100, .9); border-radius: 8px;">
+            Depending on the wire tensions, these settings might help adjusting the opened and closed positions of each finger.<br/>
+            To adjust max open positions, set the hand to position "Five" (fully open).<br/>
+            To adjust max closed positions, set the hand to position "Fist" (fully closed).
+        </div>
+        <div class="danger tiny" style="margin-bottom:12px; padding: 10px; border: 1px solid #ff6b6b; border-radius: 8px;">
+            <b>⚠ Warning: Proceed with caution when modifying position values to avoid excessive strain on the servo motors.
+              Fingers 2 and 4 are in oposite direction so their settings are reversed</b>
+        </div>
+        <div id="positionsBox"></div>
+        <div class="muted tiny" style="margin-top:10px;">
+            Each field is written immediately when changed.
+        </div>
+    </div>
+    <footer>
+        <button id="btnReloadPositions">Reload from device</button>
+        <button id="btnClosePositions2">Close</button>
     </footer>
 </dialog>
 
@@ -469,6 +495,7 @@
       const CMD_CHAR_UUID = "39dea685-a63e-44b2-8819-9a202581f8fe";
       const SYSTEM_UUID = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e";   // about
       const SETTINGS_UUID = "68b788da-819b-4feb-b478-8d237ef29f5f"; // settings
+      const POSITIONS_UUID = "4a7e0a3f-8c45-4b6d-9c2a-f3d1e5b7a9c2"; // positions
       const OTA_CHAR_UUID = "3168e56f-6ea1-420d-98f8-08a3b34afc9b"; // OTA
 
       const QUICK_MESSAGES = [
@@ -494,11 +521,13 @@
       let cmdChar = null;
       let settingsChar = null;
       let aboutChar = null;
+      let positionsChar = null;
       let otaChar = null;
 
       let noOTA = false;
       let noSettings = false;
       let noSystem = false;
+      let noPositions = false;
 
       let connected = false;
 
@@ -506,6 +535,7 @@
         $("btnConnect").disabled = connected;
         $("btnDisconnect").disabled = !connected;
         $("btnSettings").disabled = !connected || noSettings;
+        $("btnPositions").disabled = !connected || noPositions;
         $("btnOta").disabled = !connected || noOTA;
         $("btnAbout").disabled = !connected;
         $("btnCalibration").disabled = !connected;
@@ -525,6 +555,7 @@
         noOTA = false;
         noSettings = false;
         noSystem = false;
+        noPositions = false;
 
         // Get known characteristics. If some are missing, we'll log and disable related UI.
         const chars = await service.getCharacteristics();
@@ -538,6 +569,7 @@
         cmdChar = pick(CMD_CHAR_UUID);
         settingsChar = pick(SETTINGS_UUID);
         aboutChar = pick(SYSTEM_UUID);
+        positionsChar = pick(POSITIONS_UUID);
         otaChar = pick(OTA_CHAR_UUID);
 
         if (missing.length) {
@@ -557,6 +589,10 @@
               if (u === SYSTEM_UUID) {
                 console.log("System (about) characteristic not found")
                 noSystem = true;
+              }
+              if (u === POSITIONS_UUID) {
+                console.log("Positions characteristic not found")
+                noPositions = true;
               }
               return "  - " + u
             }).join("\n") +
@@ -585,6 +621,7 @@
           cmdChar = null;
           settingsChar = null;
           aboutChar = null;
+          positionsChar = null;
           otaChar = null;
           $("deviceLabel").textContent = "—";
           updateUi();
@@ -830,6 +867,160 @@
         }
       }
 
+      // ====== Positions ======
+      const positionsState = {
+        loading: false,
+        debounce: new Map(), // field -> timeoutId
+      };
+
+      function buildPositionsUi() {
+        const positionsBox = $("positionsBox");
+        positionsBox.innerHTML = "";
+        // Will be populated when positions are loaded
+      }
+
+      function schedulePositionWrite(field) {
+        const old = positionsState.debounce.get(field);
+        if (old) clearTimeout(old);
+        const t = setTimeout(() => writePositionField(field).catch(e => {
+          console.error(e);
+          setStatus(`Error: ${e.message || e}`, "danger");
+        }), 300);
+        positionsState.debounce.set(field, t);
+      }
+
+      function onPositionChanged(field) {
+        if (positionsState.loading) return;
+        schedulePositionWrite(field);
+      }
+
+      async function writePositionField(field) {
+        if (!connected) {
+          setStatus("Not connected.", "danger");
+          return;
+        }
+        const el = $(`pos_${field}`);
+        if (!el) return;
+
+        const val = el.value || "0";
+        const payload = `${field}=${val}`;
+        setStatus(`TX: ${payload}`);
+        await writeText(positionsChar, payload, {withResponse: true, newline: false});
+        setStatus(`Position written: ${field}`, "ok");
+      }
+
+      async function reloadPositionsFromDevice() {
+        if (!connected) {
+          setStatus("Not connected.", "danger");
+          return;
+        }
+        setStatus("Reading positions…");
+        positionsState.loading = true;
+        try {
+          const v = await positionsChar.readValue();
+          const text = utf8dec.decode(v.buffer).trim();
+          const obj = text ? JSON.parse(text) : {};
+          
+          // Build UI dynamically from returned JSON fields
+          const positionsBox = $("positionsBox");
+          positionsBox.innerHTML = "";
+          
+          // Group by finger name
+          const fingerGroups = new Map();
+          for (const [key, value] of Object.entries(obj)) {
+            // Extract finger name (e.g., "thumb" from "thumb_max_open")
+            const parts = key.split("_");
+            const fingerName = parts[0];
+            if (!fingerGroups.has(fingerName)) {
+              fingerGroups.set(fingerName, {});
+            }
+            fingerGroups.get(fingerName)[key] = value;
+          }
+          
+          // Create UI for each finger
+          for (const [fingerName, positions] of fingerGroups) {
+            const fingerContainer = document.createElement("div");
+            fingerContainer.style.marginBottom = "16px";
+            
+            const fingerLabel = document.createElement("div");
+            fingerLabel.style.fontWeight = "bold";
+            fingerLabel.style.marginBottom = "8px";
+            fingerLabel.textContent = fingerName.charAt(0).toUpperCase() + fingerName.slice(1);
+            fingerContainer.appendChild(fingerLabel);
+            
+            const fingerRow = document.createElement("div");
+            fingerRow.className = "row";
+            fingerRow.style.gap = "16px";
+            fingerRow.style.flexWrap = "wrap";
+            
+            // Add controls for each position (max_open, max_close, etc.)
+            for (const [key, value] of Object.entries(positions)) {
+              const controlDiv = document.createElement("div");
+              controlDiv.style.display = "flex";
+              controlDiv.style.alignItems = "center";
+              controlDiv.style.gap = "6px";
+              
+              const label = document.createElement("div");
+              label.style.fontSize = "12px";
+              label.style.minWidth = "60px";
+              label.textContent = key.replace(fingerName + "_", "").replace(/_/g, " ");
+              
+              const controlRow = document.createElement("div");
+              controlRow.className = "row";
+              controlRow.style.gap = "4px";
+              
+              const btnDecrease = document.createElement("button");
+              btnDecrease.textContent = "−";
+              btnDecrease.addEventListener("click", () => {
+                const inp = $(`pos_${key}`);
+                const currValue = inp.value;
+                inp.value = String(Math.max(0, parseInt(inp.value, 10) - 1));
+                if (currValue == inp.value) return; // no change
+                onPositionChanged(key);
+              });
+              
+              const inp = document.createElement("input");
+              inp.type = "number";
+              inp.placeholder = "0";
+              inp.id = `pos_${key}`;
+              inp.value = String(parseInt(value, 10) || 0);
+              inp.readOnly = true;
+              inp.style.textAlign = "center";
+              inp.style.width = "60px";
+              inp.style.minWidth = "60px";
+              
+              const btnIncrease = document.createElement("button");
+              btnIncrease.textContent = "+";
+              btnIncrease.addEventListener("click", () => {
+                const inp = $(`pos_${key}`);
+                const currValue = inp.value;
+                inp.value = String(Math.min(180, parseInt(inp.value, 10) + 1));
+                if (currValue == inp.value) return; // no change
+                onPositionChanged(key);
+              });
+              
+              controlRow.appendChild(btnDecrease);
+              controlRow.appendChild(inp);
+              controlRow.appendChild(btnIncrease);
+              
+              controlDiv.appendChild(label);
+              controlDiv.appendChild(controlRow);
+              fingerRow.appendChild(controlDiv);
+            }
+            
+            fingerContainer.appendChild(fingerRow);
+            positionsBox.appendChild(fingerContainer);
+          }
+          
+          setStatus("Positions loaded.", "ok");
+        } catch (e) {
+          console.error(e);
+          setStatus(`Error reading positions: ${e.message || e}`, "danger");
+        } finally {
+          positionsState.loading = false;
+        }
+      }
+
       // ====== OTA ======
       const otaState = {
         notifyOn: false,
@@ -1071,6 +1262,19 @@
       $("btnCloseSettings2").addEventListener("click", () => $("dlgSettings").close());
       $("btnCloseAbout").addEventListener("click", () => $("dlgAbout").close());
       $("btnCloseAbout2").addEventListener("click", () => $("dlgAbout").close());
+
+      $("btnPositions").addEventListener("click", async () => {
+        try {
+          await reloadPositionsFromDevice();
+          $("dlgPositions").showModal();
+        } catch (e) {
+          console.error(e);
+          setStatus(`Error: ${e.message || e}`, "danger");
+        }
+      });
+      $("btnReloadPositions").addEventListener("click", reloadPositionsFromDevice);
+      $("btnClosePositions").addEventListener("click", () => $("dlgPositions").close());
+      $("btnClosePositions2").addEventListener("click", () => $("dlgPositions").close());
 
       $("btnOta").addEventListener("click", () => $("dlgOta").showModal());
       $("btnCloseOta").addEventListener("click", () => $("dlgOta").close());

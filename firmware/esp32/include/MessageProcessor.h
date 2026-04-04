@@ -11,7 +11,7 @@
 
 
 
-enum MessageType {movement, setting, ota, systemConfig};
+enum MessageType {movement, setting, ota, systemConfig, positions};
 
 class MessageProcessor {
 public:

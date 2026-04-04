@@ -69,13 +69,14 @@
 
 class Hand {
 public:
-   Hand();
+   Hand(Settings *settings);
 
    Finger *fingers[5]; // 0 is thumb
 
    void close();
    void close(uint finger);
    void setCalibration(boolean);
+   void updateMaxPositionsFromSettings();
 
    void open();
    void open(uint finger);
@@ -92,4 +93,5 @@ public:
    void stop();
    void stop(uint finger);
    void moveRelative(int to);
+   Settings *settings;
 };

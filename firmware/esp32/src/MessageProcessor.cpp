@@ -28,6 +28,12 @@ void MessageProcessor::processWriteMsg(MessageType type, char* message) {
          settings->updateSetting(message);
          break;
 
+      case positions:
+         log_i("Processing write positions message");
+         settings->updatePosition(message);
+         hand->updateMaxPositionsFromSettings();
+         break;
+
       default:
          log_i("Message type %d has no write processing defined", type);
          break;
@@ -53,6 +59,11 @@ void MessageProcessor::processReadMsg(MessageType type, BLECharacteristic *chara
       characteristic->setValue(settings->getSettingJson().c_str() );         
       break;
 
+   case positions:
+      log_i("Processing read positions message");
+      characteristic->setValue(settings->getPositionsJson().c_str() );         
+      break;
+
    default:
       log_i("Message type %d has no read processing defined", type);
       break;
@@ -69,6 +80,7 @@ void MessageProcessor::run() {
 void MessageProcessor::startMovement(char *movementName) {
 
    // Make sure we use the appropriate min and max Servo values when fingers are wired.
+   // huh I can't remember why I call this here... 
    hand->setCalibration(false);
 
    if (handMovement != NULL) {
