@@ -13,7 +13,7 @@ Please notify us when links are dead.
 | 5 | jumpers | https://www.ebay.com/itm/166501125147 |
 | 1 | Capacitor 100µF 16V | https://www.ebay.com/itm/252361121827 |
 | 1 | Capa 22nF | https://www.ebay.com/itm/161376440730 |
-| 5 | Servomotors | https://www.amazon.fr/dp/B09Z2H2FMP |
+| 5 | Servomotors MG90S 180° | https://www.amazon.fr/Miuzei-engrenages-servomoteurs-Arduino-Mod%C3%A9lisme/dp/B0D7ZW6LSW |
 | 2 | Pulleys V623ZZ | https://www.amazon.fr/3x12x4mm-Roulement-Syst%C3%A8me-Mouvement-Lin%C3%A9aire/dp/B07GVLFWRC |
 | 4 | Screws M2*6 philips self tapping | https://www.amazon.fr/sourcing-map-Inoxydable-Phillips-Autotaraudeuse/dp/B01KXTUCM8 |
 | 5 | Screws M3*12 hex | https://www.amazon.fr/Kozelo-100Pcs-T%C3%AAte-Cylindrique-Creux/dp/B0DG2HYT8T |
