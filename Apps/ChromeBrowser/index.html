@@ -1479,7 +1479,7 @@
         }
       });
 
-      $("btnSendCustom").addEventListener("click", async () => {
+      const sendCustomCommand = async () => {
         const txt = ($("txtCustom").value || "").trim();
         if (!txt) {
           setStatus(t('status.nothing'), "danger");
@@ -1492,6 +1492,15 @@
         } catch (e) {
           console.error(e);
           setStatus(t('status.error', {msg: e.message || e}), "danger");
+        }
+      };
+
+      $("btnSendCustom").addEventListener("click", sendCustomCommand);
+
+      $("txtCustom").addEventListener("keypress", async (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          await sendCustomCommand();
         }
       });
 

@@ -163,7 +163,7 @@ HandMovement* HandMovementFactory::love() {
 HandMovement* HandMovementFactory::scratchClose() {
    HandMovement *handMovement = new HandMovement(hand, "Scratch Close");
    // Thumb
-   handMovement->setFM(0, new FingerMovement(80, 0, 0.006));
+   handMovement->setFM(0, new FingerMovement(70, 0, 0.006));
    handMovement->setFM(1, new FingerMovement(80, 0, 0.006));
    handMovement->setFM(2, new FingerMovement(75, 0, 0.006));
    handMovement->setFM(3, new FingerMovement(80, 0, 0.006));
@@ -184,7 +184,7 @@ HandMovement* HandMovementFactory::scratchOpen() {
 HandMovement* HandMovementFactory::comeClose() {
    HandMovement *handMovement = new HandMovement(hand, "Come Close");
    // Thumb
-   handMovement->setFM(0, new FingerMovement(80, 0));
+   handMovement->setFM(0, new FingerMovement(70, 0));
    handMovement->setFM(1, new FingerMovement(100, 0, 0.01));
    handMovement->setFM(2, new FingerMovement(100, 0));
    handMovement->setFM(3, new FingerMovement(100, 0));
@@ -195,7 +195,7 @@ HandMovement* HandMovementFactory::comeClose() {
 HandMovement* HandMovementFactory::comeOpen() {
    HandMovement *handMovement = new HandMovement(hand, "Come Open");
    // Thumb
-   handMovement->setFM(0, new FingerMovement(80, 0));
+   handMovement->setFM(0, new FingerMovement(70, 0));
    handMovement->setFM(1, new FingerMovement(0, 0, 0.01));
    handMovement->setFM(2, new FingerMovement(100, 0));
    handMovement->setFM(3, new FingerMovement(100, 0));

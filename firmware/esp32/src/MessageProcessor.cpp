@@ -115,6 +115,14 @@ void MessageProcessor::startMovement(char *movementName) {
       return;
    }
 
+   // Handle single finger open/close movements (oX and cX, where X is 0-4)
+   if ((movementName[0] == 'o' || movementName[0] == 'c') && strlen(movementName) == 2 && movementName[1] >= '0' && movementName[1] <= '4') {
+      int fingerIndex = movementName[1] - '0';
+      int target = (movementName[0] == 'o') ? 0 : 100;
+      hand->fingers[fingerIndex]->computeTarget(target);
+      return;
+   }
+
 
    HandMovement *newHandMovement = hmf->getByName(movementName);
    if (newHandMovement != NULL) {
@@ -165,13 +173,14 @@ void MessageProcessor::demo() {
   HandMovementFactory *hmf = new HandMovementFactory(hand);
   seq = new Sequence(0);
   int delai = 1200;
+  seq->addMovement(hmf->five(), delai*3);
   seq->addMovement(hmf->one(), delai);
   seq->addMovement(hmf->two(), delai);
   seq->addMovement(hmf->three(), delai);
   seq->addMovement(hmf->four(), delai);
   seq->addMovement(hmf->five(), delai);
-  seq->addMovement(hmf->fist(), delai);
   seq->addMovement(hmf->rock(), delai);
   seq->addMovement(hmf->love(), delai);
+  seq->addMovement(hmf->fist(), delai);
   seq->start();
 }
