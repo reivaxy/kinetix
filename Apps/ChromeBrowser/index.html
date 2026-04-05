@@ -419,14 +419,15 @@
     <div class="content">
         <div class="kv">
             <div data-i18n="dlg.ota.firmware">Firmware</div>
-            <div class="muted tiny" style="font-weight:700" data-i18n="dlg.ota.firmware.hint">
-                Download the latest released firmware <a
-                    href="https://github.com/reivaxy/kinetix/releases" target="_blank">here</a>
+            <div class="muted tiny" style="font-weight:700">
+              <span data-i18n="dlg.ota.firmware.hint">Download released firmware</span>
+              <a data-i18n="dlg.ota.firmware.latest" href="https://github.com/reivaxy/kinetix/releases/latest" target="_blank">latest</a>
+              <a data-i18n="dlg.ota.firmware.all" href="https://github.com/reivaxy/kinetix/releases" target="_blank">all</a>
             </div>
             <div class="row" style="justify-content:space-between; width: 100%;">
                 <input id="fwFileName" type="text" readonly
-                       data-i18n="dlg.ota.select" data-i18n-type="placeholder" placeholder="Select a firmware file (.bin/.hex/.zip) …"/>
-                <input id="fwFile" type="file" accept=".bin,.hex,.zip,*/*"/>
+                       data-i18n="dlg.ota.select" data-i18n-type="placeholder" placeholder="Select a firmware file (.bin) …"/>
+                <input id="fwFile" type="file" accept=".bin"/>
             </div>
         </div>
 
@@ -571,8 +572,10 @@
           // OTA dialog
           "dlg.ota.title": "OTA Firmware Update",
           "dlg.ota.firmware": "Firmware",
-          "dlg.ota.firmware.hint": "Download the latest released firmware here",
-          "dlg.ota.select": "Select a firmware file (.bin/.hex/.zip) …",
+          "dlg.ota.firmware.hint": "Download released firmware",
+          "dlg.ota.firmware.latest": "latest",
+          "dlg.ota.firmware.all": "all",
+          "dlg.ota.select": "Select a firmware file (.bin) …",
           "dlg.ota.ssid": "SSID",
           "dlg.ota.password": "Password",
           "dlg.ota.show": "Show",
@@ -682,8 +685,10 @@
           // OTA dialog
           "dlg.ota.title": "Mise à jour OTA du micrologiciel",
           "dlg.ota.firmware": "Micrologiciel",
-          "dlg.ota.firmware.hint": "Téléchargez le dernier micrologiciel publié ici",
-          "dlg.ota.select": "Sélectionnez un fichier de micrologiciel (.bin/.hex/.zip) …",
+          "dlg.ota.firmware.hint": "Téléchargez un micrologiciel publié",
+          "dlg.ota.firmware.latest": "dernier",
+          "dlg.ota.firmware.all": "tous",
+          "dlg.ota.select": "Sélectionnez un fichier de micrologiciel (.bin) …",
           "dlg.ota.ssid": "SSID",
           "dlg.ota.password": "Mot de passe",
           "dlg.ota.show": "Afficher",
