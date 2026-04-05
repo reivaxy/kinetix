@@ -1480,7 +1480,7 @@
       });
 
       const sendCustomCommand = async () => {
-        const txt = ($("txtCustom").value || "").trim();
+        const txt = ($("txtCustom").value || "").trim().toLowerCase();
         if (!txt) {
           setStatus(t('status.nothing'), "danger");
           return;
