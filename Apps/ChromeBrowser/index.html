@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" id="htmlRoot">
 <head>
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
     <meta charset="utf-8"/>
@@ -265,137 +265,134 @@
     </style>
 </head>
 <body>
-<h1>Bluetooth BLE control interface for the <a target="_blank"
-                                               href="https://www.github.com/reivaxy/kinetix">KinetiX
-    hand</a></h1>
-<div class="muted tiny">
-    Requires Chrome/Edge with <b>Web Bluetooth</b>, served over <b>https</b> or
-    <b>http://localhost</b>.<br/>
-    Not all computers have Bluetooth <b>BLE</b> connectivity.
+<div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+    <h1 style="margin: 0;"><span data-i18n="header.title">Bluetooth BLE control interface for the</span> <a target="_blank"
+                                                   href="https://www.github.com/reivaxy/kinetix">KinetiX
+        hand</a></h1>
+    <button id="btnLanguage" title="Toggle language" style="padding: 6px 10px; white-space: nowrap;">EN/FR</button>
 </div>
 <div class="muted tiny">
-    This does not work on iOS devices because Apple does not implement BLE access in webkit.
+    <span data-i18n="header.subtitle">Requires Chrome/Edge with Web Bluetooth, served over https or http://localhost.</span><br/>
+    <span data-i18n="header.subtitle1">Not all computers have Bluetooth BLE connectivity.</span>
+</div>
+<div class="muted tiny">
+    <span data-i18n="header.ios">This does not work on iOS devices because Apple does not implement BLE access in webkit.</span>
 </div>
 <div class="muted tiny" style="color:red;">
     <b>
-        This page only exchanges information with your KinetiX device.<br/>
-        No cookie, no server call.<br/>
-        You can
-        <a href="https://github.com/reivaxy/kinetix/blob/main/Apps/ChromeBrowser/README.md#on-your-local-server"
-           target="_blank">run a local server</a>
-        and access it through http://localhost
+        <span data-i18n="header.privacy">This page only exchanges information with your KinetiX device. No cookie, no server call. You can run a local server and access it through http://localhost</span><br/>
     </b>
 </div>
 
 <div class="card">
     <div class="row">
-        <button id="btnConnect">Connect</button>
-        <button id="btnDisconnect" disabled>Disconnect</button>
-        <button id="btnSettings" disabled>Settings</button>
-        <button id="btnOta" disabled>FW Upgrade</button>
-        <button id="btnAbout" disabled>About</button>
+        <button id="btnConnect" data-i18n="btn.connect">Connect</button>
+        <button id="btnDisconnect" disabled data-i18n="btn.disconnect">Disconnect</button>
+        <button id="btnSettings" disabled data-i18n="btn.settings">Settings</button>
+        <button id="btnOta" disabled data-i18n="btn.ota">FW Upgrade</button>
+        <button id="btnAbout" disabled data-i18n="btn.about">About</button>
     </div>
 
     <div class="row" style="margin-top:10px;">
-        <button id="btnCalibration" disabled>Calibration</button>
-        <button id="btnPositions" disabled>Finger tuning</button>
+        <button id="btnCalibration" disabled data-i18n="btn.calibration">Calibration</button>
+        <button id="btnPositions" disabled data-i18n="btn.positions">Finger tuning</button>
     </div>
 
     <div class="row" style="margin-top:10px;">
-        <div class="muted tiny">Connected device:</div>
+        <div class="muted tiny" data-i18n="device.label">Connected device:</div>
         <div id="deviceLabel" class="tiny">—</div>
     </div>
 </div>
 
 <div class="card">
     <div class="row" style="justify-content:space-between;">
-        <div><b>Positions / Movements</b></div>
+        <div><b data-i18n="card.movements">Positions / Movements</b></div>
     </div>
-    <div class="muted tiny">If a button does nothing, your firmware version is likely too old to
+    <div class="muted tiny" data-i18n="card.movements.hint">If a button does nothing, your firmware version is likely too old to
         support it.
     </div>
     <div id="quickGrid" class="grid" style="margin-top:10px;"></div>
 
     <div class="row" style="margin-top:12px;">
-        <label class="nowrap" for="txtCustom">Custom:</label>
-        <input id="txtCustom" type="text" placeholder="Type command…"/>
-        <button id="btnSendCustom" disabled>Send</button>
+        <label class="nowrap" for="txtCustom" data-i18n="card.custom">Custom:</label>
+        <input id="txtCustom" type="text" data-i18n="card.custom.placeholder" data-i18n-type="placeholder" placeholder="Type command…"/>
+        <button id="btnSendCustom" disabled data-i18n="btn.send">Send</button>
     </div>
 </div>
 
 <div id="otaCard" class="card" style="display:none;">
     <div class="row" style="justify-content:space-between;">
-        <div><b>OTA</b></div>
+        <div><b data-i18n="card.ota">OTA</b></div>
         <div class="tiny muted" id="otaHint"></div>
     </div>
     <div class="row" style="margin-top:10px; gap: 14px;">
         <progress id="otaProgress" value="0" max="100"></progress>
-        <div id="otaProgressText" class="tiny muted">Idle.</div>
+        <div id="otaProgressText" class="tiny muted" data-i18n="status.idle">Idle.</div>
     </div>
 </div>
 
-<div id="status" class="status">Idle.</div>
+<div id="status" class="status" data-i18n="status.idle">Idle.</div>
 
 <!-- Settings dialog -->
 <dialog id="dlgSettings">
     <header>
-        <div><b>Settings</b></div>
-        <button id="btnCloseSettings">Close</button>
+        <div><b data-i18n="dlg.settings.title">Settings</b></div>
+        <button id="btnCloseSettings" data-i18n="btn.close">Close</button>
     </header>
     <div class="content">
         <div class="two">
             <div class="card" style="margin:0;">
-                <div><b>Booleans</b></div>
+                <div><b data-i18n="dlg.settings.booleans">Booleans</b></div>
                 <div id="boolGrid"></div>
             </div>
 
             <div class="card" style="margin:0;">
-                <div><b>Integers</b></div>
+                <div><b data-i18n="dlg.settings.integers">Integers</b></div>
                 <div id="intBox"></div>
 
                 <div style="margin-top:10px;">
-                    <div><b>Strings</b></div>
+                    <div><b data-i18n="dlg.settings.strings">Strings</b></div>
                     <div id="strBox"></div>
                 </div>
             </div>
 
-            <div class="muted tiny" style="margin-top:10px;">
+            <div class="muted tiny" style="margin-top:10px;" data-i18n="dlg.settings.note">
                 Changes are written immediately (debounced).
             </div>
         </div>
     </div>
     <footer>
-        <button id="btnReloadSettings">Reload from device</button>
-        <button id="btnCloseSettings2">Close</button>
+        <button id="btnReloadSettings" data-i18n="dlg.settings.reload">Reload from device</button>
+        <button id="btnCloseSettings2" data-i18n="btn.close">Close</button>
     </footer>
 </dialog>
 
 <!-- Settings dialog -->
 <dialog id="dlgAbout">
     <header>
-        <div><b>About KinetiX Device</b></div>
-        <button id="btnCloseAbout">Close</button>
+        <div><b data-i18n="dlg.about.title">About KinetiX Device</b></div>
+        <button id="btnCloseAbout" data-i18n="btn.close">Close</button>
     </header>
     <div class="content">
         <div class="two">
             <div class="card" style="margin:0;">
-                <div><b>Firmware Version</b></div>
-                <div class="muted tiny">
+                <div><b data-i18n="dlg.about.version">Firmware Version</b></div>
+                <div class="muted tiny" data-i18n="dlg.about.version.hint">
                     Build date and Git commit ID. If suffixed with "-dirty", it means some changes were not committed yet at build time.
                 </div>
-                <div id="aboutVersion">N/A</div>
+                <div id="aboutVersion" data-i18n="dlg.about.na">N/A</div>
             </div>
             <div class="card" style="margin:0;">
-                <div><b>Firmware options</b></div>
-                <div class="muted tiny">
+                <div><b data-i18n="dlg.about.options">Firmware options</b></div>
+                <div class="muted tiny" data-i18n="dlg.about.options.hint">
                     Only reports options explicitly declared by firmware
                 </div>
-                <div id="aboutOptions">N/A</div>
+                <div id="aboutOptions" data-i18n="dlg.about.na">N/A</div>
             </div>
         </div>
         <div class="one">
             <div class="card" style="margin-top:10px;">
-                <div><b>License</b></div>
+                <div><b data-i18n="dlg.about.license">License</b></div>
                 <div>
                     Xavier Grosjean 2026<br>
                     Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC
@@ -409,39 +406,39 @@
         </div>
     </div>
     <footer>
-        <button id="btnCloseAbout2">Close</button>
+        <button id="btnCloseAbout2" data-i18n="btn.close">Close</button>
     </footer>
 </dialog>
 
 <!-- OTA dialog -->
 <dialog id="dlgOta">
     <header>
-        <div><b>OTA Firmware Update</b></div>
-        <button id="btnCloseOta">Close</button>
+        <div><b data-i18n="dlg.ota.title">OTA Firmware Update</b></div>
+        <button id="btnCloseOta" data-i18n="btn.close">Close</button>
     </header>
     <div class="content">
         <div class="kv">
-            <div>Firmware</div>
-            <div class="muted tiny" style="font-weight:700">
+            <div data-i18n="dlg.ota.firmware">Firmware</div>
+            <div class="muted tiny" style="font-weight:700" data-i18n="dlg.ota.firmware.hint">
                 Download the latest released firmware <a
                     href="https://github.com/reivaxy/kinetix/releases" target="_blank">here</a>
             </div>
             <div class="row" style="justify-content:space-between; width: 100%;">
                 <input id="fwFileName" type="text" readonly
-                       placeholder="Select a firmware file (.bin/.hex/.zip) …"/>
+                       data-i18n="dlg.ota.select" data-i18n-type="placeholder" placeholder="Select a firmware file (.bin/.hex/.zip) …"/>
                 <input id="fwFile" type="file" accept=".bin,.hex,.zip,*/*"/>
             </div>
         </div>
 
         <div class="kv">
-            <div>SSID</div>
-            <input id="otaSsid" type="text" placeholder="Wi‑Fi SSID (no spaces)"/>
+            <div data-i18n="dlg.ota.ssid">SSID</div>
+            <input id="otaSsid" type="text" data-i18n="dlg.ota.ssid" data-i18n-type="placeholder" placeholder="Wi‑Fi SSID (no spaces)"/>
         </div>
 
         <div class="kv">
-            <div>Password</div>
+            <div data-i18n="dlg.ota.password">Password</div>
             <div class="row" style="gap:10px; align-items:center;">
-                <input id="otaPw" type="password" placeholder="Wi‑Fi password"/>
+                <input id="otaPw" type="password" data-i18n="dlg.ota.password" data-i18n-type="placeholder" placeholder="Wi‑Fi password"/>
             </div>
         </div>
         <div class="kv">
@@ -449,42 +446,42 @@
             <div>
                 <label style="gap:8px;">
                     <input id="otaShowPw" type="checkbox"/>
-                    <span class="nowrap">Show</span>
+                    <span class="nowrap" data-i18n="dlg.ota.show">Show</span>
                 </label>
             </div>
         </div>
         <div id="otaErr" class="tiny danger" style="min-height:18px;"></div>
     </div>
     <footer>
-        <button id="btnStartOta">Start</button>
-        <button id="btnCloseOta2">Cancel</button>
+        <button id="btnStartOta" data-i18n="btn.start">Start</button>
+        <button id="btnCloseOta2" data-i18n="btn.cancel">Cancel</button>
     </footer>
 </dialog>
 
 <!-- Positions dialog -->
 <dialog id="dlgPositions">
     <header>
-        <div><b>Finger tuning</b></div>
-        <button id="btnClosePositions">Close</button>
+        <div><b data-i18n="dlg.pos.title">Finger tuning</b></div>
+        <button id="btnClosePositions" data-i18n="btn.close">Close</button>
     </header>
     <div class="content">
-        <div class="tiny" style="margin-bottom:12px; padding: 10px; border: 1px solid rgba(100, 100, 100, .9); border-radius: 8px;">
+        <div class="tiny" style="margin-bottom:12px; padding: 10px; border: 1px solid rgba(100, 100, 100, .9); border-radius: 8px;" data-i18n="dlg.pos.hint">
             Depending on the wire tensions, these settings might help adjusting the opened and closed positions of each finger.<br/>
             To adjust max open positions, set the hand to position "Five" (fully open).<br/>
             To adjust max closed positions, set the hand to position "Fist" (fully closed).
         </div>
         <div class="danger tiny" style="margin-bottom:12px; padding: 10px; border: 1px solid #ff6b6b; border-radius: 8px;">
-            <b>⚠ Warning: Proceed with caution when modifying position values to avoid excessive strain on the servo motors.
-              Fingers 2 and 4 are in oposite direction so their settings are reversed</b>
+            <b data-i18n="dlg.pos.warning">⚠ Warning: Proceed with caution when modifying position values to avoid excessive strain on the servo motors.
+              Fingers 2 and 4 are in opposite direction so their settings are reversed</b>
         </div>
         <div id="positionsBox"></div>
-        <div class="muted tiny" style="margin-top:10px;">
+        <div class="muted tiny" style="margin-top:10px;" data-i18n="dlg.pos.note">
             Each field is written immediately when changed.
         </div>
     </div>
     <footer>
-        <button id="btnReloadPositions">Reload from device</button>
-        <button id="btnClosePositions2">Close</button>
+        <button id="btnReloadPositions" data-i18n="dlg.pos.reload">Reload from device</button>
+        <button id="btnClosePositions2" data-i18n="btn.close">Close</button>
     </footer>
 </dialog>
 
@@ -503,6 +500,276 @@
         "ok", "rock", "love",
         "fist", "scratch", "come"
       ];
+
+      // ====== Internationalization (i18n) ======
+      const translations = {
+        en: {
+          // Header & intro
+          "header.title": "Bluetooth BLE control interface for the KinetiX hand",
+          "header.subtitle": "Requires Chrome/Edge with Web Bluetooth, served over https or http://localhost.",
+          "header.subtitle1": "Not all computers have Bluetooth BLE connectivity.",
+          "header.ios": "This does not work on iOS devices because Apple does not implement BLE access in webkit.",
+          "header.privacy": "This page only exchanges information with your KinetiX device. No cookie, no server call. You can run a local server and access it through http://localhost",
+          
+          // Main buttons
+          "btn.connect": "Connect",
+          "btn.disconnect": "Disconnect",
+          "btn.settings": "Settings",
+          "btn.ota": "FW Upgrade",
+          "btn.about": "About",
+          "btn.calibration": "Calibration",
+          "btn.positions": "Finger tuning",
+          "btn.close": "Close",
+          "btn.send": "Send",
+          "btn.start": "Start",
+          "btn.cancel": "Cancel",
+          "btn.reload": "Reload from device",
+          
+          // Device & connection
+          "device.label": "Connected device:",
+          "device.unnamed": "(unnamed)",
+          
+          // Positions/Movements
+          "card.movements": "Positions / Movements",
+          "card.movements.hint": "If a button does nothing, your firmware version is likely too old to support it.",
+          "card.custom": "Custom:",
+          "card.custom.placeholder": "Type command…",
+          "card.ota": "OTA",
+          "card.ota.uploading": "Uploading…",
+          "card.ota.waiting": "Waiting for device…",
+          
+          // Status messages
+          "status.idle": "Idle.",
+          "status.connecting": "Opening device picker…",
+          "status.connected": "Connected.",
+          "status.disconnected": "Disconnected.",
+          "status.sending": "TX: {msg}",
+          "status.sent": "Sent: {msg}",
+          "status.reading": "Reading {type}…",
+          "status.loaded": "{type} loaded.",
+          "status.error": "Error: {msg}",
+          "status.notConnected": "Not connected.",
+          "status.nothing": "Nothing to send.",
+          
+          // Settings dialog
+          "dlg.settings.title": "Settings",
+          "dlg.settings.booleans": "Booleans",
+          "dlg.settings.integers": "Integers",
+          "dlg.settings.strings": "Strings",
+          "dlg.settings.note": "Changes are written immediately (debounced).",
+          "dlg.settings.reload": "Reload from device",
+          
+          // About dialog
+          "dlg.about.title": "About KinetiX Device",
+          "dlg.about.version": "Firmware Version",
+          "dlg.about.version.hint": "Build date and Git commit ID. If suffixed with \"-dirty\", it means some changes were not committed yet at build time.",
+          "dlg.about.options": "Firmware options",
+          "dlg.about.options.hint": "Only reports options explicitly declared by firmware",
+          "dlg.about.license": "License",
+          "dlg.about.na": "N/A",
+          
+          // OTA dialog
+          "dlg.ota.title": "OTA Firmware Update",
+          "dlg.ota.firmware": "Firmware",
+          "dlg.ota.firmware.hint": "Download the latest released firmware here",
+          "dlg.ota.select": "Select a firmware file (.bin/.hex/.zip) …",
+          "dlg.ota.ssid": "SSID",
+          "dlg.ota.password": "Password",
+          "dlg.ota.show": "Show",
+          "dlg.ota.error.file": "Please select a firmware file.",
+          "dlg.ota.error.ssid": "SSID must not be empty.",
+          "dlg.ota.error.ssidspace": "SSID must not contain spaces.",
+          "dlg.ota.error.password": "Password must not be empty.",
+          "dlg.ota.error.notconnected": "Not connected.",
+          "dlg.ota.preparing": "Preparing OTA: {filename}",
+          "dlg.ota.progress": "OTA {pct}%  {sent}/{total} bytes",
+          "dlg.ota.finished": "OTA upload finished (HTTP OK). Waiting for device…",
+          "dlg.ota.uploading_to": "OTA_READY: uploading to {url}",
+          "dlg.ota.network_error": "Network error during upload.",
+          "dlg.ota.timeout": "Upload timed out.",
+          "dlg.ota.http_error": "HTTP {code}: {msg}",
+          "dlg.ota.no_token": "No token in OTA URL.",
+          "dlg.ota.no_url": "Missing OTA URL.",
+          "dlg.ota.no_file": "No firmware file selected.",
+          "dlg.ota.waiting_ready": "Waiting for OTA_READY…",
+          "dlg.ota.sent": "OTA_START sent. Waiting for OTA_READY…",
+          
+          // Positions dialog
+          "dlg.pos.title": "Finger tuning",
+          "dlg.pos.hint": "Depending on the wire tensions, these settings might help adjusting the opened and closed positions of each finger. To adjust max open positions, set the hand to position \"Five\" (fully open). To adjust max closed positions, set the hand to position \"Fist\" (fully closed).",
+          "dlg.pos.warning": "⚠ Warning: Proceed with caution when modifying position values to avoid excessive strain on the servo motors. Fingers 2 and 4 are in opposite direction so their settings are reversed",
+          "dlg.pos.note": "Each field is written immediately when changed.",
+          "dlg.pos.reload": "Reload from device",
+          
+          // Calibration
+          "calibration.confirm": "Confirm you want to run calibration, or cancel\nAvoid doing it if wires are already in place and tight",
+          "calibration.sent": "Sent: calibration",
+          
+          // Error messages
+          "error.bluetooth": "Web Bluetooth not supported in this browser.",
+          "error.noservice": "Service not available.",
+          "error.missingchar": "Missing expected characteristic(s):",
+          "error.otachar": "OTA characteristic not found",
+          "error.settingschar": "Settings characteristic not found",
+          "error.systemchar": "System (about) characteristic not found",
+          "error.positionschar": "Positions characteristic not found",
+        },
+        fr: {
+          // Header & intro
+          "header.title": "Interface de contrôle Bluetooth BLE pour la main KinetiX",
+          "header.subtitle": "Nécessite Chrome/Edge avec Bluetooth Web, servie en https ou http://localhost.",
+          "header.subtitle1": "Tous les ordinateurs n'ont pas de connectivité Bluetooth BLE.",
+          "header.ios": "Cela ne fonctionne pas sur les appareils iOS car Apple n'implémente pas l'accès BLE dans webkit.",
+          "header.privacy": "Cette page n'échange que des informations avec votre appareil KinetiX. Pas de cookie, pas d'appel serveur. Vous pouvez exécuter un serveur local et y accéder via http://localhost",
+          
+          // Main buttons
+          "btn.connect": "Connecter",
+          "btn.disconnect": "Déconnecter",
+          "btn.settings": "Paramètres",
+          "btn.ota": "MàJ FW",
+          "btn.about": "Infos",
+          "btn.calibration": "Étalonnage",
+          "btn.positions": "Ajustement des doigts",
+          "btn.close": "Fermer",
+          "btn.send": "Envoyer",
+          "btn.start": "Démarrer",
+          "btn.cancel": "Annuler",
+          "btn.reload": "Recharger depuis l'appareil",
+          
+          // Device & connection
+          "device.label": "Appareil connecté :",
+          "device.unnamed": "(sans nom)",
+          
+          // Positions/Movements
+          "card.movements": "Positions / Mouvements",
+          "card.movements.hint": "Si un bouton ne fait rien, votre version du micrologiciel est probablement trop ancienne pour le supporter.",
+          "card.custom": "Personnalisé :",
+          "card.custom.placeholder": "Tapez une commande…",
+          "card.ota": "OTA",
+          "card.ota.uploading": "Upload en cours…",
+          "card.ota.waiting": "En attente de l'appareil…",
+          
+          // Status messages
+          "status.idle": "Inactif.",
+          "status.connecting": "Ouverture du sélecteur d'appareils…",
+          "status.connected": "Connecté.",
+          "status.disconnected": "Déconnecté.",
+          "status.sending": "TX : {msg}",
+          "status.sent": "Envoyé : {msg}",
+          "status.reading": "Lecture de {type}…",
+          "status.loaded": "{type} chargé.",
+          "status.error": "Erreur : {msg}",
+          "status.notConnected": "Non connecté.",
+          "status.nothing": "Rien à envoyer.",
+          
+          // Settings dialog
+          "dlg.settings.title": "Paramètres",
+          "dlg.settings.booleans": "Booléens",
+          "dlg.settings.integers": "Entiers",
+          "dlg.settings.strings": "Chaînes",
+          "dlg.settings.note": "Les modifications sont écrites immédiatement.",
+          "dlg.settings.reload": "Recharger depuis l'appareil",
+          
+          // About dialog
+          "dlg.about.title": "À propos de l'appareil KinetiX",
+          "dlg.about.version": "Version du micrologiciel",
+          "dlg.about.version.hint": "Date de compilation et ID de commit Git. S'il se termine par \"-dirty\", cela signifie que certaines modifications n'ont pas été validées au moment de la compilation.",
+          "dlg.about.options": "Options du micrologiciel",
+          "dlg.about.options.hint": "Signale uniquement les options explicitement déclarées par le micrologiciel",
+          "dlg.about.license": "Licence",
+          "dlg.about.na": "N/A",
+          
+          // OTA dialog
+          "dlg.ota.title": "Mise à jour OTA du micrologiciel",
+          "dlg.ota.firmware": "Micrologiciel",
+          "dlg.ota.firmware.hint": "Téléchargez le dernier micrologiciel publié ici",
+          "dlg.ota.select": "Sélectionnez un fichier de micrologiciel (.bin/.hex/.zip) …",
+          "dlg.ota.ssid": "SSID",
+          "dlg.ota.password": "Mot de passe",
+          "dlg.ota.show": "Afficher",
+          "dlg.ota.error.file": "Veuillez sélectionner un fichier de micrologiciel.",
+          "dlg.ota.error.ssid": "Le SSID ne doit pas être vide.",
+          "dlg.ota.error.ssidspace": "Le SSID ne doit pas contenir d'espaces.",
+          "dlg.ota.error.password": "Le mot de passe ne doit pas être vide.",
+          "dlg.ota.error.notconnected": "Non connecté.",
+          "dlg.ota.preparing": "Préparation OTA : {filename}",
+          "dlg.ota.progress": "OTA {pct}%  {sent}/{total} octets",
+          "dlg.ota.finished": "Upload OTA terminé (HTTP OK). En attente de l'appareil…",
+          "dlg.ota.uploading_to": "OTA_READY : upload vers {url}",
+          "dlg.ota.network_error": "Erreur réseau lors de l'upload.",
+          "dlg.ota.timeout": "Upload expiré.",
+          "dlg.ota.http_error": "HTTP {code} : {msg}",
+          "dlg.ota.no_token": "Pas de jeton dans l'URL OTA.",
+          "dlg.ota.no_url": "URL OTA manquante.",
+          "dlg.ota.no_file": "Aucun fichier de micrologiciel sélectionné.",
+          "dlg.ota.waiting_ready": "En attente de OTA_READY…",
+          "dlg.ota.sent": "OTA_START envoyé. En attente de OTA_READY…",
+          
+          // Positions dialog
+          "dlg.pos.title": "Ajustement des doigts",
+          "dlg.pos.hint": "Selon les tensions des fils, ces paramètres peuvent aider à ajuster les positions ouvertes et fermées de chaque doigt. Pour ajuster les positions d'ouverture maximale, mettez la main en position « Five » (complètement ouverte). Pour ajuster les positions de fermeture maximale, mettez la main en position « Fist » (complètement fermée).",
+          "dlg.pos.warning": "⚠ Attention : Procédez avec prudence lors de la modification des valeurs de position pour éviter une tension excessive sur les servomoteurs. Les doigts 2 et 4 sont dans la direction opposée, donc leurs paramètres sont inversés",
+          "dlg.pos.note": "Chaque champ est écrit immédiatement lorsqu'il est modifié.",
+          "dlg.pos.reload": "Recharger depuis l'appareil",
+          
+          // Calibration
+          "calibration.confirm": "Confirmez que vous voulez exécuter l'étalonnage, ou annulez\nÉvitez de le faire si les fils sont déjà en place et tendus",
+          "calibration.sent": "Envoyé : étalonnage",
+          
+          // Error messages
+          "error.bluetooth": "Bluetooth Web n'est pas supporté dans ce navigateur.",
+          "error.noservice": "Service non disponible.",
+          "error.missingchar": "Caractéristique(s) attendue(s) manquante(s) :",
+          "error.otachar": "Caractéristique OTA non trouvée",
+          "error.settingschar": "Caractéristique Paramètres non trouvée",
+          "error.systemchar": "Caractéristique Système (à propos) non trouvée",
+          "error.positionschar": "Caractéristique Positions non trouvée",
+        }
+      };
+
+      // Detect and store current language
+      let currentLang = 'en';
+      function detectLanguage() {
+        const stored = localStorage.getItem('kinetix_lang');
+        if (stored && (stored === 'en' || stored === 'fr')) {
+          currentLang = stored;
+          return;
+        }
+        const browserLang = navigator.language.toLowerCase();
+        currentLang = browserLang.startsWith('fr') ? 'fr' : 'en';
+        localStorage.setItem('kinetix_lang', currentLang);
+      }
+
+      // Translate key with optional placeholders
+      function t(key, replacements = {}) {
+        let text = translations[currentLang]?.[key] || translations.en[key] || key;
+        for (const [k, v] of Object.entries(replacements)) {
+          text = text.replace(`{${k}}`, v);
+        }
+        return text;
+      }
+
+      // Apply translations to page elements by data-i18n attributes
+      function applyTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          const type = el.getAttribute('data-i18n-type') || 'text';
+          const text = t(key);
+          
+          if (type === 'text') {
+            el.textContent = text;
+          } else if (type === 'html') {
+            el.innerHTML = text;
+          } else if (type === 'placeholder') {
+            el.placeholder = text;
+          } else if (type === 'title') {
+            el.title = text;
+          }
+        });
+        
+        // Update html lang attribute
+        document.getElementById('htmlRoot').lang = currentLang;
+      }
 
       // ====== UI helpers ======
       const $ = (id) => document.getElementById(id);
@@ -574,24 +841,24 @@
 
         if (missing.length) {
           console.log(
-            "Missing expected characteristic(s):\n" +
+            t('error.missingchar') + "\n" +
             missing.map(u => {
               // disable OTA button if OTA characteristic not found
               if (u === OTA_CHAR_UUID) {
-                console.log("OTA characteristic not found")
+                console.log(t('error.otachar'))
                 noOTA = true;
               }
               // disable Settings button if Settings characteristics is not found
               if (u === SETTINGS_UUID) {
-                console.log("Settings characteristic not found")
+                console.log(t('error.settingschar'))
                 noSettings = true;
               }
               if (u === SYSTEM_UUID) {
-                console.log("System (about) characteristic not found")
+                console.log(t('error.systemchar'))
                 noSystem = true;
               }
               if (u === POSITIONS_UUID) {
-                console.log("Positions characteristic not found")
+                console.log(t('error.positionschar'))
                 noPositions = true;
               }
               return "  - " + u
@@ -606,9 +873,9 @@
 
       async function connect() {
         if (!navigator.bluetooth) {
-          throw new Error("Web Bluetooth not supported in this browser.");
+          throw new Error(t('error.bluetooth'));
         }
-        setStatus("Opening device picker…");
+        setStatus(t('status.connecting'));
         device = await navigator.bluetooth.requestDevice({
           filters: [{services: [SERVICE_UUID]}],
           optionalServices: [SERVICE_UUID],
@@ -626,18 +893,18 @@
           $("deviceLabel").textContent = "—";
           updateUi();
           stopOtaNotifyBestEffort();
-          setStatus("Disconnected.");
+          setStatus(t('status.disconnected'));
         });
 
-        setStatus("Connecting…");
+        setStatus(t('status.connecting'));
         server = await device.gatt.connect();
         service = await server.getPrimaryService(SERVICE_UUID);
         await ensureChars();
 
         connected = true;
-        $("deviceLabel").textContent = `${device.name || "(unnamed)"} (${device.id})`;
+        $("deviceLabel").textContent = `${device.name || t('device.unnamed')} (${device.id})`;
         updateUi();
-        setStatus("Connected.", "ok");
+        setStatus(t('status.connected'), "ok");
       }
 
       async function disconnect() {
@@ -675,12 +942,12 @@
           b.disabled = true;
           b.addEventListener("click", async () => {
             try {
-              setStatus(`TX: ${txt}`);
+              setStatus(t('status.sending', {msg: txt}));
               await writeText(cmdChar, txt);
-              setStatus(`Sent: ${txt}`, "ok");
+              setStatus(t('status.sent', {msg: txt}), "ok");
             } catch (e) {
               console.error(e);
-              setStatus(`Error: ${e.message || e}`, "danger");
+              setStatus(t('status.error', {msg: e.message || e}), "danger");
             }
           });
           grid.appendChild(b);
@@ -780,7 +1047,7 @@
 
       async function writeSettingField(field) {
         if (!connected) {
-          setStatus("Not connected.", "danger");
+          setStatus(t('status.notConnected'), "danger");
           return;
         }
         let val = "";
@@ -797,17 +1064,17 @@
         }
 
         const payload = `${field}=${val}`;
-        setStatus(`TX: ${payload}`);
+        setStatus(t('status.sending', {msg: payload}));
         await writeText(settingsChar, payload, {withResponse: true, newline: false});
-        setStatus(`Settings written: ${field}`, "ok");
+        setStatus(t('status.loaded', {type: 'setting'}), "ok");
       }
 
       async function reloadSettingsFromDevice() {
         if (!connected) {
-          setStatus("Not connected.", "danger");
+          setStatus(t('status.notConnected'), "danger");
           return;
         }
-        setStatus("Reading settings…");
+        setStatus(t('status.reading', {type: 'settings'}));
         settingsState.loading = true;
         try {
           const v = await settingsChar.readValue();
@@ -826,10 +1093,10 @@
             const el = $(`set_s_${i}`);
             if (el && (`s_${i}` in obj)) el.value = String(obj[`s_${i}`] ?? "").slice(0, 20);
           }
-          setStatus("Settings loaded.", "ok");
+          setStatus(t('status.loaded', {type: 'settings'}), "ok");
         } catch (e) {
           console.error(e);
-          setStatus(`Error reading settings: ${e.message || e}`, "danger");
+          setStatus(t('status.error', {msg: e.message || e}), "danger");
         } finally {
           settingsState.loading = false;
         }
@@ -837,18 +1104,18 @@
 
       async function loadAboutFromDevice() {
         if (!connected) {
-          setStatus("Not connected.", "danger");
+          setStatus(t('status.notConnected'), "danger");
           return;
         }
-        $("aboutOptions").textContent = "N/A";
-        $("aboutVersion").textContent = "N/A";
-        setStatus("Reading about…");
+        $("aboutOptions").textContent = t('dlg.about.na');
+        $("aboutVersion").textContent = t('dlg.about.na');
+        setStatus(t('status.reading', {type: 'about'}));
         try {
           const v = await aboutChar.readValue();
           const text = utf8dec.decode(v.buffer).trim();
           if (text.charAt(0) === "{") {
             const obj = JSON.parse(text);
-            $("aboutVersion").textContent = obj.git_rev || "N/A";
+            $("aboutVersion").textContent = obj.git_rev || t('dlg.about.na');
             // Browse the options array and show enabled ones
             if (Array.isArray(obj.options)) {
               const opts = obj.options.filter(o => !!o).join(", ");
@@ -859,10 +1126,10 @@
             $("aboutVersion").textContent = text;
           }
 
-          setStatus("About loaded.", "ok");
+          setStatus(t('status.loaded', {type: 'about'}), "ok");
         } catch (e) {
           console.error(e);
-          setStatus(`Error reading About: ${e.message || e}`, "danger");
+          setStatus(t('status.error', {msg: e.message || e}), "danger");
         } finally {
         }
       }
@@ -896,7 +1163,7 @@
 
       async function writePositionField(field) {
         if (!connected) {
-          setStatus("Not connected.", "danger");
+          setStatus(t('status.notConnected'), "danger");
           return;
         }
         const el = $(`pos_${field}`);
@@ -904,17 +1171,17 @@
 
         const val = el.value || "0";
         const payload = `${field}=${val}`;
-        setStatus(`TX: ${payload}`);
+        setStatus(t('status.sending', {msg: payload}));
         await writeText(positionsChar, payload, {withResponse: true, newline: false});
-        setStatus(`Position written: ${field}`, "ok");
+        setStatus(t('status.loaded', {type: 'position'}), "ok");
       }
 
       async function reloadPositionsFromDevice() {
         if (!connected) {
-          setStatus("Not connected.", "danger");
+          setStatus(t('status.notConnected'), "danger");
           return;
         }
-        setStatus("Reading positions…");
+        setStatus(t('status.reading', {type: 'positions'}));
         positionsState.loading = true;
         try {
           const v = await positionsChar.readValue();
@@ -1012,10 +1279,10 @@
             positionsBox.appendChild(fingerContainer);
           }
           
-          setStatus("Positions loaded.", "ok");
+          setStatus(t('status.loaded', {type: 'positions'}), "ok");
         } catch (e) {
           console.error(e);
-          setStatus(`Error reading positions: ${e.message || e}`, "danger");
+          setStatus(t('status.error', {msg: e.message || e}), "danger");
         } finally {
           positionsState.loading = false;
         }
@@ -1071,16 +1338,16 @@
         if (msg.startsWith("OTA_READY")) {
           const parts = msg.split(/\s+/, 2);
           if (parts.length < 2) {
-            setStatus("OTA_READY received without URL.", "danger");
+            setStatus(t('dlg.ota.no_url'), "danger");
             return;
           }
           otaState.readyUrl = parts[1].trim();
-          setStatus(`OTA_READY: uploading to ${otaState.readyUrl}`);
-          $("otaHint").textContent = "Uploading…";
-          setOtaProgress(0, "Uploading…");
+          setStatus(t('dlg.ota.uploading_to', {url: otaState.readyUrl}));
+          $("otaHint").textContent = t('card.ota.uploading');
+          setOtaProgress(0, t('card.ota.uploading'));
           uploadFirmware(otaState.readyUrl, otaState.file).catch(e => {
             console.error(e);
-            setStatus(`OTA upload failed: ${e.message || e}`, "danger");
+            setStatus(t('status.error', {msg: e.message || e}), "danger");
           });
           return;
         }
@@ -1091,9 +1358,9 @@
             const parts = msg.split(/\s+/, 3);
             const pct = parseInt(parts[1], 10);
             const [sent, total] = (parts[2] || "0/0").split("/", 2).map(x => parseInt(x, 10));
-            setOtaProgress(pct, `OTA ${pct}%  ${sent}/${total} bytes`);
+            setOtaProgress(pct, t('dlg.ota.progress', {pct: pct, sent: sent, total: total}));
           } catch (_) {
-            setStatus(`Unparsed OTA_PROGRESS: ${msg}`, "danger");
+            setStatus(t('status.error', {msg: "Unparsed OTA_PROGRESS: " + msg}), "danger");
           }
           return;
         }
@@ -1109,10 +1376,10 @@
       }
 
       function uploadFirmware(url, file) {
-        if (!url) throw new Error("Missing OTA URL.");
-        if (!file) throw new Error("No firmware file selected.");
+        if (!url) throw new Error(t('dlg.ota.no_url'));
+        if (!file) throw new Error(t('dlg.ota.no_file'));
         const token = parseTokenFromUrl(url);
-        if (!token) throw new Error("No token in OTA URL.");
+        if (!token) throw new Error(t('dlg.ota.no_token'));
 
         return new Promise((resolve, reject) => {
           const xhr = new XMLHttpRequest();
@@ -1121,15 +1388,15 @@
 
           xhr.onload = () => {
             if (xhr.status >= 200 && xhr.status < 300) {
-              setStatus("OTA upload finished (HTTP OK). Waiting for device…", "ok");
-              $("otaHint").textContent = "Waiting for device…";
+              setStatus(t('dlg.ota.finished'), "ok");
+              $("otaHint").textContent = t('card.ota.waiting');
               resolve();
             } else {
-              reject(new Error(`HTTP ${xhr.status}: ${xhr.responseText || "upload failed"}`));
+              reject(new Error(t('dlg.ota.http_error', {code: xhr.status, msg: xhr.responseText || "upload failed"})));
             }
           };
-          xhr.onerror = () => reject(new Error("Network error during upload."));
-          xhr.ontimeout = () => reject(new Error("Upload timed out."));
+          xhr.onerror = () => reject(new Error(t('dlg.ota.network_error')));
+          xhr.ontimeout = () => reject(new Error(t('dlg.ota.timeout')));
           xhr.timeout = 300000; // 5 min
 
           const form = new FormData();
@@ -1146,45 +1413,47 @@
         const pw = $("otaPw").value || "";
 
         if (!connected) {
-          $("otaErr").textContent = "Not connected.";
+          $("otaErr").textContent = t('dlg.ota.error.notconnected');
           return;
         }
         if (!file) {
-          $("otaErr").textContent = "Please select a firmware file.";
+          $("otaErr").textContent = t('dlg.ota.error.file');
           return;
         }
         if (!ssid) {
-          $("otaErr").textContent = "SSID must not be empty.";
+          $("otaErr").textContent = t('dlg.ota.error.ssid');
           return;
         }
         if (!pw.trim()) {
-          $("otaErr").textContent = "Password must not be empty.";
+          $("otaErr").textContent = t('dlg.ota.error.password');
           return;
         }
         if (ssid.includes(" ")) {
-          $("otaErr").textContent = "SSID must not contain spaces.";
+          $("otaErr").textContent = t('dlg.ota.error.ssidspace');
           return;
         }
 
         otaState.file = file;
         showOtaCard(true);
-        setOtaProgress(0, `Preparing OTA: ${file.name}`);
-        $("otaHint").textContent = "Waiting for OTA_READY…";
+        setOtaProgress(0, t('dlg.ota.preparing', {filename: file.name}));
+        $("otaHint").textContent = t('dlg.ota.waiting_ready');
 
         // Ensure notifications
         await startOtaNotify();
 
         const msg = `OTA_START ${ssid};${pw}`;
         console.log("[BLE TX]", msg);
-        setStatus(`TX: ${msg}`);
+        setStatus(t('status.sending', {msg: msg}));
         await writeText(otaChar, msg, {withResponse: true, newline: false});
-        setStatus("OTA_START sent. Waiting for OTA_READY…", "ok");
+        setStatus(t('dlg.ota.sent'), "ok");
         $("dlgOta").close();
       }
 
       // ====== Wire up UI ======
+      detectLanguage();
       buildQuickButtons();
       buildSettingsUi();
+      applyTranslations();
       updateUi();
 
       $("btnConnect").addEventListener("click", async () => {
@@ -1192,7 +1461,7 @@
           await connect();
         } catch (e) {
           console.error(e);
-          setStatus(`Error: ${e.message || e}`, "danger");
+          setStatus(t('status.error', {msg: e.message || e}), "danger");
         }
       });
 
@@ -1201,23 +1470,23 @@
           await disconnect();
         } catch (e) {
           console.error(e);
-          setStatus(`Error: ${e.message || e}`, "danger");
+          setStatus(t('status.error', {msg: e.message || e}), "danger");
         }
       });
 
       $("btnSendCustom").addEventListener("click", async () => {
         const txt = ($("txtCustom").value || "").trim();
         if (!txt) {
-          setStatus("Nothing to send.", "danger");
+          setStatus(t('status.nothing'), "danger");
           return;
         }
         try {
-          setStatus(`TX: ${txt}`);
+          setStatus(t('status.sending', {msg: txt}));
           await writeText(cmdChar, txt);
-          setStatus(`Sent: ${txt}`, "ok");
+          setStatus(t('status.sent', {msg: txt}), "ok");
         } catch (e) {
           console.error(e);
-          setStatus(`Error: ${e.message || e}`, "danger");
+          setStatus(t('status.error', {msg: e.message || e}), "danger");
         }
       });
 
@@ -1227,7 +1496,7 @@
           $("dlgSettings").showModal();
         } catch (e) {
           console.error(e);
-          setStatus(`Error: ${e.message || e}`, "danger");
+          setStatus(t('status.error', {msg: e.message || e}), "danger");
         }
       });
 
@@ -1237,24 +1506,30 @@
           $("dlgAbout").showModal();
         } catch (e) {
           console.error(e);
-          setStatus(`Error: ${e.message || e}`, "danger");
+          setStatus(t('status.error', {msg: e.message || e}), "danger");
         }
       });
 
       $("btnCalibration").addEventListener("click", async () => {
         try {
-          let keepGoing = confirm("Confirm you want to run calibration, or cancel\nAvoid doing it if wires are already in place and tight");
+          let keepGoing = confirm(t('calibration.confirm'));
           if (!keepGoing) {
             return;
           }
           let txt = "calibration";
-          setStatus(`TX: ${txt}`);
+          setStatus(t('status.sending', {msg: txt}));
           await writeText(cmdChar, txt);
-          setStatus(`Sent: ${txt}`, "ok");
+          setStatus(t('status.sent', {msg: txt}), "ok");
         } catch (e) {
           console.error(e);
-          setStatus(`Error: ${e.message || e}`, "danger");
+          setStatus(t('status.error', {msg: e.message || e}), "danger");
         }
+      });
+
+      $("btnLanguage").addEventListener("click", () => {
+        currentLang = currentLang === 'en' ? 'fr' : 'en';
+        localStorage.setItem('kinetix_lang', currentLang);
+        applyTranslations();
       });
 
       $("btnReloadSettings").addEventListener("click", reloadSettingsFromDevice);
@@ -1269,7 +1544,7 @@
           $("dlgPositions").showModal();
         } catch (e) {
           console.error(e);
-          setStatus(`Error: ${e.message || e}`, "danger");
+          setStatus(t('status.error', {msg: e.message || e}), "danger");
         }
       });
       $("btnReloadPositions").addEventListener("click", reloadPositionsFromDevice);
