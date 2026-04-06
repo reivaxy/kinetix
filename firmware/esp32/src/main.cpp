@@ -7,11 +7,6 @@
 #include "MessageProcessor.h"
 #include "OptionalSensorProcessor.h"
 
-
-#if defined DEMO
-#define NEEDSEQ
-#endif
-
 // Display instanciation must not happen before setup so we will use a pointer and new...
 Display *display;
 
@@ -83,33 +78,23 @@ void setup() {
   log_i("System info: %s", json.c_str());
 
   btServer = new BtServer(messageProcessor, display);
-  #ifndef NEEDSEQ
+
+  #ifdef DEMO
+  seq = messageProcessor->demo();
+  #else
   // Initialization sequence, do it just once
   seq = new Sequence(1); // this sequence runs just once
   seq->addMovement(hmf->five());
   seq->addMovement(hmf->half());
   seq->addMovement(hmf->five());
   log_i("Running init sequence");
-  seq->start();   
-  #endif
-
-  #ifdef DEMO
-  seq = new Sequence(0); // 0 is repeat forever
-  seq->addMovement(hmf->openPinch(), 4000);
-  seq->addMovement(hmf->one());
-  seq->addMovement(hmf->two());
-  seq->addMovement(hmf->three());
-  seq->addMovement(hmf->four());
-  seq->addMovement(hmf->five());
   seq->start();
   #endif
 
 }
  
 void loop() {
-  #ifndef NEEDSEQ
-    messageProcessor->run();
-  #endif
+  messageProcessor->run();
 
   if ((seq == NULL || !seq->isRunning())
         && messageProcessor->isIdle()) {

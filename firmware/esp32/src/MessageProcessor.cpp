@@ -168,11 +168,11 @@ void MessageProcessor::come() {
   seq->start();
 }
 
-void MessageProcessor::demo() {
+Sequence* MessageProcessor::demo() {
   log_i("Starting demo sequence");
   HandMovementFactory *hmf = new HandMovementFactory(hand);
   seq = new Sequence(0);
-  int delai = 1200;
+  int delai = 1500;
   seq->addMovement(hmf->five(), delai*3);
   seq->addMovement(hmf->one(), delai);
   seq->addMovement(hmf->two(), delai);
@@ -182,5 +182,8 @@ void MessageProcessor::demo() {
   seq->addMovement(hmf->rock(), delai);
   seq->addMovement(hmf->love(), delai);
   seq->addMovement(hmf->fist(), delai);
+  seq->addMovement(hmf->five(), 300);
+  seq->addMovement(hmf->openPinch(), delai);
   seq->start();
+  return seq;
 }

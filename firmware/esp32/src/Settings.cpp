@@ -71,6 +71,13 @@ void Settings::updateSetting(char* message) {
 
 void Settings::updatePosition(char* message) {
   log_i("Updating position %s", message);
+  // Check if resetting positions
+  if (strcmp(message, "reset") == 0) {
+     log_i("Resetting all positions to factory defaults");
+     positionsJsonDoc.clear();
+     savePreferences(POSITIONS_SETTING_NAMESPACE, positionsJsonDoc);
+     return;
+  }
   // Split on '='
   char* equalSign = strchr(message, '=');
   if (equalSign != NULL) {

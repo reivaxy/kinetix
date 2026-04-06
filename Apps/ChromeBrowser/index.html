@@ -481,8 +481,25 @@
         </div>
     </div>
     <footer>
-        <button id="btnReloadPositions" data-i18n="dlg.pos.reload">Reload from device</button>
+        <button id="btnResetPositions" data-i18n="dlg.pos.reset">Reset to defaults</button>
         <button id="btnClosePositions2" data-i18n="btn.close">Close</button>
+    </footer>
+</dialog>
+
+<!-- Reset positions confirmation dialog -->
+<dialog id="dlgResetPositionsConfirm">
+    <header>
+        <div><b data-i18n="dlg.pos.confirm.title">Confirm Reset</b></div>
+        <button id="btnCloseResetConfirm" data-i18n="btn.close">Close</button>
+    </header>
+    <div class="content">
+        <div class="card" style="margin:0;">
+            <div data-i18n="dlg.pos.confirm.message">Are you sure you want to reset all finger positions to factory defaults? This action cannot be undone.</div>
+        </div>
+    </div>
+    <footer>
+        <button id="btnConfirmReset" class="danger" data-i18n="dlg.pos.confirm.yes">Reset</button>
+        <button id="btnCancelReset" data-i18n="btn.cancel">Cancel</button>
     </footer>
 </dialog>
 
@@ -499,7 +516,7 @@
       const QUICK_MESSAGES = [
         "five", "four", "three", "two", "one",
         "ok", "rock", "love",
-        "fist", "scratch", "come"
+        "fist", "openPinch", "scratch", "come"
       ];
 
       // ====== Internationalization (i18n) ======
@@ -602,7 +619,11 @@
           "dlg.pos.hint": "Depending on the wire tensions, these settings might help adjusting the opened and closed positions of each finger. To adjust max open positions, set the hand to position \"Five\" (fully open). To adjust max closed positions, set the hand to position \"Fist\" (fully closed).",
           "dlg.pos.warning": "⚠ Warning: Proceed with caution when modifying position values to avoid excessive strain on the servo motors. Fingers 2 and 4 are in opposite direction so their settings are reversed",
           "dlg.pos.note": "Each field is written immediately when changed.",
+          "dlg.pos.reset": "Reset to defaults",
           "dlg.pos.reload": "Reload from device",
+          "dlg.pos.confirm.title": "Confirm Reset",
+          "dlg.pos.confirm.message": "Are you sure you want to reset all finger positions to factory defaults? This action cannot be undone.",
+          "dlg.pos.confirm.yes": "Reset",
           
           // Calibration
           "calibration.confirm": "Confirm you want to run calibration, or cancel\nAvoid doing it if wires are already in place and tight",
@@ -715,7 +736,11 @@
           "dlg.pos.hint": "Selon les tensions des fils, ces paramètres peuvent aider à ajuster les positions ouvertes et fermées de chaque doigt. Pour ajuster les positions d'ouverture maximale, mettez la main en position « Five » (complètement ouverte). Pour ajuster les positions de fermeture maximale, mettez la main en position « Fist » (complètement fermée).",
           "dlg.pos.warning": "⚠ Attention : Procédez avec prudence lors de la modification des valeurs de position pour éviter une tension excessive sur les servomoteurs. Les doigts 2 et 4 sont dans la direction opposée, donc leurs paramètres sont inversés",
           "dlg.pos.note": "Chaque champ est écrit immédiatement lorsqu'il est modifié.",
+          "dlg.pos.reset": "Réinitialiser aux valeurs par défaut",
           "dlg.pos.reload": "Recharger depuis l'appareil",
+          "dlg.pos.confirm.title": "Confirmer la réinitialisation",
+          "dlg.pos.confirm.message": "Êtes-vous sûr de vouloir réinitialiser toutes les positions des doigts aux valeurs par défaut ? Cette action ne peut pas être annulée.",
+          "dlg.pos.confirm.yes": "Réinitialiser",
           
           // Calibration
           "calibration.confirm": "Confirmez que vous voulez exécuter l'étalonnage, ou annulez\nÉvitez de le faire si les fils sont déjà en place et tendus",
@@ -1561,7 +1586,31 @@
           setStatus(t('status.error', {msg: e.message || e}), "danger");
         }
       });
-      $("btnReloadPositions").addEventListener("click", reloadPositionsFromDevice);
+      $("btnResetPositions").addEventListener("click", async () => {
+        $("dlgResetPositionsConfirm").showModal();
+      });
+      $("btnConfirmReset").addEventListener("click", async () => {
+        try {
+          $("dlgResetPositionsConfirm").close();
+          // Send reset command
+          setStatus(t('status.sending', {msg: 'reset'}));
+          await writeText(positionsChar, 'reset', {withResponse: true, newline: false});
+          setStatus(t('status.sent', {msg: 'reset'}), "ok");
+          // Wait a moment for device to process reset
+          await new Promise(r => setTimeout(r, 500));
+          // Reload positions from device
+          await reloadPositionsFromDevice();
+        } catch (e) {
+          console.error(e);
+          setStatus(t('status.error', {msg: e.message || e}), "danger");
+        }
+      });
+      $("btnCancelReset").addEventListener("click", () => {
+        $("dlgResetPositionsConfirm").close();
+      });
+      $("btnCloseResetConfirm").addEventListener("click", () => {
+        $("dlgResetPositionsConfirm").close();
+      });
       $("btnClosePositions").addEventListener("click", () => $("dlgPositions").close());
       $("btnClosePositions2").addEventListener("click", () => $("dlgPositions").close());
 

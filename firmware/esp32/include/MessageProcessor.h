@@ -23,7 +23,7 @@ public:
    void calibration();
    void scratch();
    void come();
-   void demo();
+   Sequence* demo();
    boolean isIdle();
 
    JsonDocument systemInfo;
