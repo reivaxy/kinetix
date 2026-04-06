@@ -19,3 +19,4 @@ Please notify us when links are dead.
 | 5 | Screws M3*12 hex | https://www.amazon.fr/Kozelo-100Pcs-T%C3%AAte-Cylindrique-Creux/dp/B0DG2HYT8T |
 | 3 | Nuts M3 | https://www.amazon.fr/Hexagonal-filet%C3%A9es-boulons-Visserie-inoxydable/dp/B0DCXVB3ZT |
 | 3 | washers M3x7 | https://www.amazon.fr/Rondelles-m%C3%A9tal-INOX-Rondelle-inoxydable/dp/B0FHN8XJ77 |
+| 12 | Screws M3*10 philips self tapping | Only if you print the TPU cover, which is optional.
