@@ -2,9 +2,17 @@
 
 The base is printed in PLA, the press in TPU.
 
-This is likely temporary, it's not easy enough to attach and adjust, but it does the job for now.
+<img width=400 src="img/sensor.jpg"/>
 
-A small piece of pcb is used to hold the sensor in place.
+A small piece of pcb is used to hold the sensor in place, and it's then cover with a TPU piece ensuring a soft press on the sensor.
 
-<img width="248px" src="https://github.com/user-attachments/assets/e9f561d5-08b1-4a22-bafb-df6ecf6eab5f">
-<img width="240px" src="https://github.com/user-attachments/assets/93d58746-ff74-4101-a03e-d18a3b2621c0">
+
+<img width=400 src="img/sensorCase.jpg"/> 
+
+
+The arm band must first cover the sensor (to the left on the picture), then go around the arm, then up trough the case slot, then back around the arm and scratch to the part above the case.
+
+<img width=400 src="img/armBand.jpg"/>
+
+
+<img width=400 src="img/armBandClosed.jpg"/> 
