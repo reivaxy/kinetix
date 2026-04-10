@@ -1,6 +1,6 @@
 
 #include "MessageProcessor.h"
-
+#include "BtServer.h"
 
 MessageProcessor::MessageProcessor(Hand *hand, Settings *settings, Display *display, JsonDocument &systemInfo) {
    this->hand = hand;
@@ -11,6 +11,9 @@ MessageProcessor::MessageProcessor(Hand *hand, Settings *settings, Display *disp
    hmf = new HandMovementFactory(hand);
 }
 
+void MessageProcessor::setBtServer(BtServer *btServer) {
+   this->btServer = btServer;
+}
 
 // TODO: handle a FIFO stack of messages ?
 void MessageProcessor::processWriteMsg(MessageType type, char* message) {
@@ -32,6 +35,35 @@ void MessageProcessor::processWriteMsg(MessageType type, char* message) {
          log_i("Processing write positions message");
          settings->updatePosition(message);
          hand->updateMaxPositionsFromSettings();
+         break;
+
+      case password:
+         log_i("Processing password authentication");
+         {
+            // Get the configured password from settings
+            const char* storedPassword = settings->getString("s_4", "");
+            
+            // If password is empty, always authenticate
+            if (strlen(storedPassword) == 0) {
+               log_i("No password configured, allowing access");
+               if (btServer != nullptr) {
+                  btServer->setClientAuthenticated(true);
+               }
+            } else {
+               // Validate the provided password
+               if (strcmp(message, storedPassword) == 0) {
+                  log_i("Password correct, client authenticated");
+                  if (btServer != nullptr) {
+                     btServer->setClientAuthenticated(true);
+                  }
+                  display->setLine(CONNECTED_DISPLAY_LINE, "Auth: OK");
+               } else {
+                  log_w("Password incorrect");
+                  display->setLine(CONNECTED_DISPLAY_LINE, "Auth: FAIL");
+                  // Do not authenticate
+               }
+            }
+         }
          break;
 
       default:
@@ -62,6 +94,29 @@ void MessageProcessor::processReadMsg(MessageType type, BLECharacteristic *chara
    case positions:
       log_i("Processing read positions message");
       characteristic->setValue(settings->getPositionsJson().c_str() );         
+      break;
+
+   case password:
+      log_i("Processing read password authentication state");
+      {
+         // Get the configured password from settings
+         const char* storedPassword = settings->getString("s_4", "");
+         
+         // If no password is configured, consider client authenticated
+         if (strlen(storedPassword) == 0) {
+            log_i("No password configured, client automatically authenticated");
+            if (btServer != nullptr) {
+               btServer->setClientAuthenticated(true);
+            }
+            characteristic->setValue("true");
+         } else {
+            // Return current authentication status
+            bool authenticated = (btServer != nullptr) ? btServer->isClientAuthenticated() : false;
+            const char* response = authenticated ? "true" : "false";
+            log_i("Password authentication response: %s", response);
+            characteristic->setValue(response);
+         }
+      }
       break;
 
    default:

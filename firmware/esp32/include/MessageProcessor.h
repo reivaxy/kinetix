@@ -9,9 +9,10 @@
 #include "HandMovementFactory.h"
 #include <BLEDevice.h>
 
+// Forward declaration
+class BtServer;
 
-
-enum MessageType {movement, setting, ota, systemConfig, positions};
+enum MessageType {movement, setting, ota, systemConfig, positions, password};
 
 class MessageProcessor {
 public:
@@ -25,6 +26,8 @@ public:
    void come();
    Sequence* demo();
    boolean isIdle();
+   
+   void setBtServer(BtServer *btServer);
 
    JsonDocument systemInfo;
    Hand *hand = NULL;
@@ -33,5 +36,6 @@ public:
    HandMovement *handMovement = NULL;
    HandMovementFactory *hmf = NULL;
    Settings *settings = NULL;
+   BtServer *btServer = NULL;
 
 };
