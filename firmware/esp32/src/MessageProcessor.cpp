@@ -99,23 +99,11 @@ void MessageProcessor::processReadMsg(MessageType type, BLECharacteristic *chara
    case password:
       log_i("Processing read password authentication state");
       {
-         // Get the configured password from settings
-         const char* storedPassword = settings->getString("s_4", "");
-         
-         // If no password is configured, consider client authenticated
-         if (strlen(storedPassword) == 0) {
-            log_i("No password configured, client automatically authenticated");
-            if (btServer != nullptr) {
-               btServer->setClientAuthenticated(true);
-            }
-            characteristic->setValue("true");
-         } else {
-            // Return current authentication status
-            bool authenticated = (btServer != nullptr) ? btServer->isClientAuthenticated() : false;
-            const char* response = authenticated ? "true" : "false";
-            log_i("Password authentication response: %s", response);
-            characteristic->setValue(response);
-         }
+         // Return current authentication status
+         bool authenticated = (btServer != nullptr) ? btServer->isClientAuthenticated() : false;
+         const char* response = authenticated ? "true" : "false";
+         log_i("Password authentication response: %s", response);
+         characteristic->setValue(response);
       }
       break;
 

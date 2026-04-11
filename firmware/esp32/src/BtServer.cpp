@@ -118,7 +118,7 @@ public:
   void onRead(BLECharacteristic* characteristic) override {
     log_i("Kinetix received a read request for type %d", type);
     
-     // Check authentication for all other characteristics than password which can always be read (to check auth state)
+    // Check authentication for all other characteristics
     if (type != password && btServer != nullptr && !btServer->isClientAuthenticated()) {
       log_w("Client not authenticated, rejecting read on characteristic type %d", type);
       return;
@@ -150,7 +150,21 @@ private:
       // Get the connection ID from the connected client
       btServer->clientConnId = pServer->getConnId();
       btServer->resetAuthenticationState();
-      btServer->setPasswordTimeout(PASSWORD_TIMEOUT_MS);
+      
+      // Check if a password is configured
+      if (btServer->messageProcessor != nullptr && btServer->messageProcessor->settings != nullptr) {
+        const char* storedPassword = btServer->messageProcessor->settings->getString("s_4", "");
+        if (strlen(storedPassword) == 0) {
+          // No password configured, authenticate immediately
+          log_i("No password configured, client auto-authenticated on connect");
+          btServer->setClientAuthenticated(true);
+        } else {
+          // Password exists, require authentication
+          btServer->setPasswordTimeout(PASSWORD_TIMEOUT_MS);
+        }
+      } else {
+        btServer->setPasswordTimeout(PASSWORD_TIMEOUT_MS);
+      }
     }
   }
   
