@@ -1120,7 +1120,7 @@
           const k = document.createElement("div");
           k.textContent = key;
           const inp = document.createElement("input");
-          inp.type = "text";
+          inp.type = (i == 4)? "password":"text";
           inp.placeholder = "";
           inp.id = `set_${key}`;
           inp.addEventListener("input", () => {
