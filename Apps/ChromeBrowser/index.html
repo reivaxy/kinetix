@@ -503,6 +503,26 @@
     </footer>
 </dialog>
 
+<!-- Password dialog -->
+<dialog id="dlgPassword">
+    <header>
+        <div><b data-i18n="dlg.password.title">Password Required</b></div>
+    </header>
+    <div class="content">
+        <div class="card" style="margin:0;">
+            <div id="passwordError" class="tiny danger" style="min-height:18px; margin-bottom: 10px;"></div>
+            <div class="kv">
+                <div data-i18n="dlg.password.label">Enter password:</div>
+                <input id="txtPassword" type="password" data-i18n="dlg.password.placeholder" data-i18n-type="placeholder" placeholder="Enter password…" autofocus/>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <button id="btnSendPassword" data-i18n="btn.send">Send</button>
+        <button id="btnClosePassword" data-i18n="btn.cancel">Cancel</button>
+    </footer>
+</dialog>
+
 <script>
     (() => {
       // ====== Constants (mirrors main.py) ======
@@ -512,6 +532,7 @@
       const SETTINGS_UUID = "68b788da-819b-4feb-b478-8d237ef29f5f"; // settings
       const POSITIONS_UUID = "4a7e0a3f-8c45-4b6d-9c2a-f3d1e5b7a9c2"; // positions
       const OTA_CHAR_UUID = "3168e56f-6ea1-420d-98f8-08a3b34afc9b"; // OTA
+      const PASSWORD_CHAR_UUID = "7c4a2e1f-5b9a-4d8e-9c3b-2f8a1e5c6d7a"; // password
 
       const QUICK_MESSAGES = [
         "five", "four", "three", "two", "one",
@@ -613,6 +634,12 @@
           "dlg.ota.no_file": "No firmware file selected.",
           "dlg.ota.waiting_ready": "Waiting for OTA_READY…",
           "dlg.ota.sent": "OTA_START sent. Waiting for OTA_READY…",
+          
+          // Password dialog
+          "dlg.password.title": "Password Required",
+          "dlg.password.label": "Enter password:",
+          "dlg.password.placeholder": "Enter password…",
+          "dlg.password.error": "Incorrect password",
           
           // Positions dialog
           "dlg.pos.title": "Finger tuning",
@@ -731,6 +758,12 @@
           "dlg.ota.waiting_ready": "En attente de OTA_READY…",
           "dlg.ota.sent": "OTA_START envoyé. En attente de OTA_READY…",
           
+          // Password dialog
+          "dlg.password.title": "Mot de passe requis",
+          "dlg.password.label": "Entrez le mot de passe :",
+          "dlg.password.placeholder": "Entrez le mot de passe…",
+          "dlg.password.error": "Mot de passe incorrect",
+          
           // Positions dialog
           "dlg.pos.title": "Ajustement des doigts",
           "dlg.pos.hint": "Selon les tensions des fils, ces paramètres peuvent aider à ajuster les positions ouvertes et fermées de chaque doigt. Pour ajuster les positions d'ouverture maximale, mettez la main en position « Five » (complètement ouverte). Pour ajuster les positions de fermeture maximale, mettez la main en position « Fist » (complètement fermée).",
@@ -820,11 +853,13 @@
       let aboutChar = null;
       let positionsChar = null;
       let otaChar = null;
+      let passwordChar = null;
 
       let noOTA = false;
       let noSettings = false;
       let noSystem = false;
       let noPositions = false;
+      let noPassword = false;
 
       let connected = false;
 
@@ -853,6 +888,7 @@
         noSettings = false;
         noSystem = false;
         noPositions = false;
+        noPassword = false;
 
         // Get known characteristics. If some are missing, we'll log and disable related UI.
         const chars = await service.getCharacteristics();
@@ -868,6 +904,7 @@
         aboutChar = pick(SYSTEM_UUID);
         positionsChar = pick(POSITIONS_UUID);
         otaChar = pick(OTA_CHAR_UUID);
+        passwordChar = pick(PASSWORD_CHAR_UUID);
 
         if (missing.length) {
           console.log(
@@ -890,6 +927,10 @@
               if (u === POSITIONS_UUID) {
                 console.log(t('error.positionschar'))
                 noPositions = true;
+              }
+              if (u === PASSWORD_CHAR_UUID) {
+                console.log("Password characteristic not found")
+                noPassword = true;
               }
               return "  - " + u
             }).join("\n") +
@@ -920,10 +961,13 @@
           aboutChar = null;
           positionsChar = null;
           otaChar = null;
+          passwordChar = null;
           $("deviceLabel").textContent = "—";
           updateUi();
           stopOtaNotifyBestEffort();
           setStatus(t('status.disconnected'));
+          // Hide password dialog if open when BLE is disconnected
+          $("dlgPassword").close();
         });
 
         setStatus(t('status.connecting'));
@@ -935,6 +979,9 @@
         $("deviceLabel").textContent = `${device.name || t('device.unnamed')} (${device.id})`;
         updateUi();
         setStatus(t('status.connected'), "ok");
+        
+        // After connection, check if password authentication is needed
+        await handlePasswordDialogAfterConnection();
       }
 
       async function disconnect() {
@@ -943,6 +990,33 @@
         } catch (_) {
         }
         if (device?.gatt?.connected) device.gatt.disconnect();
+      }
+
+      async function handlePasswordDialogAfterConnection() {
+        // Check if password characteristic is available
+        if (!passwordChar || noPassword) {
+          return;
+        }
+        
+        try {
+          // Read the password characteristic to check authentication status
+          const result = await passwordChar.readValue();
+          const response = utf8dec.decode(result.buffer).trim().toLowerCase();
+          console.log("[PASSWORD CHECK ON CONNECTION]", response);
+          
+          // Only show dialog if not already authenticated
+          if (response !== "true") {
+            $("txtPassword").value = "";
+            $("passwordError").textContent = "";
+            $("dlgPassword").showModal();
+          }
+        } catch (e) {
+          // If read fails, show the password dialog to be safe
+          console.error("Error reading password characteristic:", e);
+          $("txtPassword").value = "";
+          $("passwordError").textContent = "";
+          $("dlgPassword").showModal();
+        }
       }
 
       async function writeText(characteristic, text, {withResponse = true, newline = false} = {}) {
@@ -1046,7 +1120,7 @@
           const k = document.createElement("div");
           k.textContent = key;
           const inp = document.createElement("input");
-          inp.type = "text";
+          inp.type = (i == 4)? "password":"text";
           inp.placeholder = "";
           inp.id = `set_${key}`;
           inp.addEventListener("input", () => {
@@ -1480,6 +1554,39 @@
       }
 
       // ====== Wire up UI ======
+      const sendPassword = async () => {
+        const pw = ($("txtPassword").value || "").trim();
+        if (!pw) {
+          setStatus(t('status.nothing'), "danger");
+          return;
+        }
+        try {
+          setStatus(t('status.sending', {msg: 'password'}));
+          await writeText(passwordChar, pw, {withResponse: true, newline: false});
+          
+          // Read the password characteristic to verify
+          const result = await passwordChar.readValue();
+          const response = utf8dec.decode(result.buffer).trim().toLowerCase();
+          console.log("[PASSWORD RESPONSE]", response);
+          
+          if (response === "true") {
+            setStatus(t('status.sent', {msg: 'password'}), "ok");
+            $("txtPassword").value = "";
+            $("passwordError").textContent = "";
+            $("dlgPassword").close();
+          } else {
+            // Password incorrect
+            $("passwordError").textContent = t('dlg.password.error');
+            $("txtPassword").value = "";
+            $("txtPassword").focus();
+            setStatus(t('dlg.password.error'), "danger");
+          }
+        } catch (e) {
+          console.error(e);
+          setStatus(t('status.error', {msg: e.message || e}), "danger");
+        }
+      };
+
       detectLanguage();
       buildQuickButtons();
       buildSettingsUi();
@@ -1526,6 +1633,16 @@
         if (e.key === "Enter") {
           e.preventDefault();
           await sendCustomCommand();
+        }
+      });
+
+      $("btnSendPassword").addEventListener("click", sendPassword);
+      $("btnClosePassword").addEventListener("click", () => $("dlgPassword").close());
+
+      $("txtPassword").addEventListener("keypress", async (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          await sendPassword();
         }
       });
 
