@@ -51,13 +51,8 @@ void MessageProcessor::processWriteMsg(MessageType type, char* message) {
                   // Only update if value is not empty
                   if (strlen(value) > 0) {
                      settings->setDeviceName(value);
-                     log_i("Device name updated to: %s", value);
-                     display->setLine(CONNECTED_DISPLAY_LINE, "Restarting BLE...");
-                     
-                     // Restart BLE with the new device name
-                     if (btServer != nullptr) {
-                        btServer->restartBleWithNewName();
-                     }
+                     log_i("Device name updated to: %s, restart to apply changes.", value);
+
                   } else {
                      log_w("Device name cannot be empty, ignoring update");
                   }
@@ -191,6 +186,7 @@ void MessageProcessor::startMovement(char *movementName) {
      handMovement = NULL;
    }
    if (seq != NULL) {
+      seq->stop();
       delete(seq);
       seq = NULL;
    }

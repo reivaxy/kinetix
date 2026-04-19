@@ -10,10 +10,10 @@ Sequence::Sequence(uint8_t _repeatCount) {
 }
 
 Sequence::~Sequence() {
-   log_i("Deleting sequence of %d movements", movementCount);
    stop();
+   log_i("Deleting sequence of %d movements", movementCount);
    for(int m=0 ; m < movementCount; m++) {
-      log_i("Deleting hand movement %d", m);
+      log_d("Deleting hand movement %d", m);
       movements[m]->stop();
       delete(movements[m]);
       movements[m] = NULL;
@@ -73,11 +73,11 @@ void Sequence::run() {
 }
 
 void Sequence::stop() {
+   running = false;
    HandMovement *currentMovement = movements[current];
    if (currentMovement != NULL) {
       currentMovement->stop();
    }
-   running = false;
 }
 
 boolean Sequence::isRunning() {
