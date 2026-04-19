@@ -37,32 +37,90 @@ void MessageProcessor::processWriteMsg(MessageType type, char* message) {
          hand->updateMaxPositionsFromSettings();
          break;
 
-      case password:
-         log_i("Processing password authentication");
+      case systemConfig:
+         log_i("Processing write system config message");
          {
-            // Get the configured password from settings
-            const char* storedPassword = settings->getString("s_4", "");
-            
-            // If password is empty, always authenticate
-            if (strlen(storedPassword) == 0) {
-               log_i("No password configured, allowing access");
-               if (btServer != nullptr) {
-                  btServer->setClientAuthenticated(true);
+            // Handle device name updates: format is s_deviceName=NewName
+            char* equalSign = strchr(message, '=');
+            if (equalSign != NULL) {
+               *equalSign = 0;  // terminate key string
+               const char* key = message;
+               const char* value = equalSign + 1;
+               
+               if (strcmp(key, "s_deviceName") == 0) {
+                  // Only update if value is not empty
+                  if (strlen(value) > 0) {
+                     settings->setDeviceName(value);
+                     log_i("Device name updated to: %s", value);
+                     display->setLine(CONNECTED_DISPLAY_LINE, "Restarting BLE...");
+                     
+                     // Restart BLE with the new device name
+                     if (btServer != nullptr) {
+                        btServer->restartBleWithNewName();
+                     }
+                  } else {
+                     log_w("Device name cannot be empty, ignoring update");
+                  }
                }
             } else {
-               // Validate the provided password
-               if (strcmp(message, storedPassword) == 0) {
-                  log_i("Password correct, client authenticated");
-                  if (btServer != nullptr) {
-                     btServer->setClientAuthenticated(true);
-                  }
-                  display->setLine(CONNECTED_DISPLAY_LINE, "Auth: OK");
-               } else {
-                  log_w("Password incorrect");
-                  display->setLine(CONNECTED_DISPLAY_LINE, "Auth: FAIL");
-                  // Do not authenticate
-               }
+               log_i("Invalid system config format, expected key=value");
             }
+         }
+         break;
+
+      case password:
+         log_i("Processing password message");
+         {
+            // Parse JSON payload with pwdCheck, newPwd, and resetPwd fields
+            JsonDocument pwdDoc;
+            DeserializationError error = deserializeJson(pwdDoc, message);
+            
+            if (error) {
+               log_w("Invalid JSON in password payload: %s", error.c_str());
+               if (btServer != nullptr) {
+                  btServer->disableAllCharacteristics();
+               }
+               break;
+            }
+            
+            // Get current stored password
+            String storedPassword = settings->getPassword();
+            
+            // Extract pwdCheck field
+            const char* pwdCheck = pwdDoc["pwdCheck"] | "";
+            
+            // Validate the current password
+            if (strcmp(pwdCheck, storedPassword.c_str()) != 0) {
+               log_w("Password check failed");
+               if (btServer != nullptr) {
+                  btServer->disableAllCharacteristics();
+               }
+               display->setLine(CONNECTED_DISPLAY_LINE, "Auth: FAIL");
+               break;
+            }
+            
+            log_i("Password check passed");
+            
+            // Check if newPwd is provided and set it
+            if (pwdDoc["newPwd"].is<const char*>()) {
+               const char* newPwd = pwdDoc["newPwd"] | "";
+               settings->setPassword(newPwd);
+               log_i("Password updated");
+               display->setLine(CONNECTED_DISPLAY_LINE, "Pwd: Changed");
+            }
+            
+            // Check if resetPwd is true and reset the password
+            if (pwdDoc["resetPwd"] | false) {
+               settings->setPassword("");
+               log_i("Password reset to empty");
+               display->setLine(CONNECTED_DISPLAY_LINE, "Pwd: Reset");
+            }
+            
+            // Authenticate the client
+            if (btServer != nullptr) {
+               btServer->setClientAuthenticated(true);
+            }
+            display->setLine(CONNECTED_DISPLAY_LINE, "Auth: OK");
          }
          break;
 
@@ -80,6 +138,8 @@ void MessageProcessor::processReadMsg(MessageType type, BLECharacteristic *chara
    switch (type) {
    case systemConfig:
       log_i("Processing read systemConfig message");
+      // Ensure device name is always included
+      systemInfo["deviceName"] = settings->getDeviceName().c_str();
       serializeJson(systemInfo, json);
       log_i("System info: %s", json.c_str());
       characteristic->setValue(json.c_str());

@@ -153,8 +153,8 @@ private:
       
       // Check if a password is configured
       if (btServer->messageProcessor != nullptr && btServer->messageProcessor->settings != nullptr) {
-        const char* storedPassword = btServer->messageProcessor->settings->getString("s_4", "");
-        if (strlen(storedPassword) == 0) {
+        String storedPassword = btServer->messageProcessor->settings->getPassword();
+        if (storedPassword.length() == 0) {
           // No password configured, authenticate immediately
           log_i("No password configured, client auto-authenticated on connect");
           btServer->setClientAuthenticated(true);
@@ -184,7 +184,14 @@ BtServer::BtServer(MessageProcessor* _messageProcessor, Display *display) {
   this->display = display;
   gBtServer = this;
   display->setLine(CONNECTED_DISPLAY_LINE, "BT Disconnected");
-  BLEDevice::init("KinetiX");
+  
+  // Load saved device name from settings, default to "KinetiX"
+  String deviceName = "KinetiX";
+  if (messageProcessor != nullptr && messageProcessor->settings != nullptr) {
+    deviceName = messageProcessor->settings->getDeviceName();
+  }
+  
+  BLEDevice::init(deviceName.c_str());
   BLEServer* pServer = BLEDevice::createServer();
   this->pServer = pServer;  // Store server pointer for later use
   pServer->setCallbacks(new MyServerCallback(display, this));
@@ -350,4 +357,111 @@ void BtServer::enableAllCharacteristics() {
 void BtServer::resetAuthenticationState() {
   clientAuthenticated = false;
   authenticationTimestamp = 0;
+}
+
+void BtServer::restartBleWithNewName() {
+  log_i("Restarting BLE with new device name");
+  
+  // Load the new device name
+  String deviceName = "KinetiX";
+  if (messageProcessor != nullptr && messageProcessor->settings != nullptr) {
+    deviceName = messageProcessor->settings->getDeviceName();
+  }
+  
+  log_i("New device name: %s", deviceName.c_str());
+  
+  // Stop advertising and disconnect clients
+  if (pServer != nullptr) {
+    pServer->getAdvertising()->stop();
+  }
+  
+  // Disconnect any connected clients
+  delay(100);
+  
+  // Deinitialize the BLE device
+  BLEDevice::deinit(false);  // false = keep the host alive
+  delay(500);
+  
+  // Reinitialize with new name
+  BLEDevice::init(deviceName.c_str());
+  BLEServer* newServer = BLEDevice::createServer();
+  this->pServer = newServer;
+  newServer->setCallbacks(new MyServerCallback(display, this));
+  
+  BLEService* pService = newServer->createService(SERVICE_UUID);
+  
+  pMovementCharacteristic =
+    pService->createCharacteristic(
+      MOVEMENT_CHARACTERISTIC_UUID,
+      BLECharacteristic::PROPERTY_WRITE
+    );
+
+  pSystemCharacteristic =
+    pService->createCharacteristic(
+      SYSTEM_CHARACTERISTIC_UUID,
+      BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_READ
+    );
+
+  pConfigCharacteristic =
+    pService->createCharacteristic(
+      CONFIG_CHARACTERISTIC_UUID,
+      BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_READ
+    );
+
+  pPositionsCharacteristic =
+    pService->createCharacteristic(
+      POSITIONS_CHARACTERISTIC_UUID,
+      BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_READ
+    );
+
+  BLECharacteristic* pOtaCharacteristic =
+    pService->createCharacteristic(
+      OTA_CHARACTERISTIC_UUID,
+      BLECharacteristic::PROPERTY_WRITE |
+      BLECharacteristic::PROPERTY_READ  |
+      BLECharacteristic::PROPERTY_NOTIFY
+    );
+
+  BLECharacteristic* pPasswordCharacteristic =
+    pService->createCharacteristic(
+      PASSWORD_CHARACTERISTIC_UUID,
+      BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_READ
+    );
+
+  pOtaCharacteristic->addDescriptor(new BLE2902());
+  pService->start();
+
+  BLEAdvertising* pAdvertising = BLEDevice::getAdvertising();
+  pAdvertising->addServiceUUID(SERVICE_UUID);
+  pAdvertising->setScanResponse(true);
+  pAdvertising->setMinPreferred(0x06);
+  pAdvertising->setMinPreferred(0x12);
+
+  BLEDevice::startAdvertising();
+  pServer->getAdvertising()->start();
+
+  pMovementCharacteristic->setCallbacks(
+    new CharacteristicCallBack(movement, messageProcessor, this)
+  );
+  pSystemCharacteristic->setCallbacks(
+    new CharacteristicCallBack(systemConfig, messageProcessor, this)
+  );
+  pConfigCharacteristic->setCallbacks(
+    new CharacteristicCallBack(setting, messageProcessor, this)
+  );
+  pPositionsCharacteristic->setCallbacks(
+    new CharacteristicCallBack(positions, messageProcessor, this)
+  );
+  pOtaCharacteristic->setCallbacks(
+    new CharacteristicCallBack(ota, messageProcessor, this)
+  );
+  pPasswordCharacteristic->setCallbacks(
+    new CharacteristicCallBack(password, messageProcessor, this)
+  );
+
+  gOtaCharForNotify = pOtaCharacteristic;
+  
+  resetAuthenticationState();
+  log_i("BLE restarted with new device name: %s", deviceName.c_str());
+  display->setLine(CONNECTED_DISPLAY_LINE, "BLE restarted");
 }

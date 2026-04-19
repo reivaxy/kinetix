@@ -73,6 +73,9 @@ void setup() {
 
   messageProcessor = new MessageProcessor(hand, settings, display, systemInfo);
 
+  // Add device name to systemInfo
+  systemInfo["deviceName"] = settings->getDeviceName().c_str();
+
   String json;
   serializeJson(systemInfo, json);
   log_i("System info: %s", json.c_str());

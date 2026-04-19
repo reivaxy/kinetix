@@ -35,6 +35,7 @@ public:
    void disableAllCharacteristics();
    void enableAllCharacteristics();
    void resetAuthenticationState();
+   void restartBleWithNewName();
 
 private:
    bool clientAuthenticated = false;
