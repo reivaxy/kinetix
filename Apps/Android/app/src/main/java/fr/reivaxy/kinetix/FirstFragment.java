@@ -12,15 +12,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.snackbar.Snackbar;
+
+import org.json.JSONObject;
+
+import java.nio.charset.StandardCharsets;
 
 import fr.reivaxy.kinetix.databinding.FragmentFirstBinding;
 
@@ -33,15 +41,41 @@ public class FirstFragment extends Fragment {
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
 
     private ColorStateList defaultTintList = null;
+    private AlertDialog mCurrentPasswordDialog;
+
     private final BroadcastReceiver connectionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // Handle the connection failure here
-            Log.i(TAG, "onReceive: " + intent.getAction());
-            if (intent.getAction().equals(BluetoothHandler.ACTION_GATT_CONNECTED)) {
+            if (intent == null) return;
+            String action = intent.getAction();
+            Log.i(TAG, "onReceive: " + action);
+            if (BluetoothHandler.ACTION_GATT_CONNECTED.equals(action)) {
                 showConnected(true);
-            } else {
+            } else if (BluetoothHandler.ACTION_GATT_DISCONNECTED.equals(action)) {
                 showConnected(false);
+                if (mCurrentPasswordDialog != null && mCurrentPasswordDialog.isShowing()) {
+                    mCurrentPasswordDialog.dismiss();
+                }
+            } else if (BluetoothHandler.ACTION_PASSWORD_MESSAGE.equals(action)) {
+                String response = intent.getStringExtra(BluetoothHandler.EXTRA_PASSWORD_MESSAGE).trim().toLowerCase();
+                if ("true".equals(response)) {
+                    if (mCurrentPasswordDialog != null && mCurrentPasswordDialog.isShowing()) {
+                        mCurrentPasswordDialog.dismiss();
+                        Toast.makeText(getContext(), "Authenticated", Toast.LENGTH_SHORT).show();
+                    }
+                } else if ("false".equals(response)) {
+                    // Password required or incorrect
+                    if (mCurrentPasswordDialog == null || !mCurrentPasswordDialog.isShowing()) {
+                        showPasswordAuthDialog();
+                    } else {
+                        // Already showing, so it must be an incorrect attempt
+                        TextView errorText = mCurrentPasswordDialog.findViewById(R.id.passwordError);
+                        if (errorText != null) {
+                            errorText.setText(R.string.password_error);
+                            errorText.setVisibility(View.VISIBLE);
+                        }
+                    }
+                }
             }
         }
     };
@@ -62,10 +96,11 @@ public class FirstFragment extends Fragment {
                 binding.textViewSpeechStatus, binding.textViewSpeechResult);
         handHandler = HandHandler.getInstance(this, vsui);
 
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(connectionReceiver,
-                new IntentFilter(BluetoothHandler.ACTION_GATT_CONNECTED));
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(connectionReceiver,
-                new IntentFilter(BluetoothHandler.ACTION_GATT_DISCONNECTED));
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothHandler.ACTION_GATT_CONNECTED);
+        filter.addAction(BluetoothHandler.ACTION_GATT_DISCONNECTED);
+        filter.addAction(BluetoothHandler.ACTION_PASSWORD_MESSAGE);
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(connectionReceiver, filter);
 
         defaultTintList = binding.buttonOpenPinch.getBackgroundTintList(); // whichever
 
@@ -95,6 +130,52 @@ public class FirstFragment extends Fragment {
 
         // Initialize UI based on connection state, but don't show snackbar at launch
         showConnected(BluetoothHandler.getInstance().isConnected(), false);
+    }
+
+    private void showPasswordAuthDialog() {
+        if (getContext() == null) return;
+        
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_password, null);
+        builder.setView(dialogView);
+
+        TextView titleView = new TextView(getContext());
+        titleView.setPadding(40, 40, 40, 40);
+        titleView.setTextSize(20);
+        titleView.setTextColor(getResources().getColor(android.R.color.black));
+        titleView.setText(R.string.password_required);
+        builder.setCustomTitle(titleView);
+
+        TextView labelCurrentPassword = dialogView.findViewById(R.id.labelCurrentPassword);
+        labelCurrentPassword.setText(R.string.enter_password);
+        
+        EditText txtPassword = dialogView.findViewById(R.id.txtPassword);
+        View newPasswordSection = dialogView.findViewById(R.id.newPasswordSection);
+        newPasswordSection.setVisibility(View.GONE);
+
+        builder.setPositiveButton(R.string.send, null);
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String currentPwd = txtPassword.getText().toString().trim();
+            if (currentPwd.isEmpty()) {
+                return;
+            }
+
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put("pwdCheck", currentPwd);
+                BluetoothHandler.getInstance().writePasswordCharacteristic(payload.toString().getBytes(StandardCharsets.UTF_8));
+            } catch (Exception e) {
+                Log.e(TAG, "Error creating password JSON", e);
+            }
+        });
+
+        mCurrentPasswordDialog = dialog;
     }
 
     /**
@@ -275,14 +356,11 @@ public class FirstFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        BluetoothHandler.getInstance().close();
         binding = null;
         if (handHandler != null) {
             handHandler.stop();
         }
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(connectionReceiver);
-
-
     }
 
 }

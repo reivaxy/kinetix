@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name" translatable="false">Kinetix</string>
+    <string name="app_name" translatable="false">KinetiX</string>
 
     <!--    Menu -->
     <string name="action_settings">Settings app</string>
     <string name="action_settings_kinetix">Settings KinetiX</string>
     <string name="action_about">About</string>
 
-    <string name="first_fragment_label" translatable="false">Kinetix</string>
+    <string name="first_fragment_label" translatable="false">KinetiX</string>
     <string name="close">Close</string>
     <string name="open">Open</string>
     <string name="openPinch">Open Pinch</string>
@@ -51,7 +51,7 @@
     <string name="prefixPositionLabel">Prefix position commands with \"position\"</string>
     <string name="voiceControlDisabled">Voice control is disabled in App settings</string>
 
-    <string name="notConnected">Not connected to Kinetix device</string>
+    <string name="notConnected">Not connected to KinetiX device</string>
     <string name="connectionFailed">Connection failed</string>
     <string name="noMacAddress">Please configure MAC Address in settings</string>
     <string name="preference_file_key" translatable="false">fr.reivaxy.kinetix.PREFERENCE_FILE_KEY</string>
@@ -59,7 +59,7 @@
     <string name="macAddressKey" translatable="false">macAddress</string>
     <string name="voiceControl" translatable="true">Voice Control</string>
     <string name="voiceControlKey" translatable="false">voiceControl</string>
-    <string name="device_list_title">List of Kinetix devices</string>
+    <string name="device_list_title">List of KinetiX devices</string>
     <string name="device_list_pick">Tap the device you want to connect to</string>
 
 
@@ -72,7 +72,7 @@
     <string name="title_activity_tools" translatable="false">ToolsActivity</string>
 
     <!-- App Settings  -->
-    <string name="kinetixDevice">Kinetix device</string>
+    <string name="kinetixDevice">KinetiX device</string>
     <string name="macAddress">MAC Address</string>
     <string name="deviceName">Device name</string>
     <string name="buttonsPosition">Buttons position</string>
@@ -118,6 +118,17 @@
     <string name="string2">String 2</string>
     <string name="string3">String 3</string>
     <string name="string4">String 4</string>
+
+    <!-- Password -->
+    <string name="password_required">Password Required</string>
+    <string name="enter_password">Enter password:</string>
+    <string name="current_password">Current password:</string>
+    <string name="new_password_optional">New password (optional):</string>
+    <string name="reset_password">Reset password to empty string</string>
+    <string name="send">Send</string>
+    <string name="password_error">Incorrect password</string>
+    <string name="password_settings">Password Settings</string>
+    <string name="btn_password">Password</string>
 
 
 </resources>
