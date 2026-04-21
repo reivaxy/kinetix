@@ -5,7 +5,8 @@ Settings::Settings() {
   preferences.begin("settings", false);
   loadPreferences(SETTINGS_NAMESPACE, settingsJsonDoc);
   loadPreferences(POSITIONS_SETTING_NAMESPACE, positionsJsonDoc);
-} 
+  preferences.end();
+}
 
 void Settings::loadPreferences(const char* preferenceName, JsonDocument& jsonDoc) {
   String json = preferences.getString(preferenceName, "{}");
@@ -95,10 +96,12 @@ void Settings::updatePosition(char* message) {
 }
 
 void Settings::savePreferences(const char* preferenceName, JsonDocument& jsonDoc) {
+   preferences.begin("settings", false);
    String json;
    serializeJson(jsonDoc, json);
    preferences.putString(preferenceName, json);
    log_i("%s saved", preferenceName);
+   preferences.end();
 }
 
 int Settings::getInt(const char* key, int defaultValue) {
@@ -140,9 +143,36 @@ int Settings::getPosition(const char* key, int defaultValue) {
     return defaultValue;
 }
 
+String Settings::getPassword() {
+   preferences.begin("settings", false);
+   String pwd = preferences.getString(PASSWORD_NAMESPACE, "");
+   preferences.end();
+   return pwd;
+}
+
+void Settings::setPassword(const char* value) {
+   preferences.begin("settings", false);
+   preferences.putString(PASSWORD_NAMESPACE, value);
+   log_i("Password saved");
+   preferences.end();
+}
+
+String Settings::getDeviceName() {
+   preferences.begin("settings", false);
+   String name = preferences.getString(DEVICE_NAME_NAMESPACE, "KinetiX");
+   preferences.end();
+   return name;
+}
+
+void Settings::setDeviceName(const char* value) {
+   preferences.begin("settings", false);
+   preferences.putString(DEVICE_NAME_NAMESPACE, value);
+   log_i("Device name saved: %s", value);
+   preferences.end();
+}
+
 // close the preferences when done
 Settings::~Settings() {
   savePreferences(SETTINGS_NAMESPACE, settingsJsonDoc);
   savePreferences(POSITIONS_SETTING_NAMESPACE, positionsJsonDoc);
-  preferences.end();
 }

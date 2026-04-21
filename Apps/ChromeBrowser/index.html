@@ -296,6 +296,7 @@
     <div class="row" style="margin-top:10px;">
         <button id="btnCalibration" disabled data-i18n="btn.calibration">Calibration</button>
         <button id="btnPositions" disabled data-i18n="btn.positions">Finger tuning</button>
+        <button id="btnPassword" disabled data-i18n="btn.password">Password</button>
     </div>
 
     <div class="row" style="margin-top:10px;">
@@ -391,6 +392,13 @@
             </div>
         </div>
         <div class="one">
+            <div class="card" style="margin-top:10px;">
+                <div><b data-i18n="dlg.settings.deviceName">Device Name</b></div>
+                <div class="kv" style="margin-top:8px;">
+                    <input id="deviceNameInput" type="text" placeholder="KinetiX" maxlength="50"/>
+                </div>
+                <button id="btnSaveDeviceName" data-i18n="btn.save" style="margin-top:8px;">Save</button>
+            </div>
             <div class="card" style="margin-top:10px;">
                 <div><b data-i18n="dlg.about.license">License</b></div>
                 <div>
@@ -506,14 +514,26 @@
 <!-- Password dialog -->
 <dialog id="dlgPassword">
     <header>
-        <div><b data-i18n="dlg.password.title">Password Required</b></div>
+        <div><b id="dlgPasswordTitle" data-i18n="dlg.password.title">Password Required</b></div>
     </header>
     <div class="content">
         <div class="card" style="margin:0;">
             <div id="passwordError" class="tiny danger" style="min-height:18px; margin-bottom: 10px;"></div>
             <div class="kv">
-                <div data-i18n="dlg.password.label">Enter password:</div>
+                <div id="labelCurrentPassword" data-i18n="dlg.password.label">Enter password:</div>
                 <input id="txtPassword" type="password" data-i18n="dlg.password.placeholder" data-i18n-type="placeholder" placeholder="Enter password…" autofocus/>
+            </div>
+            <!-- New password field (hidden for auth-only mode) -->
+            <div id="newPasswordSection" class="kv" style="display:none; margin-top:12px;">
+                <div data-i18n="dlg.password.new">New password (optional):</div>
+                <input id="txtNewPassword" type="password" data-i18n="dlg.password.new.placeholder" data-i18n-type="placeholder" placeholder="Leave empty to keep current…"/>
+            </div>
+            <!-- Reset password checkbox (hidden for auth-only mode) -->
+            <div id="resetPasswordSection" style="display:none; margin-top:12px;">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <input id="chkResetPassword" type="checkbox"/>
+                    <span data-i18n="dlg.password.reset">Reset password to empty string</span>
+                </label>
             </div>
         </div>
     </div>
@@ -558,10 +578,12 @@
           "btn.about": "About",
           "btn.calibration": "Calibration",
           "btn.positions": "Finger tuning",
+          "btn.password": "Password",
           "btn.close": "Close",
           "btn.send": "Send",
           "btn.start": "Start",
           "btn.cancel": "Cancel",
+          "btn.save": "Save",
           "btn.reload": "Reload from device",
           
           // Device & connection
@@ -595,6 +617,7 @@
           "dlg.settings.booleans": "Booleans",
           "dlg.settings.integers": "Integers",
           "dlg.settings.strings": "Strings",
+          "dlg.settings.deviceName": "Device Name",
           "dlg.settings.note": "Changes are written immediately (debounced).",
           "dlg.settings.reload": "Reload from device",
           
@@ -639,6 +662,9 @@
           "dlg.password.title": "Password Required",
           "dlg.password.label": "Enter password:",
           "dlg.password.placeholder": "Enter password…",
+          "dlg.password.new": "New password (optional):",
+          "dlg.password.new.placeholder": "Leave empty to keep current…",
+          "dlg.password.reset": "Reset password to empty string",
           "dlg.password.error": "Incorrect password",
           
           // Positions dialog
@@ -681,10 +707,12 @@
           "btn.about": "Infos",
           "btn.calibration": "Étalonnage",
           "btn.positions": "Ajustement des doigts",
+          "btn.password": "Mot de passe",
           "btn.close": "Fermer",
           "btn.send": "Envoyer",
           "btn.start": "Démarrer",
           "btn.cancel": "Annuler",
+          "btn.save": "Enregistrer",
           "btn.reload": "Recharger depuis l'appareil",
           
           // Device & connection
@@ -718,6 +746,7 @@
           "dlg.settings.booleans": "Booléens",
           "dlg.settings.integers": "Entiers",
           "dlg.settings.strings": "Chaînes",
+          "dlg.settings.deviceName": "Nom de l'appareil",
           "dlg.settings.note": "Les modifications sont écrites immédiatement.",
           "dlg.settings.reload": "Recharger depuis l'appareil",
           
@@ -762,6 +791,9 @@
           "dlg.password.title": "Mot de passe requis",
           "dlg.password.label": "Entrez le mot de passe :",
           "dlg.password.placeholder": "Entrez le mot de passe…",
+          "dlg.password.new": "Nouveau mot de passe (optionnel) :",
+          "dlg.password.new.placeholder": "Laissez vide pour conserver l'actuel…",
+          "dlg.password.reset": "Réinitialiser le mot de passe à vide",
           "dlg.password.error": "Mot de passe incorrect",
           
           // Positions dialog
@@ -862,6 +894,7 @@
       let noPassword = false;
 
       let connected = false;
+      let passwordDialogMode = "auth"; // "auth" or "settings"
 
       const updateUi = () => {
         $("btnConnect").disabled = connected;
@@ -869,6 +902,7 @@
         $("btnSettings").disabled = !connected || noSettings;
         $("btnPositions").disabled = !connected || noPositions;
         $("btnOta").disabled = !connected || noOTA;
+        $("btnPassword").disabled = !connected || noPassword;
         $("btnAbout").disabled = !connected;
         $("btnCalibration").disabled = !connected;
         $("btnSendCustom").disabled = !connected;
@@ -1004,18 +1038,39 @@
           const response = utf8dec.decode(result.buffer).trim().toLowerCase();
           console.log("[PASSWORD CHECK ON CONNECTION]", response);
           
+          // Also try to load device name and set title
+          try {
+            await loadDeviceNameAndSetTitle();
+          } catch (e) {
+            console.warn("Could not load device name on connection:", e);
+          }
+          
           // Only show dialog if not already authenticated
           if (response !== "true") {
-            $("txtPassword").value = "";
-            $("passwordError").textContent = "";
-            $("dlgPassword").showModal();
+            openPasswordDialog("auth");
           }
         } catch (e) {
           // If read fails, show the password dialog to be safe
           console.error("Error reading password characteristic:", e);
-          $("txtPassword").value = "";
-          $("passwordError").textContent = "";
-          $("dlgPassword").showModal();
+          openPasswordDialog("auth");
+        }
+      }
+
+      async function loadDeviceNameAndSetTitle() {
+        if (!connected || !aboutChar) {
+          return;
+        }
+        try {
+          const v = await aboutChar.readValue();
+          const text = utf8dec.decode(v.buffer).trim();
+          if (text.charAt(0) === "{") {
+            const obj = JSON.parse(text);
+            if (obj.deviceName) {
+              document.title = obj.deviceName;
+            }
+          }
+        } catch (e) {
+          console.warn("Could not read device name:", e);
         }
       }
 
@@ -1120,7 +1175,7 @@
           const k = document.createElement("div");
           k.textContent = key;
           const inp = document.createElement("input");
-          inp.type = (i == 4)? "password":"text";
+          inp.type = "text";
           inp.placeholder = "";
           inp.id = `set_${key}`;
           inp.addEventListener("input", () => {
@@ -1197,6 +1252,7 @@
             const el = $(`set_s_${i}`);
             if (el && (`s_${i}` in obj)) el.value = String(obj[`s_${i}`] ?? "").slice(0, 20);
           }
+          
           setStatus(t('status.loaded', {type: 'settings'}), "ok");
         } catch (e) {
           console.error(e);
@@ -1224,6 +1280,12 @@
             if (Array.isArray(obj.options)) {
               const opts = obj.options.filter(o => !!o).join(", ");
               $("aboutOptions").textContent = opts || "None";
+            }
+            // Load device name from system info
+            if (obj.deviceName) {
+              $("deviceNameInput").value = obj.deviceName;
+              // Also set the page title
+              document.title = obj.deviceName;
             }
           } else {
             // legacy: plain text version
@@ -1555,14 +1617,37 @@
 
       // ====== Wire up UI ======
       const sendPassword = async () => {
-        const pw = ($("txtPassword").value || "").trim();
-        if (!pw) {
+        const currentPwd = ($("txtPassword").value || "").trim();
+        
+        // In auth mode, current password is required
+        if (passwordDialogMode === "auth" && !currentPwd) {
           setStatus(t('status.nothing'), "danger");
           return;
         }
+        
         try {
+          let payload;
+          
+          if (passwordDialogMode === "auth") {
+            // Authentication mode: send JSON with pwdCheck field
+            payload = {
+              pwdCheck: currentPwd
+            };
+          } else {
+            // Settings mode: send JSON with all fields
+            const newPwd = ($("txtNewPassword").value || "").trim();
+            const resetPwd = $("chkResetPassword").checked;
+            
+            payload = {
+              pwdCheck: currentPwd,
+              newPwd: newPwd,
+              resetPwd: resetPwd
+            };
+          }
+          
+          const jsonPayload = JSON.stringify(payload);
           setStatus(t('status.sending', {msg: 'password'}));
-          await writeText(passwordChar, pw, {withResponse: true, newline: false});
+          await writeText(passwordChar, jsonPayload, {withResponse: true, newline: false});
           
           // Read the password characteristic to verify
           const result = await passwordChar.readValue();
@@ -1572,10 +1657,12 @@
           if (response === "true") {
             setStatus(t('status.sent', {msg: 'password'}), "ok");
             $("txtPassword").value = "";
+            $("txtNewPassword").value = "";
+            $("chkResetPassword").checked = false;
             $("passwordError").textContent = "";
             $("dlgPassword").close();
           } else {
-            // Password incorrect
+            // Authentication failed
             $("passwordError").textContent = t('dlg.password.error');
             $("txtPassword").value = "";
             $("txtPassword").focus();
@@ -1586,6 +1673,51 @@
           setStatus(t('status.error', {msg: e.message || e}), "danger");
         }
       };
+      
+      const openPasswordDialog = (mode = "auth") => {
+        passwordDialogMode = mode;
+        $("txtPassword").value = "";
+        $("txtNewPassword").value = "";
+        $("chkResetPassword").checked = false;
+        $("passwordError").textContent = "";
+        
+        if (mode === "auth") {
+          $("dlgPasswordTitle").textContent = "Password Required";
+          $("labelCurrentPassword").textContent = "Enter password:";
+          $("newPasswordSection").style.display = "none";
+          $("resetPasswordSection").style.display = "none";
+          $("txtPassword").autofocus = true;
+        } else {
+          $("dlgPasswordTitle").textContent = "Password Settings";
+          $("labelCurrentPassword").textContent = "Current password:";
+          $("newPasswordSection").style.display = "block";
+          $("resetPasswordSection").style.display = "block";
+          $("txtPassword").autofocus = true;
+        }
+        
+        $("dlgPassword").showModal();
+      };
+
+      async function saveDeviceName() {
+        const newName = ($("deviceNameInput").value || "").trim();
+        if (!newName) {
+          setStatus(t('status.error', {msg: "Device name cannot be empty"}), "danger");
+          return;
+        }
+        if (!connected) {
+          setStatus(t('status.notConnected'), "danger");
+          return;
+        }
+        try {
+          const payload = `s_deviceName=${newName}`;
+          setStatus(t('status.sending', {msg: payload}));
+          await writeText(aboutChar, payload, {withResponse: true, newline: false});
+          setStatus(t('status.loaded', {type: 'device name'}), "ok");
+        } catch (e) {
+          console.error(e);
+          setStatus(t('status.error', {msg: e.message || e}), "danger");
+        }
+      }
 
       detectLanguage();
       buildQuickButtons();
@@ -1638,6 +1770,7 @@
 
       $("btnSendPassword").addEventListener("click", sendPassword);
       $("btnClosePassword").addEventListener("click", () => $("dlgPassword").close());
+      $("btnPassword").addEventListener("click", () => openPasswordDialog("settings"));
 
       $("txtPassword").addEventListener("keypress", async (e) => {
         if (e.key === "Enter") {
@@ -1689,6 +1822,7 @@
       });
 
       $("btnReloadSettings").addEventListener("click", reloadSettingsFromDevice);
+      $("btnSaveDeviceName").addEventListener("click", saveDeviceName);
       $("btnCloseSettings").addEventListener("click", () => $("dlgSettings").close());
       $("btnCloseSettings2").addEventListener("click", () => $("dlgSettings").close());
       $("btnCloseAbout").addEventListener("click", () => $("dlgAbout").close());

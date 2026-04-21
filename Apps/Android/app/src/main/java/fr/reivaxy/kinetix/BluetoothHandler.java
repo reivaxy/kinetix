@@ -44,11 +44,18 @@ public class BluetoothHandler  {
     public static final String ACTION_ABOUT_MESSAGE =
             "fr.reivaxy.kinetix.ACTION_ABOUT_MESSAGE";
     public static final String EXTRA_ABOUT_MESSAGE = "fr.reivaxy.kinetix.EXTRA_ABOUT_MESSAGE";
+
+    // Broadcasted when the PASSWORD characteristic is read.
+    public static final String ACTION_PASSWORD_MESSAGE =
+            "fr.reivaxy.kinetix.ACTION_PASSWORD_MESSAGE";
+    public static final String EXTRA_PASSWORD_MESSAGE = "fr.reivaxy.kinetix.EXTRA_PASSWORD_MESSAGE";
+
     public static final String SERVICE_UUID = "89d60870-9908-4472-8f8c-e5b3e6573cd1";
     public static final String MOVEMENT_CHARACTERISTIC_UUID = "39dea685-a63e-44b2-8819-9a202581f8fe";
     public static final String ABOUT_CHARACTERISTIC_UUID = "b2a49d41-a2ac-48c3-b6c8-cfd05640654e";
     public static final String SETTINGS_CHARACTERISTIC_UUID = "68b788da-819b-4feb-b478-8d237ef29f5f";
     public static final String OTA_CHARACTERISTIC_UUID = "3168e56f-6ea1-420d-98f8-08a3b34afc9b";
+    public static final String PASSWORD_CHARACTERISTIC_UUID = "7c4a2e1f-5b9a-4d8e-9c3b-2f8a1e5c6d7a";
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothGatt mBluetoothGatt;
     private String mBluetoothDeviceAddress;
@@ -60,6 +67,9 @@ public class BluetoothHandler  {
     private BluetoothGattCharacteristic settingsCharacteristic;
     private BluetoothGattCharacteristic movementWriteCharacteristic;
     private BluetoothGattCharacteristic aboutCharacteristic;
+    private BluetoothGattCharacteristic passwordCharacteristic;
+
+    private boolean mDeviceHasPassword = false;
 
     // Cache last about payload so activities opened after the initial read can still initialize.
     @Nullable
@@ -80,6 +90,12 @@ public class BluetoothHandler  {
     private void broadcastSettingsMessage(final String msg) {
         final Intent intent = new Intent(ACTION_SETTINGS_MESSAGE);
         intent.putExtra(EXTRA_SETTINGS_MESSAGE, msg);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    }
+
+    private void broadcastPasswordMessage(final String msg) {
+        final Intent intent = new Intent(ACTION_PASSWORD_MESSAGE);
+        intent.putExtra(EXTRA_PASSWORD_MESSAGE, msg);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
@@ -108,10 +124,9 @@ public class BluetoothHandler  {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.i(TAG, "Connected to GATT server.");
                 mConnectionState = STATE_CONNECTED;
+                mDeviceHasPassword = false; // Reset for new connection
                 broadcastUpdate(ACTION_GATT_CONNECTED);
-                // Do NOT call discoverServices() yet; wait for onMtuChanged()
-//                Log.i(TAG, "Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
-                // Request a larger MTU (247 is widely supported; 517 is max but less reliable)
+                // Request a larger MTU
                 boolean started = mBluetoothGatt.requestMtu(247);
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
@@ -146,34 +161,38 @@ public class BluetoothHandler  {
                     enableNotifications(mOtaCharacteristic); // <-- do this FIRST
                 } else {
                     Log.w(TAG, "OTA characteristic not found, probably old firmware");
-                    // todo: warn user to update firmware.
                 }
 
                 movementWriteCharacteristic =
                         mCustomService.getCharacteristic(UUID.fromString(MOVEMENT_CHARACTERISTIC_UUID));
                 if (movementWriteCharacteristic == null) {
-                    Log.w(TAG, "no 'movement' (settings) characteristic, App is useless");
+                    Log.w(TAG, "no 'movement' characteristic");
                 }
 
                 aboutCharacteristic =
                         mCustomService.getCharacteristic(UUID.fromString(ABOUT_CHARACTERISTIC_UUID));
                 if (aboutCharacteristic == null) {
-                    Log.w(TAG, "no 'about' characteristic, probably old firmware");
-                    // Todo display warning to update firmware
+                    Log.w(TAG, "no 'about' characteristic");
                 }
 
                 settingsCharacteristic =
                         mCustomService.getCharacteristic(UUID.fromString(SETTINGS_CHARACTERISTIC_UUID));
                 if (settingsCharacteristic == null) {
-                    Log.w(TAG, "no 'settings' characteristic, probably old firmware");
-                    // Todo display warning to update firmware
+                    Log.w(TAG, "no 'settings' characteristic");
                 }
-                // Defer reading about until CCCD write completes in onDescriptorWrite()
+
+                passwordCharacteristic =
+                        mCustomService.getCharacteristic(UUID.fromString(PASSWORD_CHARACTERISTIC_UUID));
+                if (passwordCharacteristic == null) {
+                    Log.w(TAG, "no 'password' characteristic");
+                }
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
         }
 
+        @SuppressLint("MissingPermission")
+        @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             Log.i(TAG, "onDescriptorWrite status=" + status + " uuid=" + descriptor.getUuid());
 
@@ -184,22 +203,24 @@ public class BluetoothHandler  {
 
             // Now it's safe to start the next GATT operation
             if (mCustomService != null) {
-                // System is "about"
-                if (settingsCharacteristic != null) {
-                    boolean started = mBluetoothGatt.readCharacteristic(settingsCharacteristic);
+                if (aboutCharacteristic != null) {
+                    boolean started = mBluetoothGatt.readCharacteristic(aboutCharacteristic);
                     Log.i(TAG, "readCharacteristic(about) started=" + started);
+                } else if (passwordCharacteristic != null) {
+                    boolean started = mBluetoothGatt.readCharacteristic(passwordCharacteristic);
+                    Log.i(TAG, "readCharacteristic(password) started=" + started);
                 }
             }
         }
 
+        @SuppressLint("MissingPermission")
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-//                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-                if (characteristic.getUuid().toString().equals(ABOUT_CHARACTERISTIC_UUID)) {
-                    // We broadcast the full payload so UI screens can initialize.
+                UUID charUuid = characteristic.getUuid();
+                if (charUuid.equals(UUID.fromString(ABOUT_CHARACTERISTIC_UUID))) {
                     byte[] raw = characteristic.getValue();
                     String msg = raw == null ? null : new String(raw, StandardCharsets.UTF_8);
                     Log.i(TAG, "Got config payload: " + msg);
@@ -208,23 +229,61 @@ public class BluetoothHandler  {
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString(context.getString(R.string.saved_version_key), msg);
                     editor.apply();
-                }
-
-                if (characteristic.getUuid().toString().equals(ABOUT_CHARACTERISTIC_UUID)) {
-                    byte[] raw = characteristic.getValue();
-                    String msg = raw == null ? null : new String(raw, StandardCharsets.UTF_8);
 
                     if (msg != null) {
                         mLastAboutPayload = msg;
                         broadcastAboutMessage(msg);
                     }
+
+                    // Chain to read password status
+                    if (passwordCharacteristic != null) {
+                        mBluetoothGatt.readCharacteristic(passwordCharacteristic);
+                    }
+                } else if (charUuid.equals(UUID.fromString(PASSWORD_CHARACTERISTIC_UUID))) {
+                    byte[] raw = characteristic.getValue();
+                    String msg = raw == null ? null : new String(raw, StandardCharsets.UTF_8);
+                    Log.i(TAG, "Got password response: " + msg);
+                    if (msg != null) {
+                        String response = msg.trim().toLowerCase();
+                        if ("false".equals(response)) {
+                            mDeviceHasPassword = true;
+                        }
+                        broadcastPasswordMessage(msg);
+                    }
+                } else if (charUuid.equals(UUID.fromString(SETTINGS_CHARACTERISTIC_UUID))) {
+                    byte[] raw = characteristic.getValue();
+                    String msg = raw == null ? null : new String(raw, StandardCharsets.UTF_8);
+                    if (msg != null) {
+                        broadcastSettingsMessage(msg);
+                    }
                 }
             }
         }
+        
+        @SuppressLint("MissingPermission")
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            UUID charUuid = characteristic.getUuid();
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                if (charUuid.equals(UUID.fromString(PASSWORD_CHARACTERISTIC_UUID))) {
+                    Log.i(TAG, "Password written successfully, reading back status");
+                    mBluetoothGatt.readCharacteristic(characteristic);
+                } else if (charUuid.equals(UUID.fromString(ABOUT_CHARACTERISTIC_UUID))) {
+                    Log.i(TAG, "About (device name) written successfully, reading back");
+                    mBluetoothGatt.readCharacteristic(characteristic);
+                }
+            } else {
+                Log.w(TAG, "Characteristic write failed: " + status + " for " + charUuid);
+                if (charUuid.equals(UUID.fromString(PASSWORD_CHARACTERISTIC_UUID))) {
+                    broadcastPasswordMessage("false"); // Signal failure to re-enable UI
+                }
+            }
+        }
+
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
-            if (characteristic.getUuid().toString().equals(OTA_CHARACTERISTIC_UUID)) {
+            if (characteristic.getUuid().equals(UUID.fromString(OTA_CHARACTERISTIC_UUID))) {
                 String msg = characteristic.getStringValue(0);
                 if (msg != null) {
                     Log.i(TAG, "OTA notify: " + msg);
@@ -234,13 +293,17 @@ public class BluetoothHandler  {
         }
     };
 
-    /**
-     * Returns the last CONFIG characteristic payload received from the device (if any).
-     * Useful for initializing UI screens that may open after the initial read broadcast.
-     */
     @Nullable
     public String getLastAboutPayload() {
         return mLastAboutPayload;
+    }
+
+    public boolean deviceHasPassword() {
+        return mDeviceHasPassword;
+    }
+
+    public void setDeviceHasPassword(boolean hasPassword) {
+        this.mDeviceHasPassword = hasPassword;
     }
 
     @SuppressLint("MissingPermission")
@@ -253,202 +316,87 @@ public class BluetoothHandler  {
             return;
         }
 
-        // Write CCCD (0x2902)
         UUID cccdUuid = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-
-        BluetoothGattDescriptor cccd = null;
-        for (BluetoothGattDescriptor d : characteristic.getDescriptors()) {
-            Log.i(TAG, "uid: " + d.getUuid());
-            if (cccdUuid.equals(d.getUuid())) {
-                cccd = d;
-                break;
-            }
-        }
-
+        BluetoothGattDescriptor cccd = characteristic.getDescriptor(cccdUuid);
         if (cccd == null) {
-            Log.w(TAG, "CCCD descriptor not found. descriptors=" + characteristic.getDescriptors().size());
+            Log.w(TAG, "CCCD descriptor not found");
             return;
         }
 
         cccd.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-        boolean started = mBluetoothGatt.writeDescriptor(cccd);
-        Log.i(TAG, "writeDescriptor(CCCD) started=" + started);
-        if (!started) {
-            Log.w(TAG, "writeDescriptor(CCCD) failed");
-        }
+        mBluetoothGatt.writeDescriptor(cccd);
     }
 
-    public void writeCustomCharacteristic(byte[] value) {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
-            return;
-        }
-
-        if (mCustomService == null) {
-            Log.w(TAG, "Custom BLE Service not found");
-            return;
-        }
-        /*get the movement write characteristic from the service*/
-        Log.i(TAG, String.format("Sending movement '%s'", new String(value)));
-        movementWriteCharacteristic.setValue(value);
-        if (!mBluetoothGatt.writeCharacteristic(movementWriteCharacteristic)) {
-            Log.w(TAG, "Failed to write characteristic");
-        }
-    }
-
-    /**
-     * Writes to the CONFIG characteristic of the custom service.
-     * Payload is expected to be UTF-8 text, e.g. "field=value".
-     */
     @SuppressLint("MissingPermission")
-    public void writeConfigCharacteristic(byte[] value) {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
-            return;
-        }
-
-        if (mCustomService == null) {
-            Log.w(TAG, "Custom BLE Service not found");
-            return;
-        }
-
-        if (aboutCharacteristic == null) {
-            Log.w(TAG, "Config characteristic not found");
-            return;
-        }
-
-        Log.i(TAG, String.format("Sending config '%s'", new String(value)));
-        aboutCharacteristic.setValue(value);
-        if (!mBluetoothGatt.writeCharacteristic(aboutCharacteristic)) {
-            Log.w(TAG, "Failed to write config characteristic");
-        }
+    public boolean writeCustomCharacteristic(byte[] value) {
+        if (mBluetoothGatt == null || movementWriteCharacteristic == null) return false;
+        movementWriteCharacteristic.setValue(value);
+        return mBluetoothGatt.writeCharacteristic(movementWriteCharacteristic);
     }
 
-    /**
-     * Requests a read of the CONFIG characteristic. The result will be broadcast via
-     * {@link #ACTION_ABOUT_MESSAGE} with {@link #EXTRA_SETTINGS_MESSAGE}.
-     */
+    @SuppressLint("MissingPermission")
+    public boolean writeConfigCharacteristic(byte[] value) {
+        if (mBluetoothGatt == null || aboutCharacteristic == null) return false;
+        aboutCharacteristic.setValue(value);
+        return mBluetoothGatt.writeCharacteristic(aboutCharacteristic);
+    }
+
     @SuppressLint("MissingPermission")
     public boolean readSettingsCharacteristic() {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
-            return false;
-        }
-        if (mCustomService == null) {
-            Log.w(TAG, "Custom BLE Service not found");
-            return false;
-        }
-
-        if (aboutCharacteristic == null) {
-            Log.w(TAG, "Config characteristic not found");
-            return false;
-        }
-        boolean started = mBluetoothGatt.readCharacteristic(aboutCharacteristic);
-        Log.i(TAG, "readCharacteristic(config) started=" + started);
-        return started;
+        if (mBluetoothGatt == null || settingsCharacteristic == null) return false;
+        return mBluetoothGatt.readCharacteristic(settingsCharacteristic);
     }
 
-    /**
-     * Requests a read of the SYSTEM characteristic. The result will be broadcast via
-     * {@link #ACTION_SETTINGS_MESSAGE} with {@link #EXTRA_SETTINGS_MESSAGE}.
-     */
     @SuppressLint("MissingPermission")
     public boolean readAboutCharacteristic() {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
-            return false;
-        }
-        if (mCustomService == null) {
-            Log.w(TAG, "Custom BLE Service not found");
-            return false;
-        }
-
-        if (aboutCharacteristic == null) {
-            Log.w(TAG, "System (about) characteristic not found");
-            return false;
-        }
-        boolean started = mBluetoothGatt.readCharacteristic(aboutCharacteristic);
-        Log.i(TAG, "readCharacteristic(system) started=" + started);
-        return started;
+        if (mBluetoothGatt == null || aboutCharacteristic == null) return false;
+        return mBluetoothGatt.readCharacteristic(aboutCharacteristic);
     }
 
-    /**
-     * Sends a command to the OTA characteristic (e.g. "OTA_START", "OTA_STOP").
-     */
     @SuppressLint("MissingPermission")
     public void writeOtaCharacteristic(byte[] value) {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
-            return;
-        }
-        if (mCustomService == null) {
-            Log.w(TAG, "Custom BLE Service not found");
-            return;
-        }
-        if (mOtaCharacteristic == null) {
-            mOtaCharacteristic = mCustomService.getCharacteristic(UUID.fromString(OTA_CHARACTERISTIC_UUID));
-        }
-        if (mOtaCharacteristic == null) {
-            Log.w(TAG, "OTA characteristic not found");
-            return;
-        }
-
-        Log.i(TAG, String.format("Sending OTA cmd '%s'", new String(value)));
+        if (mBluetoothGatt == null || mOtaCharacteristic == null) return;
         mOtaCharacteristic.setValue(value);
-        if (!mBluetoothGatt.writeCharacteristic(mOtaCharacteristic)) {
-            Log.w(TAG, "Failed to write OTA characteristic");
-        }
+        mBluetoothGatt.writeCharacteristic(mOtaCharacteristic);
     }
 
-    /**
-     * Connects to the GATT server hosted on the Bluetooth LE device.
-     *
-     * @param address The device address of the destination device.
-     * @return Return true if the connection is initiated successfully. The connection result
-     * is reported asynchronously through the
-     * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
-     * callback.
-     */
+    @SuppressLint("MissingPermission")
+    public boolean readPasswordCharacteristic() {
+        if (mBluetoothGatt == null || passwordCharacteristic == null) return false;
+        return mBluetoothGatt.readCharacteristic(passwordCharacteristic);
+    }
+
+    @SuppressLint("MissingPermission")
+    public boolean writePasswordCharacteristic(byte[] value) {
+        if (mBluetoothGatt == null || passwordCharacteristic == null) {
+            Log.w(TAG, "writePasswordCharacteristic: GATT or characteristic null");
+            return false;
+        }
+        Log.i(TAG, "writePasswordCharacteristic: initiating write");
+        passwordCharacteristic.setValue(value);
+        passwordCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+        boolean success = mBluetoothGatt.writeCharacteristic(passwordCharacteristic);
+        if (!success) {
+            Log.w(TAG, "writePasswordCharacteristic: mBluetoothGatt.writeCharacteristic returned false");
+        }
+        return success;
+    }
+
     public boolean connect(Context context, final String address) {
         this.context = context;
         close();
-        if (mBluetoothAdapter == null || address == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
-            return false;
-        }
-        // Previously connected device.  Try to reconnect.
-        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
-                && mBluetoothGatt != null) {
-            Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
-            if (mBluetoothGatt.connect()) {
-                mConnectionState = STATE_CONNECTING;
-                return true;
-            } else {
-                return false;
-            }
-        }
+        if (mBluetoothAdapter == null || address == null) return false;
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-        if (device == null) {
-            Log.w(TAG, "Device not found.  Unable to connect.");
-            return false;
-        }
-        // We want to directly connect to the device, so we are setting the autoConnect
-        // parameter to false.
-
+        if (device == null) return false;
         mBluetoothGatt = device.connectGatt(context, false, mGattCallback);
-        Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
         mConnectionState = STATE_CONNECTING;
-
         return true;
-
     }
 
     @SuppressLint("MissingPermission")
     public void close() {
-        if (mBluetoothGatt == null) {
-            return;
-        }
+        if (mBluetoothGatt == null) return;
         mBluetoothGatt.disconnect();
         mBluetoothGatt.close();
         mBluetoothGatt = null;

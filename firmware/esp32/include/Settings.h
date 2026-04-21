@@ -6,6 +6,8 @@
 
 // Preferences keys mut be less than 15 characters
 #define SETTINGS_NAMESPACE "settingsJson"
+#define PASSWORD_NAMESPACE "pwd"
+#define DEVICE_NAME_NAMESPACE "deviceName"
 #ifdef LEFT_HAND
    #define POSITIONS_SETTING_NAMESPACE "leftPositions"
 #else
@@ -28,6 +30,10 @@ public:
   int getPosition(const char* key, int defaultValue);
   String getSettingJson();
   String getPositionsJson();
+  String getPassword();
+  void setPassword(const char* value);
+  String getDeviceName();
+  void setDeviceName(const char* value);
 
   void updateSetting(char* message);
   void updatePosition(char* message);

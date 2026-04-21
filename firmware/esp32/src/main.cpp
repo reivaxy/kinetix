@@ -73,11 +73,17 @@ void setup() {
 
   messageProcessor = new MessageProcessor(hand, settings, display, systemInfo);
 
+  // Add device name to systemInfo
+  systemInfo["deviceName"] = settings->getDeviceName().c_str();
+
   String json;
   serializeJson(systemInfo, json);
   log_i("System info: %s", json.c_str());
 
   btServer = new BtServer(messageProcessor, display);
+  
+  // Pass BtServer to MessageProcessor for authentication control
+  messageProcessor->setBtServer(btServer);
 
   #ifdef DEMO
   seq = messageProcessor->demo();
@@ -95,6 +101,11 @@ void setup() {
  
 void loop() {
   messageProcessor->run();
+  
+  // Check password authentication timeout
+  if (btServer != nullptr) {
+    btServer->checkPasswordTimeout();
+  }
 
   if ((seq == NULL || !seq->isRunning())
         && messageProcessor->isIdle()) {

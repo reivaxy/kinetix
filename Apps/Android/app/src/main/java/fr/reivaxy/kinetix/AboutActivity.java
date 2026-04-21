@@ -14,21 +14,26 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
+
 public class AboutActivity extends AppCompatActivity {
     private final static String TAG = AboutActivity.class.getSimpleName();
+    private EditText deviceNameInput;
+    private Button btnSaveDeviceName;
 
 
     @Override
@@ -39,6 +44,13 @@ public class AboutActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        deviceNameInput = findViewById(R.id.deviceNameInput);
+        btnSaveDeviceName = findViewById(R.id.btnSaveDeviceName);
+
+        if (btnSaveDeviceName != null) {
+            btnSaveDeviceName.setOnClickListener(v -> saveDeviceName());
         }
 
         PackageManager packageManager = getPackageManager();
@@ -80,6 +92,31 @@ public class AboutActivity extends AppCompatActivity {
         }
     }
 
+    private void saveDeviceName() {
+        if (deviceNameInput == null) return;
+        String newName = deviceNameInput.getText().toString().trim();
+        if (newName.isEmpty()) {
+            deviceNameInput.setError(getString(R.string.error_ssid_required)); // Reuse a required field string or use toast
+            Toast.makeText(this, "Device name cannot be empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!BluetoothHandler.getInstance().isConnected()) {
+            Toast.makeText(this, R.string.notConnected, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            String payload = "s_deviceName=" + newName;
+            Log.d(TAG, "Saving device name: " + payload);
+            BluetoothHandler.getInstance().writeConfigCharacteristic(payload.getBytes(StandardCharsets.UTF_8));
+            Toast.makeText(this, "Device name updated", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error saving device name", e);
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void setAboutVersion(String payload) {
         String version = "N/A";
         String options = "N/A";
@@ -87,24 +124,30 @@ public class AboutActivity extends AppCompatActivity {
         TextView optionsTextView = findViewById(R.id.aboutFirmwareOptions);
 
         try {
-            if (payload.startsWith("{")) {
+            if (payload != null && payload.startsWith("{")) {
                 JSONObject json = new JSONObject(payload);
                 String versionStr = json.optString("git_rev");
-                if (versionStr != null) {
+                if (versionStr != null && !versionStr.isEmpty()) {
                     version = versionStr;
                 }
-                JSONArray optionsArray = json.getJSONArray("options");
-                String optionsStr = "";
+                JSONArray optionsArray = json.optJSONArray("options");
                 if (optionsArray != null) {
-                    for (int i = 0 ; i < options.length(); i++) {
+                    StringBuilder optionsStr = new StringBuilder();
+                    for (int i = 0 ; i < optionsArray.length(); i++) {
                         if (i != 0) {
-                            optionsStr += ", ";
+                            optionsStr.append(", ");
                         }
-                        optionsStr += optionsArray.getString(i);
+                        optionsStr.append(optionsArray.getString(i));
                     }
-                    options = optionsStr;
+                    options = optionsStr.toString();
                 }
-            } else {
+
+                // Initialize device name input
+                String deviceName = json.optString("deviceName");
+                if (deviceNameInput != null && !deviceName.isEmpty()) {
+                    deviceNameInput.setText(deviceName);
+                }
+            } else if (payload != null) {
                 version = payload;
             }
         } catch(Exception e) {
@@ -125,6 +168,12 @@ public class AboutActivity extends AppCompatActivity {
         // Trigger a read so the screen initializes (or refreshes) with the device's current config.
         BluetoothHandler.getInstance().readAboutCharacteristic();
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(aboutReceiver);
     }
 
     private final BroadcastReceiver aboutReceiver = new BroadcastReceiver() {

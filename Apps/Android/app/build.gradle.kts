@@ -13,7 +13,7 @@ android {
         minSdk = 23
         targetSdk = 34
         versionCode = 4
-        versionName = "0.3-OTA"
+        versionName = "0.4-PWD"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
