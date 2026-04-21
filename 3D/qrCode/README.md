@@ -1,4 +1,4 @@
-A small QD code stand you can use if you present a KinetiX hand at a maker fair or conference or whatever.
+A small QR code stand you can use if you present a KinetiX hand at a maker fair or conference or whatever.
 
 <img width="512px" height="1075" alt="image" src="https://github.com/user-attachments/assets/789fa6ed-ea9d-4655-a482-9ad564de9013" />
 
