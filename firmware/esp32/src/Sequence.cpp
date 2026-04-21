@@ -33,7 +33,9 @@ void Sequence::addMovement(HandMovement *movement, uint32_t duration) {
 }
 
 void Sequence::start(uint8_t start) {
-   log_i("Starting sequence of %d movements", movementCount);
+   if (movementCount != NULL) {
+      log_i("Starting sequence of %d movements", movementCount);
+   }
    current = start;
    if (movements[current] != NULL) {
       running = true;
