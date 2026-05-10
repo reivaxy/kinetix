@@ -2,8 +2,9 @@
 #include <unity.h>
 #include "FingerMovement.h"
 
-// Provide the definition required by the Arduino.h mock
+// Provide the definitions required by the Arduino.h mock
 uint32_t mock_millis_value = 0;
+int mock_analog_read_value = 0;
 
 void setUp()    {}
 void tearDown() {}

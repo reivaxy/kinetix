@@ -33,8 +33,11 @@ typedef unsigned int uint;
 extern uint32_t mock_millis_value;
 inline uint32_t millis()          { return mock_millis_value; }
 
+// Controllable analogRead for tests
+extern int mock_analog_read_value;
+
 // Analog / digital I/O stubs
-inline int     analogRead(int /*pin*/)             { return 0; }
+inline int     analogRead(int /*pin*/)             { return mock_analog_read_value; }
 inline void    analogWrite(int /*pin*/, int /*v*/)  {}
 inline int     digitalRead(int /*pin*/)            { return 0; }
 inline void    digitalWrite(int /*pin*/, int /*v*/){}
