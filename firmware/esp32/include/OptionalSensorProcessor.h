@@ -9,9 +9,9 @@
 
 class SensorProcessor {
 public:
-   virtual void run();
-   virtual uint16_t getAvg();
-   
+   virtual void run() = 0;
+   virtual uint16_t getAvg() = 0;
+   virtual ~SensorProcessor() = default;
 };
 
 class RealSensorProcessor : public SensorProcessor {
