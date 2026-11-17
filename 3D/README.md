@@ -16,5 +16,6 @@ The "common" folder contains parts that fit both right side hands and left side 
 
 The "left" folder contains parts for a left side hand, and the "right" folder... well you know.
 
+You can find zip files containing all the 3D parts here: https://github.com/reivaxy/kinetix/releases/tag/v0.13
 
 ![leftAndRight](https://github.com/reivaxy/kinetix/assets/3592991/bedf8fab-a65b-4d4c-b897-fb9205b9219b)
